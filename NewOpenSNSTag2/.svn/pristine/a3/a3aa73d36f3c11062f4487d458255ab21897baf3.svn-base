@@ -1,0 +1,179 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionStoreChildModel extends Model
+{
+
+    public function serviceDetailList($map, $order = 'create_time desc', $field){
+
+        $list = M('WechatInspectionStoreChild')
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+
+
+    public function serviceOneDetailList($map, $order = 'create_time desc', $field){
+        $list = M('WechatInspectionStoreChild')
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->find();
+        return $list;
+    }
+
+
+
+    /**
+     * 获取单条数据
+     * @param $map
+     * @param string $order
+     * @param $field
+     * @return mixed
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getDataInfo($map, $field='*'){
+
+        $data = $this
+            ->where($map)
+            ->field($field)
+            ->find();
+
+        return $data;
+
+    }
+
+
+    /**
+     * 获取巡检子订单页面使用
+     * @param $map
+     * @param $field
+     * @param string $order
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderDetail($map, $field){
+        //门店表 jpgk_wechat_ka_stores
+        //服务商表 jpgk_wechat_facilitator
+        //巡检主管 jpgk_wechat_member
+        //巡检员 jpgk_wechat_member
+
+        $info = $this->alias("wisc")
+            ->join("jpgk_wechat_ka_stores as wks on wisc.store_id = wks.id")
+            ->join("jpgk_wechat_facilitator as wf on wisc.facilitator_id = wf.id")
+            ->join("left join jpgk_wechat_member as wms on wisc.inspection_supervisor_id = wms.uid")
+            ->join("left join jpgk_wechat_member as wm on wisc.inspector_id = wm.uid")
+            ->where($map)
+            ->field($field)
+            ->find();
+        return $info ? $info : [];
+    }
+
+    /**
+     * 获取巡检子订单数据 巡检员展示已修页面使用
+     * @param $map
+     * @param $field
+     * @param string $order
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderInfo($map, $field){
+        //门店表 jpgk_wechat_ka_stores
+        //巡检员 jpgk_wechat_member
+
+        $info = $this->alias("wisc")
+            ->join("jpgk_wechat_ka_stores as wks on wisc.store_id = wks.id")
+            ->join("left join jpgk_wechat_member as wm on wisc.inspector_id = wm.uid")
+            ->where($map)
+            ->field($field)
+            ->find();
+
+        return $info ? $info : [];
+    }
+
+    /**
+     * 获取门店子订单列表
+     * @param $map
+     * @param $fields
+     * @return mixed
+     */
+    public function getChildList($map,$fields,$order="wisc.service_num asc"){
+        $list = $this->alias("wisc")
+            ->join("jpgk_wechat_ka_stores store on wisc.store_id = store.id")
+            ->where($map)
+            ->field($fields)
+            ->order($order)
+            ->select();
+        return $list;
+    }
+
+
+    /**
+     * 修改数据
+     * @param $data
+     * @return bool
+     */
+    public function saveInfo($data){
+        if(!empty($data['inspection_store_child_id'])){
+            $data['update_time'] = date('Y-m-d H:i:s');
+            $res = $this->save($data);
+        }
+        return $res;
+    }
+
+    /**
+     * 获取子订单数据 设备列表数据
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderDeviceList($map='',$fields='*',$order=""){
+
+        $Model = (new WechatDeviceModel());
+        $list = $Model->alias("wd")
+            ->join("left join jpgk_wechat_inspection_store_child wisc on wisc.store_id = wd.store_id")
+            ->join("left join jpgk_wechat_inspection_store_child_device wiscd on wiscd.inspection_store_child_id = wisc.inspection_store_child_id AND wd.id = wiscd.device_id")
+            ->where($map)
+            ->field($fields)
+            ->order($order)
+            ->select();
+
+        return $list ? $list : [];
+    }
+    /**
+     * 获取巡检子订单与店长信息（发消息使用）
+     * @param $map
+     * @param $field
+     * @param string $order
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderAndShopOwnnerInfo($map, $field){
+        $info = $this->alias("wisc")
+            ->join("jpgk_wechat_ka_stores as wks on wisc.store_id = wks.id")
+            ->join("jpgk_wechat_member_store as wms on wisc.store_id = wms.store_id")
+            ->join("jpgk_wechat_member as wm on wms.u_id = wm.uid")
+            ->join("left join jpgk_wechat_member as wmis on wisc.inspector_id = wmis.uid")
+            ->where($map)
+            ->field($field)
+            ->find();
+
+        return $info ? $info : [];
+    }
+}

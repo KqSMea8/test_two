@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>设备类别选择</title>
+    <link href="/Public/wechat/c/canxun.css?1" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#eff0f5;">
+<div class="serviceWarp" style="margin-top:0.76rem;margin-bottom:0.54rem;">订单处理时间：&nbsp;8:00-20:00<a class="serviceBtn" href="javascript:;" onclick="showServiceGuide()">服务须知</a></div>
+<div class="categoryWarp" style="padding-bottom:0.28rem;">
+    <ul>
+        <li class="selected" data-value="4">
+            <i class="icon1"></i>
+            <h4>空调制冷设备</h4>
+        </li>
+        <li data-value="8">
+            <i class="icon2"></i>
+            <h4>排风新风设备</h4>
+        </li>
+        <li class="threeLine" data-value="6">
+            <i class="icon3"></i>
+            <h4>保温加热设备</h4>
+            <p>(燃气类)</p>
+        </li>
+        <li class="threeLine" data-value="7">
+            <i class="icon4"></i>
+            <h4>保温加热设备</h4>
+            <p>(电磁类)</p>
+        </li>
+        <li class="threeLine" data-value="5">
+            <i class="icon5"></i>
+            <h4>保温加热设备</h4>
+            <p>(电器类)</p>
+        </li>
+        <li class="threeLine" data-value="10">
+            <i class="icon6"></i>
+            <h4>内装修</h4>
+            <p>(电路、墙面、防水等问题)</p>
+        </li>
+        <li data-value="9">
+            <i class="icon7"></i>
+            <h4>不锈钢制品</h4>
+        </li>
+        <li data-value="11">
+            <i class="icon8"></i>
+            <h4>其它设备</h4>
+        </li>
+    </ul>
+</div>
+<div style="height:3.16rem;">
+    <input type="hidden" id="order_id" value="{$order_id}">
+    <input type="hidden" id="is_ka" value="{$is_ka}">
+    <input type="hidden" id="companycode" value="{$companycode}">
+    <input type="hidden" id="storecode" value="{$storecode}">
+</div>
+<div class="centerBtnWarp" style="background:#eff0f5;margin-bottom: 1.15rem;"><a href="javascript:;" onclick="checkType()" class="centerBtn">确 定</a></div>
+</body>
+</html>
+<script>
+    $(function(){
+        //选择师傅
+        $('.categoryWarp li').click(function(){
+            $('.categoryWarp li').removeClass('selected');
+            $(this).addClass('selected');
+        });
+    });
+    function checkType(){
+        var equipment = $('.categoryWarp li.selected').attr('data-value');
+        if(!equipment){
+            weui.alert("请选择设备类型");
+            return false;
+        }
+        var orderid = $('#order_id').val();
+        var iska = $('#is_ka').val();
+        var companycode = $('#companycode').val();
+        var storecode = $('#storecode').val();
+        if(Number(orderid)>0){
+            window.location.href="{:U('Wechat/index/againstorerepaire/equip_id/"+equipment+"/order_id/"+orderid+"')}";
+            return true;
+        }
+        window.location.href="{:U('Wechat/index/appointmentstorerepaire/equip_id/"+equipment+"/is_ka/"+iska+"/companycode/"+companycode+"/storecode/"+storecode+"')}";
+    }
+
+    //跳转页面
+    function showServiceGuide(){
+
+        window.location.href = "{:U('Wechat/index/showServiceGuide/type/1')}";
+    }
+</script>

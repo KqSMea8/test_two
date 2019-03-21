@@ -1,0 +1,430 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 15-4-28
+ * Time: 上午11:30
+ * @author 郑钟良<zzl@ourstu.com>
+ */
+
+namespace Enterprise\Controller;
+use Enterprise\Service\EnterpriseService;
+use Think\Controller;
+use think\Cache;
+use Wechat\Model\WechatFacilitatorModel;
+use Wechat\Model\WechatInspectionModel;
+use Wechat\Model\WechatInspectionStoreModel;
+use Wechat\Model\WechatKaEnterpriseModel;
+use Wechat\Model\WechatMemberModel;
+use Wechat\Model\WechatOrderItemModel;
+use Wechat\Model\WechatOrderModel;
+use Wechat\Model\WechatServiceGuidelinesModel;
+use Think\Log;
+use Wechat\Service\WechatPublicOrderService;
+use Wechat\Service\WechatService;
+
+class CustomerServicesController extends Controller{
+
+    private $corpID;
+    private $appSecret;
+    private $token;
+    private $encodingAesKey;
+    private $svr;
+    private $WechatServiceGuidelinesModel;
+    private $WechatOrderModel;
+    private $WechatOrderItemModel;
+    private $WechatPublicOrderService;
+    private $WechatService;
+    private $WechatMemberModel;
+    private $WechatFacilitatorModel;
+    private $WechatKaEnterpriseModel;
+    private $WechatInspectionModel;
+    private $WechatInspectionStoreModel;
+
+
+    function _initialize()
+    {
+        $this->corpID = COMPANY_CORPID;
+        $this->appSecret = COMPANY_CUSTOMER_APPSECRET;
+        $this->token = COMPANY_TOKEN;
+        $this->encodingAesKey = COMPANY_EMCODINGASEKEY; //暂未设置 TODO
+        $this->svr = (new EnterpriseService($this->encodingAesKey,$this->token,$this->corpID,$this->appSecret));
+//        parent::__construct();
+
+        $this->WechatServiceGuidelinesModel = new WechatServiceGuidelinesModel();
+        $this->WechatOrderModel = new WechatOrderModel();
+        $this->WechatOrderItemModel = new WechatOrderItemModel();
+        $this->WechatPublicOrderService = new WechatPublicOrderService();
+        $this->WechatService = new WechatService();
+        $this->WechatMemberModel = new WechatMemberModel();
+        $this->WechatFacilitatorModel = new WechatFacilitatorModel();
+        $this->WechatKaEnterpriseModel = new WechatKaEnterpriseModel();
+        $this->WechatInspectionModel = new WechatInspectionModel();
+        $this->WechatInspectionStoreModel = new WechatInspectionStoreModel();
+    }
+
+///////////////////////////////////////////////////////////////////////////客服管理开始////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * 未接单列表
+     */
+    public function noReceiveOrder(){
+        //获取派单中的订单列表
+        $map['orde.order_state'] = 0;//(0:派单中;1:已接单;2:待支付;3:已完成;4:已取消;5:已电话解决;6:已退款;7:已评价8:已支付;9:待验收)
+        $map['orde.is_year'] = 0;
+        $map['orde.facilitator_id'] = 0;
+        $field = "orde.id,orde.order_code,orde.create_time,orde.order_type,member.uid,member.name uname,item.urgent_level";
+        $this->orderData = $this->WechatOrderModel->getOrderDataByStatus($map,$field);
+        $this->display('WechatPublic/customerServices/noReceiveOrder');
+    }
+
+    /**
+     * 订单详情页
+     * @author pangyongfu
+     */
+    public function orderDetail(){
+        $type = I('type');
+        $order_id = I('order_id');
+        switch($type){
+            case 1:
+                //拼凑条件
+                $map['orde.id'] = ['eq',$order_id];
+                //订单数据
+                $field = "orde.*,item.equipment_name,item.brands_text,item.after_sale_text,item.malfunction_text,item.phone_solve_text,item.cancel_text,item.change_parts_text,item.parts_price,member.uid,member.name,member.phone,faci.id fid,faci.name fname,faci.phone fphone,item.mr_id,item.urgent_level";
+                $this->orderData = $this->WechatPublicOrderService->getOneOrderData($map,$field);
+                //获取图片数据
+                $this->imgData = $this->WechatPublicOrderService->getOrderImg($order_id);
+
+                $this->display('WechatPublic/customerServices/orderMaintainDetail');
+                break;
+            case 2:
+                //拼凑条件
+                $map['orde.id'] = ['eq',$order_id];
+                $field = "orde.*,item.store_area,item.store_scene,item.insect_species,item.old_order_id,item.old_order_code,item.after_sale_text,item.phone_solve_text,item.insect_time,item.difference_price,item.difference_text,item.difference_status,item.cancel_text,item.difference_status,item.difference_price,member.uid,member.name,member.phone,faci.id fid,faci.name fname,faci.phone fphone";
+                $orderData = $this->WechatPublicOrderService->getOneOrderData($map,$field);
+                if($orderData['order_state'] == '0' && !empty($orderData['renew_order_id'])){
+                    $orderData['order_state_text'] = '续签中';
+                }
+                $this->orderData = $orderData;
+                $this->display('WechatPublic/customerServices/orderCleanKillDetail');
+                break;
+            case 3:
+                $map['orde.id'] = ['eq',$order_id];
+                $field = "orde.*,item.store_area,item.store_scene,item.clean_type,item.after_sale_text,item.phone_solve_text,item.last_clean_time,item.petticoat_pipe,item.upright_flue_length,
+                        item.across_flue_length,item.flue_round_num,item.purifier_slice_num,item.draught_fan_clean_num,item.fireproof_board_length,
+                        item.draught_fan_chaixi_num,item.entirety_greasy_dirt,item.cancel_text,member.uid,member.name,member.phone,faci.id fid,faci.name fname,faci.phone fphone";
+                $this->orderData = $this->WechatPublicOrderService->getOneOrderData($map,$field);
+                //获取图片数据
+                $this->imgBefore = $this->WechatPublicOrderService->getOrderImg($order_id);
+                $this->imgAfter = $this->WechatPublicOrderService->getOrderImg($order_id,1);
+                $this->display('WechatPublic/customerServices/orderCleaningDetail');
+                break;
+        }
+    }
+
+    /**
+     * 分配任务页
+     * @author pangyongfu
+     */
+    public function distributeTask(){
+        $this->order_id = I('order_id');
+        $order_type = I('order_type');//1设备维修，2门店消杀，3设备清洗
+
+        //根据服务类型获取对应服务类型的服务商列表，并统计该服务商现有的任务数 1：门店消杀，2：设备维修，3：设备清洗
+        if($order_type == 1){
+            $type_user = 2;
+        }elseif($order_type == 2){
+            $type_user = 1;
+        }else{
+            $type_user = $order_type;
+        }
+        $map['type'] = $type_user;
+        $map['`status`'] = 1;//1--启用
+        $map['order_type'] = $order_type;////1设备维修，2门店消杀，3设备清洗
+
+        $this->masterData = $this->WechatFacilitatorModel->getFacilitatorData($map);
+
+        $this->display('WechatPublic/customerServices/distributeTask');
+    }
+
+    /**
+     * 分配给服务商订单
+     * @author pangyongfu
+     */
+    public function updateCustomerOrder(){
+        $data['id'] = I('id');
+        $data['facilitator_id'] = I('fid');
+        //验证改任务是否已经待支付，已完成 TODO
+        //更新订单，绑定服务商
+        $res = $this->WechatOrderModel->save($data);
+        //派单后给分配主管发消息提醒
+        $distributeService = new EnterpriseService(COMPANY_EMCODINGASEKEY,COMPANY_TOKEN,COMPANY_CORPID,COMPANY_DISTRIBUTE_APPSECRET);
+        $param = $distributeService->getDistributeSendMsg($data['id'],1);//新工单提醒
+        $distributeService->sendMessage($param);//新工单提醒
+        //给用户发送模板通知消息
+//        $orderData = $this->WechatOrderModel->where(['id'=>$data['id']])->find();
+//        $userData = $this->WechatMemberModel->where(['uid'=>$orderData['member_id']])->find();
+//        if($userData && $orderData){
+//            switch ($orderData['order_type']){
+//                case 1 :
+//                    $orderTypeText = '设备维修';
+//                    $urlNew = 'http://opensns.lz517.com/index.php?s=/wechat/index/showStoreRepaireOrder/order_id/'.$orderData['id'];
+//                    break;
+//                case 2 :
+//                    $orderTypeText = '门店消杀';
+//                    $urlNew = 'http://opensns.lz517.com/index.php?s=/wechat/index/showCleanKillOrder/order_id/'.$orderData['id'];
+//                    break;
+//                case 3 :
+//                    $orderTypeText = '设备清洗';
+//                    $urlNew = 'http://opensns.lz517.com/index.php?s=/wechat/index/showCleaningOrder/order_id/'.$orderData['id'];
+//                    break;
+//                default : $orderTypeText = '上门服务'; break;
+//            }
+//
+//            $remark = "尊敬的用户您好，您的订单 ".$orderData['order_code']." 正在配单中，请您耐心等待。";
+//            $this -> WechatService -> sendPaiOrderMsg($userData['open_id'],'派单通知',$orderData['create_time'],$orderTypeText,$remark,$urlNew);
+//        }
+
+        $this->ajaxReturn(["status" => 1,"data" => $res]);
+
+    }
+    /**
+     * 已接单列表
+     */
+    public function yesReceiveOrder(){
+
+        //首次访问该页面默认显示未接单数据
+        $map['orde.order_state'] = ['in',[0,10]];//(0:派单中;1:已接单;2:待支付;3:已完成;4:已取消;5:已电话解决;6:已退款;7:已评价8:已支付;9:待验收;10:未接单)
+        $map['orde.facilitator_id'] = ['neq',0];
+        $map['orde.is_main'] = 1;
+        $field = "orde.id,orde.order_code,orde.is_year,orde.order_state,orde.is_main,orde.store_name,orde.create_time,orde.order_type,faci.id fid,faci.name uname,item.urgent_level";
+        $orderData = $this->WechatOrderModel->getOrderDataByStatus($map,$field);
+        if(!empty($orderData)){
+            foreach($orderData as &$val){
+                $val['order_state_text'] = $this->svr->getOrderStatusText($val['order_state']);
+            }
+        }
+        $this->orderData = $orderData;
+        $this->display('WechatPublic/customerServices/yesReceiveOrder');
+    }
+
+    /**
+     * 根据订单状态获取对应数据
+     * @author pangyongfu
+     */
+    public function getOrderDataByStatus(){
+        $status = I('status');
+        $map['orde.is_main'] = 1;
+        $map['orde.order_state'] = $status;//(0:派单中;1:已接单;2:待支付;3:已完成;4:已取消;5:已电话解决;6:已退款;7:已评价8:已支付;9:待验收;10:未接单)
+        if($status == 2){
+            $map['orde.order_state'] = ['in',[2,8,9,11]];
+        }elseif($status == 3){
+            $map['orde.order_state'] = ['in',[3,5,7,12]];
+        }elseif($status == 10){
+            $map['orde.order_state'] = ['in',[0,10]];//派单中和未接单的数据
+            $map['orde.facilitator_id'] = ['neq',0];//已分配服务商
+        }
+        $field = "orde.id,orde.order_code,orde.is_year,orde.order_state,orde.is_main,orde.store_name,orde.create_time,orde.order_type,faci.id fid,faci.name uname,item.urgent_level";
+        $orderData = $this->WechatOrderModel->getOrderDataByStatus($map,$field);
+
+        if(!empty($orderData)){
+            foreach($orderData as &$val){
+                $val['order_state_text'] = $this->svr->getOrderStatusText($val['order_state']);
+            }
+            $this->ajaxReturn(["status" => 1,"data" => $orderData]);
+        }
+        $this->ajaxReturn(["status" => 0,"msg" => "该状态下无订单数据"]);
+    }
+
+    /**
+     * 客服取消订单
+     * @author pangyongfu
+     */
+    public function cancelOrder(){
+//拼凑更新数据
+        $orderData['id'] = I('id');
+        $orderData['order_state'] = I('order_state');
+        $orderData['update_time'] = date("Y-m-d H:i:s");
+
+        $condition['order_id'] = ['eq',I('id')];
+        $orderItemData['cancel_text'] = I("cancel_text");
+        $orderItemData['update_time'] = date("Y-m-d H:i:s");
+
+        //更新订单
+        $res_order = $this->WechatOrderModel->save($orderData);
+        $item_res = false;
+        if($res_order){
+            $item_res = $this->WechatOrderItemModel->where($condition)->save($orderItemData);
+        }
+        if($item_res){
+
+            //客服取消订单给分配主管发消息提醒
+            $distributeService = new EnterpriseService(COMPANY_EMCODINGASEKEY,COMPANY_TOKEN,COMPANY_CORPID,COMPANY_DISTRIBUTE_APPSECRET);
+            $param = $distributeService->getDistributeSendMsg($orderData['id'],2);//客服取消订单
+            $distributeService->sendMessage($param);//客服取消订单
+            //客服取消订单给师傅发消息提醒
+            $enterpriseService = new EnterpriseService(COMPANY_EMCODINGASEKEY,COMPANY_TOKEN,COMPANY_CORPID,COMPANY_CLEANKILL_APPSECRET);
+            $param = $enterpriseService->getMasterSendMsg($orderData['id'],5);//新工单提醒
+            $enterpriseService->sendMessage($param);//新工单提醒
+            //TODO 如果是领值订单，则通知领值系统
+            $orderData = $this->WechatPublicOrderService->getOrderData($orderData['id']);
+            if(!empty($orderData['mr_id'])){
+                $this->WechatService->curlCancel($orderData['mr_id'],'cancel',$orderItemData['cancel_text']);
+            }
+
+            $this->ajaxReturn(["status" => 1,"data" => ["id" => $orderData['id']]]);
+        }
+        $this->ajaxReturn(["status" => 0,"data" => ["id" => $orderData['id']]]);
+    }
+///////////////////////////////////////////////////////////////////////////客服管理结束////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * 获取年服务订单详情
+     * @param $order_id
+     */
+    public function showCleanKillYearOrder($order_id){
+        //拼凑条件
+        $map['orde.id'] = ['eq',$order_id];
+        $field = "orde.*,item.store_area,item.store_scene,item.insect_species,item.insect_time,item.after_sale_text,item.difference_price,item.difference_text,item.difference_status,item.old_order_id,item.old_order_code,item.cancel_text,item.difference_status,item.difference_price,member.uid,member.name,member.phone";
+        $orderData = $this->WechatPublicOrderService->getOneOrderData($map,$field);
+        if($orderData['order_state'] == '0' && !empty($orderData['renew_order_id'])){
+            $orderData['order_state_text'] = '续签中';
+        }
+        $this->orderData = $orderData;
+        $this->display('WechatPublic/customerServices/showcleankillyearorder');
+    }
+///////////////////////////////////////////////////巡检开始////////////////////////////////////////////////////////////
+    /**
+     * 巡检输入企业编码页面
+     */
+    public function inputCompanyCode(){
+        $this->display("WechatPublic/customerServices/inputCompanyCode");
+    }
+
+    /**
+     * 检验企业编码
+     */
+    public function checkCompanyCode(){
+        $company_code = I('company_code');
+        //根据企业编号获取企业信息
+        $companyData = $this->WechatKaEnterpriseModel->getData(['code'=>$company_code]);
+        if(empty($companyData)){
+            $this->ajaxReturn(['status'=>0,'msg'=>'企业编号不存在']);
+        }
+        $this->ajaxReturn(['status'=>1,'msg'=>'验证成功']);
+    }
+
+    /**
+     * 巡检订单信息填写页面
+     * @param $company_code
+     */
+    public function inputInspectionInfo($company_code = "182687",$inspection_id = false){
+        if($inspection_id){
+            //获取巡检主工单信息
+            $insMap['wi.inspection_id'] = $inspection_id;
+            $insField = "wi.*,ent.id,ent.name,ent.link_person,ent.link_phone";
+            $this->inspectionData = $this->WechatInspectionModel->getInspectionOrderInfo($insMap,$insField);
+            //获取主订单门店信息
+            $storeMap['inspection_id'] = $inspection_id;
+            $storeMap['status'] = 1;//1--启用；2--禁用；-1--删除
+            $this->inspectionStoreInfo = $this->WechatInspectionStoreModel->where($storeMap)
+                ->group("service_level")
+                ->field("GROUP_CONCAT(store_id) store_id ,type,cycle,service_num_total,service_money,service_level")
+                ->select();
+        }else{
+            //根据企业编号获取企业信息
+            $this->companyData = $this->WechatKaEnterpriseModel->getData(['code'=>$company_code]);
+        }
+        //获取服务商信息
+        $failMap['type'] = 2;//1：门店消杀，2：设备维修，3：设备清洗
+        $failMap['status'] = 1;
+        $failField = "id,name";
+        $this->failcatorData = $this->WechatFacilitatorModel->getData($failMap,$failField);
+        $this->inspection_id = $inspection_id;
+        $this->display("WechatPublic/customerServices/inputInspectionInfo");
+    }
+    public function createInspectionOrder(){
+        $data = I("post.");
+        //接收主订单公共参数
+        $insData['service_start_time'] = $data['service_start_time'];
+        $insData['service_end_time'] = $data['service_end_time'];
+        $insData['service_price'] = $data['service_price'];
+        $insData['payment'] = $data['payment'];//付费方式（1：季付；2：半年付；3：年付）
+        $insData['facilitator_id'] = $data['facilitator_id'];
+        //如果巡检主订单id存在则为更新，否则为添加
+        if(isset($data['inspection_id']) && $data['inspection_id']){
+            //更新巡检主订单
+            $insData['inspection_id'] = $data['inspection_id'];
+            $this->WechatInspectionModel->save($insData);
+            //获取主订单门店关联数据
+            $storeMap['inspection_id'] = $data['inspection_id'];
+            $storeMap['status'] = 1;//1--启用；2--禁用；-1--删除
+            $insStoreData = $this->WechatInspectionStoreModel->where($storeMap)->group("service_level")
+                ->field("GROUP_CONCAT(store_id) store_id,service_level")->select();
+            //处理已有门店数据
+            $insStoreNewData = [];
+            foreach($insStoreData as $insStore){
+                $insStoreNewData['service_level'] = $insStore['store_id'];
+            }
+            //处理提交的要修改的门店数据
+            $newInsStoreData = [];
+            foreach($data['store_data'] as $storeVal){
+
+                //更新主订单门店关联数据(原门店数据只能删除，可新增模块)
+                if(isset($insStoreNewData[$storeVal['service_level']])){
+                    //已有模块，则更新
+                    $oldStoreStr = $insStoreNewData[$storeVal['service_level']];//已有模块绑定的门店
+                    $newStoreStr = $storeVal['store_id'];//提交的门店
+                }else{
+                    //无该模块，则添加
+                    $storeIdArr = explode(",",$storeVal['store_id']);
+                    foreach($storeIdArr as $storeId){
+                        $storeTmp = [];
+                        $storeTmp['inspection_id'] = $data['inspection_id'];
+                        $storeTmp['store_id'] = $storeId;
+                        $storeTmp['type'] = $storeVal['type'];//1：单次巡检；2：周期性巡检
+                        $storeTmp['cycle'] = $storeVal['cycle'];
+                        $storeTmp['service_num_total'] = $storeVal['service_num_total'];
+                        $storeTmp['service_num_remain'] = $storeVal['service_num_total'];
+                        $storeTmp['service_money'] = $storeVal['service_money'];
+                        $storeTmp['service_level'] = $storeVal['service_level'];
+                        $storeTmp['create_time'] = $storeVal['update_time'] = date("Y-m-d H:i:s");
+                        $newInsStoreData[] = $storeTmp;
+                    }
+                }
+            }
+            //批量添加主订单门店数据
+            $this->WechatInspectionStoreModel->addAll($newInsStoreData);
+
+            $this->ajaxReturn(['status'=>1,'info'=>"添加成功"]);
+        }else{
+            //添加巡检主订单
+            $insData['inspection_code'] = getInspectionOrderCode("M");
+            $insData['enterprise_id'] = $data['enterprise_id'];
+            $insData['enterprise_name'] = $data['enterprise_name'];
+            $insData['customer_service_id'] = $data['customer_service_id'];
+            $insData['create_time'] = $insData['update_time'] = date("Y-m-d H:i:s");;
+            $res = $this->WechatInspectionModel->add($insData);
+            //添加主订单门店关联数据
+            $storeData = [];
+            foreach($data['store_data'] as $storeVal){
+                $storeIdArr = explode(",",$storeVal['store_id']);
+                foreach($storeIdArr as $storeId){
+
+                    $storeTmp = [];
+                    $storeTmp['inspection_id'] = $res;
+                    $storeTmp['store_id'] = $storeId;
+                    $storeTmp['type'] = $storeVal['type'];//1：单次巡检；2：周期性巡检
+                    $storeTmp['cycle'] = $storeVal['cycle'];
+                    $storeTmp['service_num_total'] = $storeVal['service_num_total'];
+                    $storeTmp['service_num_remain'] = $storeVal['service_num_total'];
+                    $storeTmp['service_money'] = $storeVal['service_money'];
+                    $storeTmp['service_level'] = $storeVal['service_level'];
+                    $storeTmp['create_time'] = $storeVal['update_time'] = date("Y-m-d H:i:s");
+                    $storeData[] = $storeTmp;
+                }
+            }
+            //批量添加主订单门店数据
+            $this->WechatInspectionStoreModel->addAll($storeData);
+            $this->ajaxReturn(['status'=>1,'info'=>"修改成功"]);
+        }
+    }
+}

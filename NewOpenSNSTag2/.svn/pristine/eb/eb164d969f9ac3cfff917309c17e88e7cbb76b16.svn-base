@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>个人中心</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+	  <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="editInfoCon">
+    <ul>
+        <li><span>用户</span><input type="text" id="userName" value="{$memData.name}"/></li>
+        <li><span>手机号</span><input type="text" id="userPhone" value="{$memData.phone}" readonly/></li>
+        <li><span>门店</span><input type="text" id="userStore" value="{$memData.store_name}"/></li>
+        <li><span>地址</span><textarea id="userAddress">{$memData.address_name}</textarea></li>
+    </ul>
+</div>
+<input type="hidden" id="userId" value="{$memData.uid}">
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="submitUser()" class="centerBtn">保 存</a></div>
+</body>
+</html>
+
+<script>
+    function submitUser(){
+        var userName = $('#userName').val();
+        if( userName.length == ""){
+            weui.alert('用户不可为空！');
+            return false;
+        }
+        var userPhone = $('#userPhone').val();
+        if( userPhone.length == ""){
+            weui.alert('手机号不可为空！');
+            return false;
+        }
+        var userStore = $('#userStore').val();
+        if( userStore.length == ""){
+            weui.alert('门店不可为空！');
+            return false;
+        }
+        var userAddress = $('#userAddress').val();
+        if( userAddress.length == ""){
+            weui.alert('地址不可为空！');
+            return false;
+        }
+        var userId = $('#userId').val();
+
+        $.post("{:U('Wechat/index/addMyData')}",{userName:userName,userPhone:userPhone,userStore:userStore,userAddress:userAddress,userId:userId},function(res){
+            if(res.status == 1){
+                weui.toast(res.msg, function() {
+                    window.location.href="{:U('Wechat/index/myCenter')}";
+                });
+            }else{
+                if(res.msg){
+                    weui.alert(res.msg);
+                }else{
+                    weui.alert('提交失败，请刷新再试！');
+                }
+            }
+        },'json');
+    }
+</script>

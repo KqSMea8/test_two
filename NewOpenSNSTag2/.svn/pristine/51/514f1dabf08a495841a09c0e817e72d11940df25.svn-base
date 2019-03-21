@@ -1,0 +1,116 @@
+<extend name="Base/common"/>
+
+<block name="style">
+    <link href="__CSS__/video.css" rel="stylesheet" type="text/css"/>
+</block>
+
+<block name="body">
+<include file="Public/nav" />
+
+<div class="content-body col-md-12">
+        <h2 class="content-title">
+            {$content.title}
+        </h2>
+        <hr/>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="video">
+                    <div id="flashcontent" style="height:600px;width:960px;margin:0 auto;">
+					<embed type="application/x-shockwave-flash" src="{$content.url}" width="960" height="600" style="undefined" id="sotester" name="sotester" quality="high" wmode="transparent" scale="noscale" menu="false" allowfullscreen="true" allowScriptAccess="never" flashvars="lm=">
+					</div>
+                </div>
+            </div>
+
+
+        </div>
+
+    <hr/>
+	<!-- HR下为作者信息 -->
+	<div class="col-md-12">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <ul class="operation clearfix">
+                            <li><i class="icon-eye-open"></i>{$content.view_count}</li>
+                            <li>{:Hook('support',array('table'=>'video_content','row'=>$content['id'],'app'=>'Video','uid'=>$content['uid'],'jump'=>'video/index/videocontentdetail'))}</li>
+                            <li><i class="icon-comments-alt"></i>{$content.reply_count}</li>
+                        </ul>
+
+                    </div>
+                    <div class="col-md-8">
+                        <div class="pull-right">
+                            <div class="bdsharebuttonbox"><a href="#" class="bds_more" data-cmd="more"></a><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a><a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a><a href="#" class="bds_tieba" data-cmd="tieba" title="分享到百度贴吧"></a><a href="#" class="bds_copy" data-cmd="copy" title="分享到复制网址"></a></div>
+                            <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"1","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script></p>
+                            <style>
+                                #bdshare_weixin_qrcode_dialog{
+                                    min-height:326px;
+                                }
+                            </style>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="row" style="margin-top: 50px">
+                    <div class="col-md-2" style="text-align: center">
+                        <img ucard="{$content.user.id}" src="{$content.user.avatar64}" class="avatar-img" style="width: 64px"/>
+                        <br/>
+
+                           <a href="{$content.user.space_url}"> {$content.user.nickname} </a>
+
+                    </div>
+                    <div class="col-md-8">
+
+                        <div class="signature word-wrap">
+                            <div class="triangle"></div>
+                            <div class="triangle_left"></div>
+                            <eq name="content.content" value="">还没有简介O(∩_∩)O</eq>
+                            {$content.content}
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 40px">
+                    <div class="col-md-4">
+                        <neq name="content.url" value="">
+                        <a class="btn btn-primary " target="_blank" href="{$content.url}" ><i class="glyphicon glyphicon-cloud"></i>&nbsp;全屏</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</neq>
+                        <if condition="($content['uid'] eq is_login()) OR check_auth('editVideoContent')">
+
+                            <a class="btn btn-primary " href="{:U('edit',array('id'=>$content['id']))}" style="margin-right: 25px;" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;编辑</a>
+                        </if>
+
+                       {:W('Weibo/Share/shareBtn',array('param'=>array('app'=>'Video','model'=>'VideoContent','method'=>'find','id'=>$content['id'],'img'=>get_cover($content['cover_id'],'path'),'from'=>'视频','site_link'=>U('video/index/videocontentdetail',array('id'=>$content['id']))),'text'=>'分享','css'=>array('class'=>'btn btn-primary')))}
+
+
+
+                    </div>
+                    <div class="col-md-8">
+                        <div class="pull-right" style="color: #999">
+                            发布时间：  {$content.create_time|friendlyDate} &nbsp;&nbsp;
+                            更新时间： {$content.update_time|friendlyDate}
+                        </div>
+                    </div>
+
+               </div>
+
+
+           </div>
+	<!-- 作者信息结束-->
+	<br />
+	<br />
+	<hr/>
+    <div class="col-md-12">
+    {:hook('localComment', array('path'=>"Video/videoContent/$content[id]", 'uid'=>$content['uid'],'count_model'=>'video_content','count_field'=>'reply_count','this_url'=>'Video/Index/videoContentDetail'))}
+    </div>
+</div>
+
+
+    <script type="text/javascript" charset="utf-8" src="__STATIC__/ueditor/third-party/SyntaxHighlighter/shCore.js"></script>
+    <link rel="stylesheet" type="text/css" href="__STATIC__/ueditor/third-party/SyntaxHighlighter/shCoreDefault.css"/>
+    <script type="text/javascript">
+        SyntaxHighlighter.all();
+    </script>
+
+    <include file="_box"/>
+</block>
+
+

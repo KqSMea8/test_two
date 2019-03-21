@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title>地址管理</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechat/c/address.css?555" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+
+		})()
+	</script>
+</head>
+<body class="body-class">
+	<if condition="!empty($addressList)">
+	<div class="delete-div">
+		<img onclick="delAddress()" class="delete-img" src="/Public/wechat/add/delete.png" /><span onclick="delAddress()" class="delete-font">删除</span>
+	</div>
+	<div class="all-content">
+		<volist name="addressList" id="list">
+			<div class="content-div">
+				<if condition="empty($list['store_id'])">
+					<div class="content-checkbox">
+						<input class="checkbox-class" value="{$list.add_id}" type="checkbox" name="addressRaio">
+					</div>
+				<else/>
+					<div class="content-checkbox"></div>
+				</if>
+				<div class="content-text">
+					<div class="store-name">
+						<span>{$list.store_name}</span>
+						<if condition="$list['is_default'] == 1"><span class="store-name-default">默认</span></if>
+						<if condition="!empty($list['store_id'])"><span class="store-name-bindstore">已绑定</span></if>
+					</div>
+					<div class="address"><span>{$list.detail_address}</span></div>
+					<div class="link-type"><span>{$list.link_person}</span><span class="link-type-phone">{$list.link_phone}</span><span class="link-type-phone">{$list.fixed_line}</span></div>
+				</div>
+				<if condition="empty($list['store_id'])">
+					<div class="content-edit">
+						<img onclick="editAddress('{$list.add_id}')" class="content-img" src="/Public/wechat/add/edit_add.png" >
+					</div>
+				</if>
+			</div>
+		</volist>
+	</div>
+	<else/>
+	<div class="empty-div">
+		<div><img class="empty-img" src="/Public/wechat/add/empty.png"></div>
+		<div><span class="empty-content">暂无门店地址信息</span></div>
+	</div>
+	</if>
+	<div class="button">
+		<div onclick="addAddress()" class="button-text">新增地址</div>
+	</div>
+</body>
+</html>
+<script>
+	function addAddress(){
+		window.location.href = "{:U('Wechat/index/addAddress')}";
+	}
+	function delAddress(){
+		//获取所选择的地址的id
+		var add_id = [];
+		$('input:checkbox[name=addressRaio]:checked').each(function(k){
+			add_id[k] = $(this).val();
+		});
+		if(add_id.length<=0){
+			weui.alert("请选择要删除的地址");
+		}
+		weui.confirm('确认删除这些地址吗?', function (){
+			$.ajax({
+				url: "{:U('Wechat/index/delAddress')}",
+				type: 'post',
+				dataType: 'json',
+				data:{add_id:add_id},
+				success: function (data) {
+					if(data.status){
+						window.location.href = "{:U('Wechat/index/addressList')}";
+					}else{
+						weui.alert(data.msg);
+					}
+				}
+			})
+		});
+	}
+	function editAddress(add_id){
+		window.location.href = "{:U('Wechat/index/editAddress/add_id/"+add_id+"')}";
+	}
+</script>

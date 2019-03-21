@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>餐讯网</title>
+    <script src="https://lkme.cc/js/linkedme.min.js" ></script>
+    <script src="__PUBLIC__/js/jquery-1.4.2.js"></script>
+    <script>
+        linkedme.init("79e71e72f227b57467f104a90e4f6684", {type: "live"}, null);
+        var data = {};
+        data.type = "live";  //表示现在使用线上模式,如果填写"test", 表示测试模式.【可选】
+//        data.feature = "功能名称"; // 自定义深度链接功能，多个用逗号分隔，【可选】
+//        data.stage = "阶段名称"; // 自定义深度链接阶段，多个用逗号分隔，【可选】
+//        data.channel = "渠道名称"; // 自定义深度链接渠道，多个用逗号分隔，【可选】
+//        data.tags = "标签名称"; // 自定义深度链接标签，多个用逗号分隔，【可选】
+//        data.ios_custom_url = "https://itunes.apple.com/us/app/ifood517/id1137017065?l=zh&ls=1&mt=8"; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.ios_custom_url = ""; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.android_custom_url = "http://opensns.lz517.com/index.php?s=/Home/AppDownload/index";// 自定义安卓平台下App的下载地址，【可选】
+        // 下面是自定义深度链接参数，用户点击深度链接打开app之后，params参数将被带入app
+        // 比如详情页面的参数，可以写进去，这样唤起app后可直接跳转到详情页【可选】
+//        var value1 = 1;
+//        var value2 = 2;
+//        data.params = '{"key1":"'+value1+'","key2":"'+value2+'"}'; //注意单引号和双引号的位置
+
+        linkedme.link(data, function(err, data){
+            if(err){
+                // 生成深度链接失败，返回错误对象err
+            } else {
+
+//                console.log(data);
+                /*
+                 生成深度链接成功，深度链接可以通过data.url得到，
+                 将深度链接绑定到<a>标签，这样当用户点击这
+                 个深度链接，如果是在pc上，那么跳转到深度链接二维
+                 码页面，用户用手机扫描该二维码就会打开app；如果
+                 在移动端，深度链接直接会根据手机设备类型打开ios
+                 或者安卓app
+                 */
+//                document.location=''+data.url+'';
+//                document.body.innerHTML += '<a class="linkedme" href="'+data.url+'"><span id="clickA"></span></a>';
+                $('#aId').attr('href',''+data.url+'');
+                $('#spanId').click();
+            }
+        },false);
+    </script>
+</head>
+<body>
+<a  id="aId" href=""><span id="spanId">点击跳转</span></a>
+</body>
+</html>

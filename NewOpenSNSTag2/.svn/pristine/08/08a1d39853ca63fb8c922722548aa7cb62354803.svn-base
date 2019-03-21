@@ -1,0 +1,512 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <meta name="format-detection" content="telephone=no">
+    <if condition="$isApp eq 'yes'">
+        <title>服务详情</title>
+    <else />
+        <title>{$info.title}</title>
+    </if>
+    <link href="__PUBLIC__/css/zixun.css" rel="stylesheet" type="text/css"/>
+    <link href="__PUBLIC__/js/gxptSwiper/swiper.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://lkme.cc/js/linkedme.min.js" ></script>
+    <script type="text/javascript" src="__PUBLIC__/js/jquery.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/js/gxptSwiper/swiper.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+
+    <style>
+        /*产品咨询详情页*/
+        h1,h2,h3,h4,h5,h6{font-weight:bold !important;}
+        *{padding:0px;margin:0px;font-family: 'Microsoft YaHei, SimHei, Verdana';}
+        .dCon p{font-size: 16px;color:#3a3a3a;line-height: 30px;}
+        .dCon img{display: block;width:100%;height:auto;}
+        /*餐饮咨询*/
+        .sTopWarp img {
+            width: 0.94rem;
+            height: auto;
+            vertical-align: middle;
+            margin-bottom: 0.2rem;
+            margin-right: 0.4rem;
+        }
+        .sTopWarp .sTopBtn {
+            right: 0.4rem;
+            position: absolute;
+            display: block;
+            font-size: 0.52rem;
+            height: 0.82rem;
+            line-height: 0.82rem;
+            width: 2.68rem;
+            text-align: center;
+            background: #333;
+            color: #ffe400;
+            -webkit-border-radius: 0.6rem;
+            -moz-border-radius: 0.6rem;
+            border-radius: 0.6rem;
+            top: 0.3rem;
+        }
+        .shareOutter ul {
+            overflow: hidden;
+            width: 76%;
+            margin: 0 auto;
+            margin-top: 0.84rem;
+            margin-bottom: 0.2rem;
+        }
+        .shareOutter ul li {
+            width: 33.3%;
+            float: left;
+        }
+        .shareOutter ul li a {
+            display: block;
+            width: 60%;
+            max-width: 90px;
+            margin: 0 auto;
+            font-size: 0px;
+        }
+        .shareOutter ul li span {
+            width: 100%;
+            display: block;
+            text-align: center;
+            color: #575656;
+            font-size: 0.4744rem;
+            height: 1.32rem;
+            line-height: 1.32rem;
+        }
+        .recommendCon li {
+            background: #ffffff;
+            margin-bottom: 0.16rem;
+            overflow: hidden;
+            height: 28vw;
+            position: relative;
+        }
+
+        .recommendConL h3 {
+            font-size: 0.64rem;
+            color: #2f2725;
+            padding: 0.2rem 0.4rem;
+            height: 2.68rem;
+            overflow: hidden;
+        }
+
+        .reBtnWarp img {
+            width: 0.5rem;
+            height: auto;
+            margin: 0px 0.16rem;
+            vertical-align: middle;
+        }
+
+        /*轮播*/
+        .zxswiper-container {
+            position: fixed;
+            width: 100%;
+            left: 0px;
+            height: 2rem;
+            z-index: 100;
+            top: 0px;
+        }
+        .zxswiper-container .swiper-pagination {
+            position: absolute;
+            bottom: 0.2rem;
+        }
+        .zxswiper-container .swiper-slide {
+            width: 100%;
+            height: 2rem;
+            background: rgba(255, 234, 16, 0.7);
+        }
+        .zxswiper-container .swiper-pagination {
+            bottom: -2px !important;
+        }
+        .swiperInner {
+            width: 100%;
+            height: 2rem;
+            padding: 0px 0.4rem;
+            position: relative;
+        }
+        .swiperImg1 {
+            width: 2.08rem;
+            height: 1.5rem;
+            margin-top: 0.26rem;
+        }
+        .swiperTip1 {
+            color: #333333;
+            font-size: 0.56rem;
+            position: absolute;
+            top: 0.2rem;
+            left: 2.8rem;
+            line-height: 0.8rem;
+            width: 8.9rem;
+        }
+        .downLoadBtn {
+            display: block;
+            width: 2.3rem;
+            height: 1rem;
+            line-height: 1rem;
+            text-align: center;
+            font-size: 0.52rem;
+            color: #ffe400;
+            background: #000;
+            position: absolute;
+            right: 0.4rem;
+            top: 50%;
+            margin-top: -0.5rem;
+            -webkit-border-radius: 0.6rem;
+            -moz-border-radius: 0.6rem;
+            border-radius: 0.6rem;
+        }
+        .swiperLogo {
+            width: 1.56rem;
+            height: 1.56rem;
+            margin-left: 0.26rem;
+            margin-top: 0.22rem;
+        }
+        .swiperTip2 {
+            position: absolute;
+            color: #221b00;
+            font-size: 0.56rem;
+            top: 0.2rem;
+            left: 2.6rem;
+        }
+        .swiperTip2 h3 {
+            font-size: 0.6rem;
+            color: #221b00;
+            font-weight: bold;
+        }
+        .swiperTip2 p {
+            height: 0.68rem;
+            line-height: 0.68rem;
+            font-size: 0.52rem;
+            color: #221b00;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .zxnGoodTop{
+            padding: 0.1rem 0;
+        }
+    </style>
+</head>
+<body style="background:#f2f1ec;">
+<!--头部导航条 start-->
+<!--<if condition="$isApp eq 'no'">-->
+<!--<div class="zxnNav">{$info.title}</div>-->
+<!--<div style="height:1.76rem;width:100%;"></div>-->
+<!--</if>-->
+<if condition="$isApp eq 'no'">
+    <!--添加轮播代码start-->
+    <div class="zxswiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <div class="swiperInner">
+                    <img class="swiperLogo" src="__PUBLIC__/images/swiperlogo.png"/>
+                    <div class="swiperTip2"><h3>餐讯网</h3><p>餐饮人的掌上宝典,让餐饮生意不再那么难！</p></div>
+                    <a class="downLoadBtn" id="oneAId" href="https://lkme.cc/UxC/AMw3kuFs9"><span id="spanId">打开</span></a>
+                </div>
+            </div>
+            <volist id="banner" name="topBanners">
+                <div class="swiper-slide">
+                    <div class="swiperInner">
+                        <img class="swiperImg1" src="{$banner['coverimg']}"/>
+                        <p class="swiperTip1">{$banner['title']}</p>
+                        <a class="downLoadBtn" id="twoAId{$banner['banOrder']}"><span id="spanId">打开</span></a>
+                    </div>
+                </div>
+            </volist>
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+    <div class="emptyTop" style="width:100%;height:2rem;"></div>
+</if>
+<!--头部导航条 end-->
+<div class="zxnTop">
+    <div class="zxnLunbo">
+      <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <volist id="banner" key="k" name="info['pictures']">
+                    <div class="swiper-slide">
+                        <img onclick="clickImg({$k})" width="100%" height="100%" src="{$banner['url']}"/>
+                    </div>
+                </volist>
+            </div>
+            <div  class="swiper-pagination swiper-p0"></div>
+        </div>
+    </div>
+    <h3 class="title">{$info.title}</h3>
+
+    <if condition="$info['price'] lt 1">
+        <p class="price"><i class="dollarIcon">￥</i>价格面议</p>
+    <else />
+        <if condition="$info['priceUnit'] neq null">
+            <p class="price"><i class="dollarIcon">￥</i>{$info.price}/{$info.priceUnit}</p>
+        <else />
+            <p class="price"><i class="dollarIcon">￥</i>{$info.price}</p>
+        </if>
+    </if>
+
+    <div class="desc">
+        <if condition="$info['view'] gt 100">
+            <span class="fl">浏览人数{$info.views}</span>
+        </if>
+
+        <span class="fr">已收藏{$info.collectionUserNum}人</span>
+    </div>
+</div>
+<div class="space"></div>
+<div class="zxnDetail">
+    <ul class="zxnDetailUl">
+        <li><i class="ic ic1"></i>{$info.company.name}</li>
+        <li style="font-family:'Arial';font-size:0.6rem;"><i class="ic ic2"></i>{$info.company.phone}</li>
+        <li><i class="ic ic3"></i><p>{$info.company.address}</p></li>
+    </ul>
+    <!--没有展开全部的情况-->
+    <div class="con">
+        <if condition="$info['descriptionNew'] neq null">
+            <pre>{$info.descriptionNew}</pre>
+            <a class="seeMoreBtn" href="javascript:;">查看全部</a>
+        <else />
+            <pre>{$info.description}</pre>
+            <if condition="$isSuccessCases eq 'yes'">
+                <h3 class="succCaseTitle"><span>成功案例</span></h3>
+                <div class="swiperWarp">
+                    <div class="swiper-container1">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <div class="swiperCon">
+                                    <volist id="successCases" name="info['successCases']">
+                                        <div class="swiperOne">
+                                            <img src="{$successCases['imageUrl']}"/>
+                                        </div>
+                                    </volist>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-pagination swiper-p1"></div>
+                    </div>
+
+                </div>
+            </if>
+        </if>
+    </div>
+
+    <!--展开全部的情况-->
+    <div class="con all hide">
+        <pre>{$info.description}</pre>
+        <if condition="$isSuccessCases eq 'yes'">
+            <h3 class="succCaseTitle"><span>成功案例</span></h3>
+            <div class="swiperWarp">
+                <div class="swiper-container1">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="swiperCon">
+                                <volist id="successCases" name="info['successCases']">
+                                    <div class="swiperOne">
+                                        <img src="{$successCases['imageUrl']}"/>
+                                    </div>
+                                </volist>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-pagination swiper-p1"></div>
+                </div>
+
+            </div>
+        </if>
+    </div>
+
+</div>
+<div class="space"></div>
+<div class="zxnFDetail">
+    <ul>
+        <!--<li>查看服务详情<i class="moreBtn"></i></li>-->
+        <li style="height:auto;padding:0.4rem 0px;">
+            <a href="{:U('Gxpt/Index/companyDetailH5',['proId'=>$info['id'],'companyId'=>$info['company']['id'],'isApp'=>$isApp])}">
+                <h3 class="zxnFTitle">{$info.company.name}</h3>
+            </a>
+            <if condition="$info['company']['lisenseStatus'] eq 2">
+                    <p class="zxnFDesc"><img src="__PUBLIC__/images/vIcon.png"/>营业执照已认证/{$info.company.regTimeNew}注册</p>
+                </if>
+
+                <if  condition="$info['company']['lisenseStatus'] neq 2">
+                    <p class="zxnFDesc"><img src="__PUBLIC__/images/vIcon.png"/>营业执照未认证</p>
+                </if>
+
+            <i class="moreBtn"></i>
+        </li>
+
+        <if condition="$isApp eq 'yes'">
+            <li onclick="moreComments({$info.id})">顾客咨询<i class="moreBtn">共{$info.consultNum}条</i></li>
+        </if>
+    </ul>
+</div>
+<div class="space"></div>
+<if condition="$isApp eq 'yes'">
+    <div class="zxnRecomment">
+        <h3 class="commTitle"><i></i>相关推荐</h3>
+        <ul class="con">
+            <volist id="related" name="relatedData">
+                <li onclick="openSupplyMarket({$related.id},'{$related.title}')">
+                    <img class="zxnGoodImg" src="{$related['pictures'][0]['url']}"/>
+                    <div class="zxnGood">
+                        <h3 class="zxnGoodTop">{$related.title}<a id="open{$related.id}"></a></h3>
+
+                        <if condition="$related['price'] lt 1">
+                            <p class="zxnGoodPrice">请见详情</p>
+                        <else />
+                            <if condition="$related['priceUnit'] neq null">
+                                <p class="zxnGoodPrice"><i>￥</i>{$related.price}/{$related.priceUnit}</p>
+                            <else />
+                                <p class="zxnGoodPrice"><i>￥</i>{$related.price}</p>
+                            </if>
+                        </if>
+
+                        <!--<p class="zxnGoodPrice">请见详情</p>-->
+                        <div class="zxnGoodBottom"><span class="fl">{$related.districtText}</span><span class="fr">{$related.categoryText}</span></div>
+                    </div>
+                </li>
+            </volist>
+        </ul>
+    </div>
+</if>
+<!--底部固定导航-->
+<!--<div class="emptyBottom"></div>-->
+<!--<div class="zxnBottom">-->
+    <!--<ul class="zxnBottomCon">-->
+        <!--<li><i class="phoneIcon"></i><p>电话</p></li>-->
+        <!--<li><i class="starIcon"></i><p>收藏</p></li>-->
+        <!--<li><i class="shareIcon"></i><p>分享</p></li>-->
+    <!--</ul>-->
+    <!--<a class="zxnBottomBtn" href="javascript:;">免费预约</a>-->
+<!--</div>-->
+<script>
+    //轮播
+    if($('.zxnLunbo .swiper-slide').length>1){
+        var swiper = new Swiper('.swiper-container', {
+            pagination: '.swiper-p0',
+            autoplay:5000,
+            loop:true,
+            paginationClickable: true
+        });
+    }
+    //查看全部
+    $('.seeMoreBtn').click(function(){
+        $('.zxnDetail .con').addClass('hide');
+        $('.zxnDetail .all').removeClass('hide');
+        generalCooperationSwiper();
+    });
+
+    function generalCooperationSwiper(){
+        //合作案例生成轮播
+        if($('.swiper-container1').length>2){
+            var swiper1 = new Swiper('.swiper-container1', {
+                pagination: '.swiper-p1',
+                loop:true,
+                autoplay:5000,
+                paginationClickable: true
+            });
+        }
+    }
+
+    var ua = navigator.userAgent.toLowerCase();
+    function moreComments(Id){
+
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileMethod("moreComments",Id);
+            } else if (/android/.test(ua)) {
+                window.jsObj.callMobileMethod("moreComments",Id);
+            }
+        }catch(e){
+
+        }
+    }
+
+    function openSupplyMarket(Id,title){
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileMethod("openSupplyMarket",Id,title);
+            } else if (/android/.test(ua)) {
+                window.jsObj.callMobileMethod("openSupplyMarket",Id,title);
+            }
+        }catch(e){
+        }
+    }
+
+    //点击图片放大 (与手机端交互)
+    function clickImg(clickImgUrl){
+
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileMethod("clickImgForBig",{$gxptImgUrlArr},clickImgUrl-1);
+            } else if (/android/.test(ua)) {
+                window.jsObj.clickImgForBig({$gxptImgUrlArr},clickImgUrl-1);
+            }
+        }catch(e){
+
+        }
+    }
+
+    //头部banner轮播
+    var swiper = new Swiper('.zxswiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true,
+        spaceBetween: 30,
+        centeredSlides: true,
+        autoplay: 5000,
+        autoplayDisableOnInteraction: false,
+        loop:true
+    });
+</script>
+
+<script>
+
+    $(function(){
+        var topBannersArr=eval("("+'{$topBannersNew}'+")");//转换为json对象
+        $.each(topBannersArr, function(i, item) {
+            openAppOfMobile(item.id,item.title,item.description,item.banOrder);
+        });
+//        $(".downLoadBtn").eq(-2).attr('href','11321312');
+
+    });
+
+    function openAppOfMobile(id,title,desc,banOrder){
+        linkedme.init("79e71e72f227b57467f104a90e4f6684",null, null);
+
+        var data = {};
+        var appData = '';
+        data.type = "live";  //表示现在使用线上模式,如果填写"test", 表示测试模式.【可选】
+//      ata.feature = "功能名称"; // 自定义深度链接功能，多个用逗号分隔，【可选】
+//      data.stage = "阶段名称"; // 自定义深度链接阶段，多个用逗号分隔，【可选】
+//      data.channel = "渠道名称"; // 自定义深度链接渠道，多个用逗号分隔，【可选】
+//      data.tags = "标签名称"; // 自定义深度链接标签，多个用逗号分隔，【可选】
+        //data.ios_custom_url = "https://itunes .apple.com/us/app/ifood517/id1137017065?l=zh&ls=1&mt=8"; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.ios_custom_url = ""; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.android_custom_url = "http://opensns.lz517.com/index.php?s=/Home/AppDownload/index";// 自定义安卓平台下App的下载地址，【可选】
+
+        appData = "Detail?id="+id+"&title="+title+"&desc="+desc;
+        // 下面是自定义深度链接参数，用户点击深度链接打开app之后，params参数将被带入app
+        // 比如详情页面的参数，可以写进去，这样唤起app后可直接跳转到详情页【可选】
+        data.params = '{"app":"News","target":"'+appData+'"}'; //注意单引号和双引号的位置
+//        console.log(data.params);
+        linkedme.link(data, function(err, data){
+            if(err){
+                // 生成深度链接失败，返回错误对象err
+            } else {
+//                console.log(data.url);
+                if(banOrder==3){
+                    $(".downLoadBtn").eq(-2).attr('href',data.url);
+                }else{
+                    $("#twoAId"+banOrder).attr('href',data.url);
+                }
+            }
+        },false);
+    }
+</script>
+</body>
+</html>

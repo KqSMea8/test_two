@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>添加新设备</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+
+</head>
+<body>
+
+<div class="receiptInfoWarp">
+	<div class="weui-cells weui-cells_form" style="height: 24.9rem;overflow:auto">
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">企业名称：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.enterprise_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">门店名称：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.store_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">服务商：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.fac_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">巡检员：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.inspector_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">联系电话：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" value="{$childOrderDetail.inspector_phone}" type="number" id="linkphone" placeholder="座机或手机号"/>
+			</div>
+		</div>
+		<volist id="device" name="deviceList" key="key">
+			<div class="appointment-polling-index-color">
+				<div class="polling-list">
+					<label style="padding-left: 0.6rem;font-weight: 600;">设备{$key}</label>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备名称：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value="{$device.device_name}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备品牌：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value="{$device.brand}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备类别：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value="{$device.name}"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</volist>
+	</div>
+</div>
+<div class="centerBtnWarp centerBtn" style="height: 2rem;padding-top: 0.2rem;">
+	<a href="javascript:;" onclick="confirmDevice('{$child_id}')" class="centerBtn">导 入</a>
+</div>
+</body>
+</html>
+<script type="text/javascript" src="/Public/wechat/j/jquery.js"></script>
+<script>
+	function closeWindow(){
+		window.close();
+		WeixinJSBridge.call('closeWindow');
+	}
+	function confirmDevice(child_id){
+		var loading = weui.loading('正在导入设备');
+		$.post("{:U('Enterprise/CustomerServices/updateDeviceStatus')}",{child_id:child_id},function(res){
+			loading.hide();
+			if(res.status == 1){
+				closeWindow();
+			}else{
+				weui.alert(res.msg);
+			}
+		},'json');
+	}
+</script>

@@ -1,0 +1,517 @@
+@charset "utf-8";
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Microsoft YaHei';
+}
+html,
+body {
+  -webkit-text-size-adjust: none;
+  background: #ededed;
+}
+li {
+  list-style: none;
+}
+img {
+  border: none;
+}
+input,
+select,
+textarea {
+  outline: none;
+  border: none;
+  background: none;
+  -webkit-appearance: none;
+}
+textarea {
+  resize: none;
+}
+a {
+  text-decoration: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+i,
+em {
+  font-style: normal;
+}
+a,
+button,
+input {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.clearfix {
+  zoom: 1;
+}
+.clearfix:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.none {
+  display: none;
+}
+.hid {
+  overflow: hidden;
+}
+.bl {
+  display: block;
+}
+.in {
+  display: inline-block;
+}
+.order {
+  width: 14rem;
+  height: auto;
+  margin: 0.5rem auto;
+  padding: 0.72rem 0.64rem 0 0.64rem;
+  background: #fff;
+  overflow: hidden;
+  -webkit-border-radius: 0.12rem;
+  -moz-border-radius: 0.12rem;
+  border-radius: 0.12rem;
+}
+.order-title {
+  font-size: 0.64rem;
+  color: #4d4d4d;
+  border-bottom: 1px solid #bfbfbf;
+  padding-bottom: 0.4rem;
+  font-weight: bold;
+}
+.order-detail {
+  padding: 0.46rem 0;
+  overflow: hidden;
+}
+.order-detail-list {
+  height: 1.04rem;
+  line-height: 1.04rem;
+  font-size: 0.58rem;
+  color: #999999;
+}
+.order-detail span {
+  overflow: hidden;
+  width: 8.6rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  float: right;
+  color: #4d4d4d;
+  text-align: right;
+}
+.order-detail span a {
+  height: 0.76rem;
+  color: #4d4d4d;
+  display: inline-block;
+  padding-left: 0.3rem;
+}
+.order-detail span img {
+  display: inline-block;
+  vertical-align: middle;
+  height: 0.6rem;
+  width: auto;
+  margin-right: 0.2rem;
+}
+.order-detail span.order-detail-state {
+  color: red;
+}
+.order-detail-line {
+  height: 0.46rem;
+  margin-bottom: 0.46rem;
+  border-bottom: 1px dashed #bfbfbf;
+}
+.time-warn {
+  width: 14rem;
+  margin: -0.3rem auto 0.4rem auto;
+  color: red;
+  text-align: center;
+  font-size: 0.5rem;
+}
+.import {
+  position: relative;
+  width: 14rem;
+  height: auto;
+  margin: 0.5rem auto;
+  padding: 0 0.64rem 0.56rem 0.64rem;
+  background: #fff;
+  -webkit-border-radius: 0.12rem;
+  -moz-border-radius: 0.12rem;
+  border-radius: 0.12rem;
+}
+.import-list {
+  position: relative;
+  display: flex;
+  font-size: 0.58rem;
+  color: #fff;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dcdcdc;
+}
+.import-list-title{
+  text-indent:2.5rem;
+}
+.import-list .import-list-title em {
+  padding: 0 0.5rem;
+  color: #dcdcdc;
+}
+.import-list .service-type,
+.import-list .service-num,
+.import-list .service-people {
+  width: 8rem;
+  font-size: 0.58rem;
+  color: #999999;
+}
+.import-list .service-type-list,
+.import-list .service-num-list,
+.import-list .service-people-list {
+  display: none;
+  position: absolute;
+  left: 3.4rem;
+  top: 1.4rem;
+  width: 8rem;
+  background: #fff;
+  box-shadow: 0 0 0.1rem #c0c0c0;
+  z-index: 2;
+  padding: 0.3rem;
+  line-height: 1rem;
+  -webkit-border-radius: 0.1rem;
+  -moz-border-radius: 0.1rem;
+  border-radius: 0.1rem;
+  color: #4d4d4d;
+}
+.import-list .service-type-list li,
+.import-list .service-num-list li,
+.import-list .service-people-list li {
+  padding-left: 0.2rem;
+}
+.import-list .service-type-list li.hover,
+.import-list .service-num-list li.hover,
+.import-list .service-people-list li.hover {
+  background: #c0c0c0;
+}
+.import-list img {
+  display: block;
+  position: absolute;
+  width: 0.22rem;
+  height: 0.38rem;
+  right: 0.6rem;
+  top: 0.7rem;
+}
+.import-list .import-text {
+  font-size: 0.58rem;
+  width: 5rem;
+}
+.import-list .server-period {
+  position: absolute;
+  right: 0;
+}
+.import-list .server-period i {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #bfbfbf;
+  margin-right: 0.2rem;
+  -webkit-border-radius: 0.08rem;
+  -moz-border-radius: 0.08rem;
+  border-radius: 0.08rem;
+}
+.import-list .server-period i.hover {
+  background: #bfbfbf url(../i/sel.jpg) center center no-repeat;
+  background-size: 0.32rem 0.24rem;
+}
+.import-list .placeholder {
+  color: #999999;
+  flex: 1;
+}
+.price .import-list {
+  border: none;
+  padding-bottom: 0;
+}
+.price .import-price {
+  flex: 1;
+  display: block;
+  height: 1rem;
+  line-height: 1rem;
+  padding: 0;
+  text-align: right;
+  overflow: hidden;
+}
+.price .import-price i {
+  display: inline-block;
+  height: 1rem;
+  line-height: 1rem;
+  margin: 0;
+}
+.price .import-price .cost-price {
+  display: inline-block;
+  height: 1rem;
+  line-height: 1rem;
+  width: 2rem;
+  min-width: 0.6rem;
+  margin: 0;
+  max-width: 6rem;
+}
+.price .import-price .cost-price:hover,
+.price .import-price i:hover {
+  margin: 0;
+}
+.price .price-warn {
+  color: red;
+}
+.price .price-warn input::-webkit-input-placeholder {
+  /*WebKit browsers*/
+  color: red;
+}
+.button {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+.button a {
+  display: block;
+  width: 6.56rem;
+  height: 1.8rem;
+  line-height: 1.8rem;
+  text-align: center;
+  border: 1px solid #4d4d4d;
+  color: #4d4d4d;
+  font-size: 0.7rem;
+  -webkit-border-radius: 0.9rem;
+  -moz-border-radius: 0.9rem;
+  border-radius: 0.9rem;
+}
+.button a.ok {
+  margin-left: 0.9rem;
+}
+.button a.hover {
+  background: #fff100;
+  border-color: #fff100;
+}
+.price-warn input::-webkit-input-placeholder {
+  /*WebKit browsers*/
+  color: red;
+}
+/*单次修改订单价格开始*/
+.edit-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.edit {
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  top: 50%;
+  margin: -3.8rem 0 0 -35%;
+  width: 70%;
+  height: 7.6rem;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-border-radius: 0.3rem;
+  -moz-border-radius: 0.3rem;
+  border-radius: 0.3rem;
+}
+.edit-title {
+  text-align: center;
+  margin: 1rem auto 0.5rem auto;
+  color: #fff;
+  font-size: 0.7rem;
+}
+.edit .edit-list {
+  width: 75%;
+  height: 1rem;
+  line-height: 1rem;
+  font-size: 0.58rem;
+  color: #fff;
+  margin: 0 auto;
+}
+.edit .edit-list span {
+  color: #999;
+}
+.edit .edit-list input {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 4.8rem;
+  color: #999;
+  height: 0.8rem;
+  font-size: 0.58rem;
+}
+.edit .btn {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+.edit .btn a {
+  display: inline-block;
+  font-size: 0.5rem;
+  color: #fff;
+  text-align: center;
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  border-radius: 0.8rem;
+  border: 1px solid #fff;
+  padding: 0.16rem 1.2rem;
+  margin-top: 0.8rem;
+}
+.edit .btn a.hover {
+  background: #fff100;
+  border-color: #fff100;
+  color: #666;
+}
+.edit .btn a:last-child {
+  margin-left: 0.4rem;
+}
+.hide {
+  display: none;
+}
+/*单次修改订单价格结束*/
+.warn-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+}
+.store-warn {
+  position: absolute;
+  width: 11.36rem;
+  height: 7rem;
+  top: 7.4rem;
+  left: 50%;
+  margin: auto auto auto -5.68rem;
+  background: #000;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+}
+.store-warn img {
+  display: block;
+  width: 1.8rem;
+  height: 1.7rem;
+  margin: 0.72rem auto 0.6rem;
+}
+.store-warn span {
+  display: block;
+  height: 0.92rem;
+  line-height: 0.64rem;
+  text-align: center;
+  font-size: 0.6rem;
+  color: #f6f6f6;
+  background: url(../i/line.jpg) bottom center no-repeat;
+  background-size: 7.32rem 1px;
+}
+.store-warn a {
+  display: block;
+  width: 4rem;
+  height: 1.6rem;
+  line-height: 1.6rem;
+  text-align: center;
+  font-size: 0.52rem;
+  color: #fff;
+  background: #fff100;
+  -webkit-border-radius: 0.8rem;
+  -moz-border-radius: 0.8rem;
+  border-radius: 0.8rem;
+  margin: 0.84rem auto auto auto;
+}
+/*更换服务商*/
+.centerBtnWarp {
+  position: fixed;
+  bottom: 0px;
+  height: 3.16rem;
+  width: 100%;
+  background: #ededed;
+  z-index: 10;
+  padding-top: 0.4rem;
+}
+.centerBtnWarp .centerBtn {
+  width: 12rem;
+  height: 1.7rem;
+  line-height: 1.7rem;
+  text-align: center;
+  background: #ffea10;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+  display: block;
+  margin: 0 auto;
+  font-size: 0.68rem;
+  color: #333333;
+}
+/*********************联系客服*************************/
+.kefuLayer {
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  width: 100%;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+}
+.kefuLayer .kefuWarp {
+  height: 7.16rem;
+  width: 10.8rem;
+  background: #fff;
+  -webkit-border-radius: 0.16rem;
+  -moz-border-radius: 0.16rem;
+  border-radius: 0.16rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -3.58rem;
+  margin-left: -5.4rem;
+}
+.kefuLayer .kefuWarp .title {
+  height: 1.92rem;
+  line-height: 1.92rem;
+  margin-top: 0.54rem;
+  font-size: 0.96rem;
+  color: #333333;
+  font-weight: bold;
+  padding-left: 0.9rem;
+}
+.kefuLayer .kefuWarp .tip {
+  height: 1.68rem;
+  line-height: 1.68rem;
+  font-size: 0.68rem;
+  color: #666666;
+  padding: 0px 0.9rem;
+}
+.kefuLayer .kefuWarp .btnBottom {
+  display: block;
+  width: 8rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  text-align: center;
+  background: #ffea10;
+  font-size: 0.6rem;
+  color: #333333;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+  margin: 0 auto;
+  margin-top: 0.7rem;
+  position: fixed;
+  top: 72%;
+  left: 24%;
+}

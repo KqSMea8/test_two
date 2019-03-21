@@ -1,0 +1,89 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 15-4-28
+ * Time: 上午11:30
+ * @author 郑钟良<zzl@ourstu.com>
+ */
+
+namespace Goods\Controller;
+
+use Think\Controller;
+use Common\Lib\Lz517\IceProxyHelper;
+use Common\Lib\Ice\IceHelper;
+use News\Model\NewsModel;
+use Common\Lib\WX\JSSDK;
+
+class IndexController extends Controller{
+
+    //二手商品详情
+    public function detailH5($id = 97)
+    {
+        //是否为分享打开
+        if(!empty($_SERVER["HTTP_AD"]) && $_SERVER["HTTP_AD"] == 1){
+            $this->assign("isApp","yes");
+        }else{
+            $this->assign("isApp","no");
+        }
+
+        require_once APP_PATH."Common/Lib/Ice/clientphp/SecondhandMarket.php";
+        require_once APP_PATH."Common/Lib/Ice/clientphp/Comment.php";
+
+        $service = IceHelper::getProxy(com_jpgk_catering_rpc_secondhandmarket_SecondHandServicePrxHelper,'V1.0.3');
+
+        //获取商品详情
+        $goodsData = $service -> getGoodsV171020(intval($id),0);
+        $goodsData = json_decode(json_encode($goodsData),true);
+
+        //获取维养服务详情
+        $maintenanceData = $service -> getMaintenance(intval($id));
+        $maintenanceData = json_decode(json_encode($maintenanceData),true);
+
+        $goodsData['createTimeNew'] = Date('Y-m-d',$goodsData['createTime']);
+        $goodsData['priceText'] = ($goodsData['salePrice'] <= 0) ? "价格面议" : $goodsData['salePrice'];
+
+        //获取分类其他商品列表
+        $relatedData = $service -> getSuggestedGoodses(intval($goodsData['goodsCategory']['categoryId']),intval($id));
+        $relatedData = json_decode(json_encode($relatedData),true);
+        foreach($relatedData as &$val){
+            $val['priceText'] = ($val['salePrice'] <= 0) ? "价格面议" : $val['salePrice'];
+        }
+
+        //获取该商品留言咨询数据
+        $commentService =  IceHelper::getProxy(com_jpgk_catering_rpc_comment_CommentServicePrxHelper,'V1.0.3');
+
+        $app = new \com_jpgk_catering_rpc_comment_CommentApp();
+        $page = new \com_jpgk_common_rpc_Page(intval(1),intval(2));
+
+        $commentData = $commentService -> getCommentListByAppV0324(0,$app::SHM,intval($id),$page,$page);
+        $commentData = json_decode(json_encode($commentData),true);
+        foreach($commentData as &$val){
+            if(empty($val['userV0324']['avatar'])){
+                $val['userV0324']['avatar'] = '/Public/images/chatimg.png';
+            }
+            $val['createTimeText'] = Date('m-d H:i',$val['createTime']);
+        }
+
+        //查询顶部的轮播banner
+        list($bannerData,$bannerNewData) = getTopBanner();
+        $this->assign("topBanners",$bannerData);
+        $this->assign("topBannersNew",json_encode($bannerData));
+
+        //微信分享的相关信息
+        $wxjssdk = new JSSDK();
+        $signPackage = $wxjssdk->getSignPackage();
+
+        $this->assign("shareImg","http://opensns.lz517.com/share2.png");
+        $this->assign("shareDesc",mb_substr(str_replace(["\r\n","\r","\n","&nbsp;"],"",$goodsData["description"]), 0, 30, 'UTF-8'));
+        $this->assign("signPackage",$signPackage);
+
+        $this->assign('info',$goodsData);
+        $this->assign('mainTimeLimit',$maintenanceData['timeLimit']);
+        $this->assign('mainMoney',$maintenanceData['money']);
+        $this->assign('goodsImgUrlArr',json_encode(array_column($goodsData['pictures'],'url')));
+        $this->assign('relatedData',$relatedData);
+        $this->assign('commentData',$commentData);
+        $this->display('Index/tmpl/detailH5');
+    }
+}

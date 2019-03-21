@@ -1,0 +1,20 @@
+<link type="text/css" rel="stylesheet" href="{:getRootUrl()}Addons/Lunbo/_static/css/flexslider.css"/>
+<section id="section">
+		<!-- 图片播放功能 -->
+		<div class="bannerPane">
+			<section class="slider">
+				<div class="flexslider">
+					<ul class="slides">
+						
+						<foreach name="imageLinks" item="vo" key="k" >
+						   <li sliderid='{$k}'><a href="{$vo['link']}"><img src="{$vo['url']}" alt="海连江酒店-图{$k}" /></a></li>
+						</foreach>
+						
+					</ul>
+				</div>
+			</section>
+		</div>
+</section>
+<script src="{:getRootUrl()}Addons/Lunbo/_static/js/jquery.mmenu.min.all.js"></script>
+<script src="{:getRootUrl()}Addons/Lunbo/_static/js/jquery.flexslider.js"></script>
+<script src="{:getRootUrl()}Addons/Lunbo/_static/js/o-script.js"></script>

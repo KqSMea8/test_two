@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>添加新设备</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			// if(hWidth>800){
+			//     hWidth=800;
+			// }
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+
+</head>
+<body>
+
+<div class="receiptInfoWarp">
+	<div class="weui-cells weui-cells_form" style="height: 24.6rem;overflow:auto">
+
+		<if condition="!empty($deviceList)">
+			<div class="appointment-polling-index-color">
+				<volist id="device" name="deviceList" key="key">
+						<div class="polling-list">
+							<label style="padding-left: 0.6rem;font-weight: 600;line-height: 1.5rem">设备{$key}</label>
+							<div class="weui-cell">
+								<div class="weui-cell__hd"><label class="weui-label">设备名称：</label></div>
+								<div class="weui-cell__bd">
+									<input class="weui-input device_name" type="text" value="{$device.device_name}"/>
+								</div>
+							</div>
+							<div class="weui-cell">
+								<div class="weui-cell__hd"><label class="weui-label">设备品牌：</label></div>
+								<div class="weui-cell__bd">
+									<input class="weui-input device_brand" type="text" value="{$device.brand}"/>
+								</div>
+							</div>
+							<div class="weui-cell">
+								<div class="weui-cell__hd"><label class="weui-label">设备类别：</label></div>
+								<div class="weui-cell__bd">
+									<select class="weui-select device_cate" name="select2">
+										<volist name="deviceType" id="data">
+											<option <?php if($data['id'] == $device['category_id']){echo selected;} ?> value="{$data.id}">{$data.name}</option>
+										</volist>
+									</select>
+								</div>
+							</div>
+						</div>
+				</volist>
+			</div>
+		<else />
+			<div class="appointment-polling-index-color">
+				<div class="polling-list">
+					<label style="padding-left: 0.6rem;font-weight: 600;line-height: 1.5rem">设备1</label>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备名称：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input device_name" type="text" value=""/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备品牌：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input device_brand" type="text" value=""/>
+						</div>
+					</div>
+					<div class="weui-cell weui-cell_select weui-cell_select-after">
+						<div class="weui-cell__hd"><label class="weui-label">设备类别：</label></div>
+						<div class="weui-cell__bd">
+							<select class="weui-select device_cate" name="select2">
+								<option value="0">请选择</option>
+								<volist name="deviceType" id="data">
+									<option value="{$data.id}">{$data.name}</option>
+								</volist>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</if>
+		<a href="javascript:;" style="margin-top: 0.5rem;" class="weui-btn weui-btn_mini weui-btn_primary addButton" onclick="addDiv()">新增</a>
+		<a href="javascript:;" class="weui-btn weui-btn_mini weui-btn_warn delButton hide" id="delId" onclick="delDiv()">删除</a>
+	</div>
+</div>
+<div class="centerBtnWarp" style="height: 2rem;padding-top: 0.2rem;">
+	<a href="javascript:;" onclick="confirmDeviceBtn()" class="centerBtn">确 定</a>
+</div>
+<!--<div class="centerBtnWarp centerBtn" style="height: 2rem;padding-top: 0.2rem;">-->
+	<!--<a href="javascript:;" class="centerBtn">导 入</a>-->
+<!--</div>-->
+</body>
+</html>
+<script type="text/javascript" src="/Public/wechat/j/jquery.js"></script>
+<script>
+	$(function() {
+
+		inspectionStoreChildId = '{$inspectionStoreChildId}';
+		deviceTypeJs = eval("("+'{$deviceTypeJs}'+")");
+		deviceLength = '{$deviceLength}';
+	});
+
+	//新增操作
+	function addDiv() {
+		var pollingLevel = $(".appointment-polling-index-color .polling-list").length;
+		var deviceNum = Number(pollingLevel)+1;
+		var problem = "<div class=\"polling-list\">"+
+		"<label style=\"padding-left: 0.6rem;font-weight: 600;line-height: 1.5rem\">设备"+deviceNum+"</label>"+
+		"<div class=\"weui-cell\">"+
+		"		<div class=\"weui-cell__hd\"><label class=\"weui-label\">设备名称：</label></div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"		<input class=\"weui-input device_name\" type=\"text\" value=\"\"/>"+
+		"		</div>"+
+		"		</div>"+
+		"		<div class=\"weui-cell\">"+
+		"		<div class=\"weui-cell__hd\"><label class=\"weui-label\">设备品牌：</label></div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"		<input class=\"weui-input device_brand\" type=\"text\" value=\"\"/>"+
+		"		</div>"+
+		"		</div>"+
+		"		<div class=\"weui-cell weui-cell_select weui-cell_select-after\">"+
+		"		<div class=\"weui-cell__hd\">"+
+		"		<label class=\"weui-label\">设备类别：</label>"+
+		"</div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"	<select class=\"weui-select device_cate\" name=\"select2\">"+
+				"<option value=\"0\">请选择</option>";
+
+		for(var i=0;i<deviceTypeJs.length;i++){
+			problem +="<option value="+deviceTypeJs[i].id+">"+deviceTypeJs[i].name+"</option>";
+		}
+		problem +="	</select>"+
+		"</div>"+
+		"</div>"+
+		"</div>";
+		$(".appointment-polling-index-color").append(problem);
+		$(".appointment-polling-index-color .polling-list").each(function () {
+			var num = $(this).index();
+//			$(this).find(".title em").html(num+1);
+		});
+		if ($(".appointment-polling-index-color .polling-list").length > 1) {
+			$("#delId").removeClass('hide');
+		}
+	}
+
+	//删除功能
+	function delDiv(){
+		var len=$(".appointment-polling-index-color .polling-list").length;
+		leng = Number(deviceLength) + 1;
+		if(leng>1 && len == leng){
+			$("#delId").addClass('hide');
+		}else if(len==2){
+			$("#delId").addClass('hide');
+		}
+		$(".appointment-polling-index-color .polling-list:eq("+(len-1)+")").remove();
+	}
+
+	//确认按钮
+	var doubleClick = false;
+	function confirmDeviceBtn(){
+		if(doubleClick){
+			return false;
+		}else{
+			doubleClick = true;
+		}
+		var deviceData = [];
+		var errorMsg = "";
+		$(".appointment-polling-index-color .polling-list").each(function() {
+			var index = $(this).index();
+			var level = index + 1;
+			var radio_name = "urgent_level" + level;
+			var deviceName = $(".appointment-polling-index-color .polling-list:eq(" + index + ")").find(".device_name").val();
+			var deviceBrand = $(".appointment-polling-index-color .polling-list:eq(" + index + ")").find(".device_brand").val();
+			var deviceCate = $(".appointment-polling-index-color .polling-list:eq(" + index + ")").find(".device_cate").val();
+
+			if(!deviceName){
+				errorMsg += "【请填写设备"+level+"的设备名称】<br/>";
+			}
+			if(!deviceBrand){
+				errorMsg += "【请填写设备"+level+"的设备品牌】<br/>";
+			}
+			if(Number(deviceCate)==0){
+				errorMsg += "【请选择设备"+level+"的设备类别】<br/>";
+			}
+			var tempDetail = {};
+			tempDetail['deviceName'] = deviceName;
+			tempDetail['deviceBrand'] = deviceBrand;
+			tempDetail['deviceCate'] = deviceCate;
+			deviceData.push(tempDetail);
+		});
+		if(errorMsg){
+			weui.alert(errorMsg);
+			return false;
+		}
+
+		var addData ={
+			deviceData:deviceData,
+			inspectionStoreChildId:inspectionStoreChildId
+		};
+		$.post("{:U('masterAddDevice')}", addData, function(result){
+			if(result.status == 1){
+				window.location.href="index.php?s=/Enterprise/StoreMaintain/showInspectionOperationDetail/inspection_store_child_id/"+inspectionStoreChildId+"";
+			}
+		});
+
+	}
+
+</script>

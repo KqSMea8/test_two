@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <meta name="format-detection" content="telephone=no">
+    <title>公司简介</title>
+    <link href="__PUBLIC__/css/zixun.css" rel="stylesheet" type="text/css"/>
+    <link href="__PUBLIC__/js/gxptSwiper/swiper.min.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="__PUBLIC__/js/jquery.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/js/gxptSwiper/swiper.min.js"></script>
+    <!--手机端图片放大效果-->
+    <link rel="stylesheet" href="__PUBLIC__/thirdParty/touchTouch/touchTouch.css" />
+    <!--[if lt IE 9]>
+    <script src="__PUBLIC__/thirdParty/touchTouch/html5.js"></script>
+    <![endif]-->
+    <script src="__PUBLIC__/thirdParty/touchTouch/touchTouch.jquery.js"></script>
+
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#f2f1ec;">
+<!--头部导航条 start-->
+<!--<div class="zxnNav"><a class="backBtn" href="javascript:;"></a>公司简介</div>-->
+<!--<div style="height:1.76rem;width:100%;"></div>-->
+<!--头部导航条 end-->
+<div class="zxnDetail">
+    <ul class="zxnDetailUl">
+        <li style="color:#333333;font-size:0.68rem;"><p>{$info.name}</p></li>
+        <li style="font-family:'Arial';font-size:0.6rem;"><i class="ic ic2"></i>{$info.phone}</li>
+        <li><i class="ic ic3"></i><p>{$info.address}</p></li>
+    </ul>
+    <!--没有展开全部的情况-->
+    <div class="con">
+        <if condition="$info['descriptionNew'] neq null">
+            <p>{$info.descriptionNew}</p>
+            <a class="seeMoreBtn" href="javascript:;">查看全部</a>
+            <else />
+            <p>{$info.description}</p>
+        </if>
+    </div>
+
+    <div class="con all hide">
+        <p>{$info.description}</p>
+        <!--<h3 class="succCaseTitle"><span>成功案例</span></h3>-->
+        <!--<div class="swiperWarp">-->
+            <!--<div class="swiperCon">-->
+                <!--<volist id="successCases" name="info['successCases']">-->
+                    <!--<div class="swiperOne">-->
+                        <!--<img src="{$successCases['imageUrl']}"/>-->
+                        <!--<p>深圳市家乐通商贸有限公司</p>-->
+                    <!--</div>-->
+                <!--</volist>-->
+            <!--</div>-->
+           <!--<div class="swiperIndex"></div>-->
+        <!--</div>-->
+    </div>
+
+</div>
+<!--公司资质-->
+<div class="space"></div>
+<div class="zizhiWarp">
+    <h3 class="commTitle" style="border:none;border:0px;"><i></i>公司资质</h3>
+    <div class="zichiCon">
+
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <volist id="Qualifications" name="info['companyQualifications']">
+                    <div class="swiper-slide">
+                        <a href="{$Qualifications['imageUrl']}" style="background-image:url({$Qualifications['imageUrl']});background-size:100% 100%;" title=""></a>
+                    </div>
+                </volist>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!--合作案例-->
+<if condition="$isCompanySuccessCases eq 'yes'">
+    <div class="space"></div>
+    <div class="teamWork">
+        <h3 class="commTitle" style="border:none;border:0px;"><i></i>合作案例</h3>
+        <div class="swiperWarp">
+            <div class="swiper-container1">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="swiperCon">
+                            <volist id="successCases" name="info['successCases']">
+                                <div class="swiperOne">
+                                    <img src="{$successCases['imageUrl']}"/>
+                                </div>
+                            </volist>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+    </div>
+</if>
+<!---其他推荐-->
+<div class="space"></div>
+<if condition="$isApp eq 'yes'">
+    <div class="zxnRecomment">
+        <h3 class="commTitle"><i></i>其他产品</h3>
+        <ul class="con">
+            <volist id="related" name="relatedData">
+                <li onclick="openSupplyMarket({$related.id},'{$related.title}')">
+
+                    <img class="zxnGoodImg" src="{$related['pictures'][0]['url']}"/>
+                    <div class="zxnGood">
+                        <h3 class="zxnGoodTop">{$related.title}</h3>
+
+                        <if condition="$related['price'] lt 1">
+                            <p class="zxnGoodPrice">请见详情</p>
+                        <else />
+                            <if condition="$related['priceUnit'] neq null">
+                                <p class="zxnGoodPrice"><i>￥</i>{$related.price}/{$related.priceUnit}</p>
+                                <else />
+                                <p class="zxnGoodPrice"><i>￥</i>{$related.price}</p>
+                            </if>
+                        </if>
+
+                        <!--<p class="zxnGoodPrice">请见详情</p>-->
+                        <div class="zxnGoodBottom"><span class="fl">{$related.districtText}</span><span class="fr">{$related.categoryText}</span></div>
+                    </div>
+                </li>
+            </volist>
+        </ul>
+    </div>
+</if>
+<script>
+    //手机屏触摸放大图片效果
+    $(function(){
+        $('.zichiCon a').touchTouch();
+    });
+</script>
+<script>
+    //资质出现滚动条
+    var swiper = new Swiper('.swiper-container', {
+        scrollbarHide: true,
+        slidesPerView: 'auto',
+        spaceBetween: 18,
+        grabCursor: true
+    });
+    //合作案例生成轮播
+    var swiper1 = new Swiper('.swiper-container1', {
+        pagination: '.swiper-pagination',
+        loop:true,
+        autoplay:5000,
+        paginationClickable: true
+    });
+    //查看全部
+    $('.seeMoreBtn').click(function(){
+        $('.zxnDetail .con').addClass('hide');
+        $('.zxnDetail .all').removeClass('hide');
+        $('.seeMoreBtn').hide();
+    });
+
+    var ua = navigator.userAgent.toLowerCase();
+    function openSupplyMarket(Id,title){
+
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileMethod("openSupplyMarket",Id,title);
+            } else if (/android/.test(ua)) {
+                window.jsObj.callMobileMethod("openSupplyMarket",Id,title);
+            }
+        }catch(e){
+
+        }
+    }
+</script>
+</body>
+</html>

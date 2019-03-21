@@ -1,0 +1,466 @@
+<?php
+
+namespace Enterprise\Service;
+
+use Admin\Model\PictureModel;
+use Goods\Model\SomethingPicModel;
+use Think\Log;
+use Wechat\Model\WechatInspectionModel;
+use Wechat\Model\WechatInspectionStoreChildDeviceModel;
+use Wechat\Model\WechatInspectionStoreChildModel;
+use Wechat\Model\WechatInspectionStoreModel;
+use Wechat\Model\WechatMemberModel;
+use Wechat\Model\WechatOrderItemModel;
+use Wechat\Model\WechatOrderModel;
+use Wechat\Service\WechatService;
+
+
+/**
+ * 微信企业号
+ *
+ * @author songbin
+ *
+ */
+include_once "php/WXBizMsgCrypt.php";
+
+class InspectionService
+{
+    private $encodingAesKey;
+    private $token;
+    private $corpId;
+    private $corpsecret;
+    private $_accessToken = null;
+    private $_jsapiTicket = null;
+    const GET_ACCESS_TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?";
+    const GET_USER_INFO_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?";
+    const GET_USER_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/get?";
+    const GET_MEDIA_URL = "https://qyapi.weixin.qq.com/cgi-bin/media/get?";
+    const GET_DEPARTMENT_LIST = "https://qyapi.weixin.qq.com/cgi-bin/department/list?";
+    const GET_DEPARTMENT_USER_SIMPLE_LIST = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?";
+    const GET_DEPARTMENT_USER_LIST = "https://qyapi.weixin.qq.com/cgi-bin/user/list?";
+    const MEDIA_UPLOAD = "https://qyapi.weixin.qq.com/cgi-bin/media/upload?";
+    const SEND_MESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/message/send?";
+    const GET_JS_API_TICKET_URL = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?";
+    const GET_CODE = "https://open.weixin.qq.com/connect/oauth2/authorize?";
+    const USER_CREATE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/create?";
+    const USER_UPDATE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/update?";
+    const USER_DELETE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?";
+    const USER_BATCHDELETE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/batchdelete?";
+    const INVITE_SEND_URL = "https://qyapi.weixin.qq.com/cgi-bin/invite/send?";
+
+    // 构造函数
+    public function __construct($encodingAesKey, $token, $corpId = COMPANY_CORPID, $corpsecret)
+    {
+        $this->encodingAesKey = $encodingAesKey;
+        $this->token = $token;
+        $this->corpId = $corpId;
+        $this->corpsecret = $corpsecret;
+    }
+
+
+    /**
+     * 获取巡检主订单数据
+     * @param string $where
+     * @param string $fields
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getMainInspectionOrderData($where = ''){
+
+        $wechatInspectionModel = new WechatInspectionModel();
+        $fields = 'wi.inspection_id,wi.inspection_code,wi.enterprise_name,wi.create_time,count(wis.inspection_store_id) storeNum';
+        $returnData = $wechatInspectionModel -> getInspectionOrderData($where,$fields);
+
+        return $returnData;
+    }
+
+    /**
+     * 获取巡检主订单相关详情页面 展示的数据
+     * @param string $where
+     * @return mixed
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getMainInspectionOrderDetail($where = ''){
+
+        $wechatInspectionModel = new WechatInspectionModel();
+        $fields = 'wi.inspection_id,wi.facilitator_id,wi.inspection_code,wi.inspection_status,wi.service_start_time,wi.service_end_time,wi.service_price,wi.payment,wi.finish_time,wi.create_time,wf.name wfname,wf.phone wfphone,wke.name kename,wke.link_person,wke.link_phone';
+        $returnData = $wechatInspectionModel -> getMainInspectionOrderDetail($where,$fields);
+
+        return $returnData;
+    }
+
+    /**
+     * 获取巡检主订单中的门店数据
+     * @param string $where
+     * @return array
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getInspectionStoreOrderDetail($where = ''){
+
+        $wechatInspectionModel = new WechatInspectionStoreModel();
+        $fields = 'inspection_store_id,type,cycle,service_num_total,service_money,GROUP_CONCAT(store_id) storeId,COUNT(inspection_store_id) as storeNum';
+        $returnData = $wechatInspectionModel -> getInspectionOrderStoreData($where,$fields);
+
+        return $returnData;
+    }
+
+    /**
+     * 获取巡检子订单数据
+     * @param string $id
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderInfoForChildId($id = ''){
+
+        $model = new WechatInspectionStoreChildModel();
+        $fields = 'wisc.inspection_store_child_id,wisc.service_num,wisc.inspector_id,wisc.child_order_code,wisc.status,wisc.arrive_time,wisc.requirements_text,wisc.finish_time,wisc.create_time,wks.name as storeName,wks.stores_address,wks.link_person as storePerson,wks.link_phone as storePhone,wf.name as fName,wms.name as supervisorName,wms.phone as supervisorPhone,wm.name as mentorName,wm.phone as mentorPhone';
+        $where = [
+            'wisc.inspection_store_child_id'=>$id,
+        ];
+        $return = $model->getChildOrderDetail($where,$fields);
+
+        return $return;
+    }
+
+
+    /**
+     * 获取巡检子订单列表
+     * @param string $where
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderList($where = '',$order = ''){
+
+        $field = "wisc.inspection_store_child_id,wisc.child_order_code,wisc.status,wisc.service_num,wisc.create_time,wisc.inspector_id,store.name store_name";
+        $return = (new WechatInspectionStoreChildModel())->getChildList($where,$field,$order);
+
+        return $return;
+    }
+
+
+    /**
+     * 获取子订单数据 设备列表数据
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderDeviceList($where = ''){
+        $field = "wisc.inspection_store_child_id,wiscd.inspection_child_device_id,wd.id,wisc.`status`,wd.device_code,wd.device_name,wiscd.repairs_id,wiscd.yet_repairs_id,wiscd.inspection_operate,wiscd.remark,wd.is_operate,ifnull(weco.id,0) operation";
+        $return = (new WechatInspectionStoreChildModel())->getChildOrderDeviceMasterList($where,$field,'wiscd.update_time desc');
+
+        return $return;
+    }
+
+    /**
+     * 巡检员 生成订单
+     * @param $orderType 订单来源 1:设备维修，2:门店消杀，3:设备清洗，4:巡检
+     * @return array|bool|mixed
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function inspectionMasterCreateOrder($orderType){
+
+        //验证期望上门时间
+        $doortime = "";
+        if(I("door_time")){
+            $doortime = date("Y-m-d H:i:s",strtotime(I("door_time")));
+            if($doortime < date("Y-m-d H:i:s")){
+                return array('status'=>0,'msg'=>"期望服务时间需大于当前时间！");
+            }
+        }
+
+        $WechatOrderModel = (new WechatOrderModel());
+        $WechatMemberModel = (new WechatMemberModel());
+
+        //先验证当前用户是否有待支付订单，有的话就提示相应信息
+        $map['member_id'] = I('member_id');//测试阶段先写死
+        $map['order_state'] = 2;//待支付
+        $waitPayOrder = $WechatOrderModel->where($map)->find();
+        if(!empty($waitPayOrder)){
+            return array('status'=>0,'msg'=>"该店店长有待支付订单，请先让其支付后再预约新的服务！");
+        }
+
+        $orderCode = $this->getOrderCode();
+        $memberId = I('member_id');
+        $orderData = [
+            "order_code" => $orderCode,
+            "order_state" => I("order_state"),//0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+            "order_type" => I("order_type"),
+            "member_id" => $memberId,//用户ID
+            "province" => I("province"),
+            "city" => I("city"),
+            "latng" => I("latng"),
+            "location_name" => I("location"),
+            "store_name" => I("store_name"),
+            "detailed_address" => I("detailed_address") ? I("detailed_address") : I("location"),
+            "link_person" => I("link_person"),
+            "link_phone" => I("link_phone"),
+            "fixed_line" => I("fixed_line"),
+            "door_price" => 0,//上门费默认20
+            "service_price" => 0,//服务费
+            "money_total" => I("money_total")+0,
+            "create_time" => date("Y-m-d H:i:s"),
+            "door_time" => $doortime,
+            "update_time" => date("Y-m-d H:i:s"),
+            "enterprise_name" => I('enterprise_name'),
+            "is_ka" => I('is_ka')
+        ];
+
+        if(I("equipment_id") && $orderType == 1){
+            $orderData['equipment_id'] = I("equipment_id");
+        }
+
+        $orderId = $WechatOrderModel->add($orderData);
+//        //更新个人中心信息
+//        if(!empty($memberId)){
+//            $memberInfo = $WechatMemberModel->where(array('uid'=>$memberId))->find();
+//            if(empty($memberInfo['location_name']) && empty($memberInfo['latng'])){
+//                $memberData['uid'] = $memberId;
+//                $memberData['store_name'] = I("store_name");
+//                $memberData['address_name'] = I("detailed_address");
+//                $memberData['location_name'] = I("location");
+//                $memberData['latng'] = I("latng");
+//                $memberData['name'] = I("link_person");
+//                $WechatMemberModel->save($memberData);
+//            }
+//        }
+
+        $res = false;
+        //1设备维修，2门店消杀，3烟道清洗
+        //添加图片数据
+        $imageFile = I('imageData');
+        $this->inspectorRepairUploadImage($imageFile,$orderId);
+
+        //添加订单扩展数据
+        $orderItemData = [
+            "order_id" => $orderId,
+            "equipment_name" => I("equipment_name"),
+            "brands_text" => I("brands_text"),
+            "malfunction_text" => I("malfunction_text"),
+            "urgent_level" => I("urgent_level"),
+            "create_time" => date("Y-m-d H:i:s"),
+            "update_time" => date("Y-m-d H:i:s"),
+        ];
+        $res = (new WechatOrderItemModel())->add($orderItemData);
+
+        //巡检员整理数据
+        $inspectionChildDeviceId = I('inspectionChildDeviceId');
+        $inspectionStoreChildId = I('inspectionStoreChildId');
+        $deviceId = I('deviceId');
+
+        $nowTime = date('Y-m-d H:i:s');
+        $data['repairs_id'] = $orderId;
+        $data['update_time'] = $nowTime;
+
+        $Model = (new WechatInspectionStoreChildDeviceModel());
+        //判断如果子订单设备标识存在的话就是 修改 编辑
+        if(!empty($inspectionChildDeviceId) && $inspectionChildDeviceId != 'null'){
+
+            $Model->where(['inspection_child_device_id'=>$inspectionChildDeviceId])->save($data);
+        }else{
+            //反之如果不存在就是添加
+
+            $data['inspection_store_child_id'] = $inspectionStoreChildId;
+            $data['device_id'] = $deviceId;
+            $data['create_time'] = $nowTime;
+
+            $Model->add($data);
+        }
+
+        if($res){
+            Log::write('创建订单成功,订单号为：'.$orderCode);
+            //给客服端发消息提醒
+            $enterpriseService = new EnterpriseService(COMPANY_EMCODINGASEKEY,COMPANY_TOKEN,COMPANY_CORPID,COMPANY_CUSTOMER_APPSECRET);
+            $param = $enterpriseService->getCustomerSendMsg($orderId,1);//新工单提醒
+            $enterpriseService->sendMessage($param);//新工单提醒
+
+            //给用户发送下单提醒
+            (new WechatService())->sendCreateOrderMsg($orderId,$orderType);
+
+            $res = array("status" => 1,"data" => ["id" => $orderId]);
+        }else{
+            Log::write('创建订单失败,订单号为：'.$orderCode);
+            $res = array("status" => 0,"data" => ["id" => $orderId]);
+        }
+        return $res;
+    }
+
+    /**
+     * 巡检师傅生成已修的工单
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function createYetRepairInspectionMaster(){
+
+        //通过巡检子订单查询相关
+        $inspectionStoreChildId = I('inspectionStoreChildId');
+        $field = 'wisc.inspection_supervisor_id,wisc.inspector_id,wisc.facilitator_id,wke.`name` enterpriseName,wks.*,wm.uid';
+        $childOrderInfo = (new WechatInspectionStoreChildModel())->getChildOrderKAMemeberInfo(['inspection_store_child_id'=>$inspectionStoreChildId],$field);
+
+        //获取设备相关数据
+        $deviceId = I('deviceId');
+        $deviceBrand = I('deviceBrand');
+        $deviceName = I('deviceName');
+
+        //获取图片数据
+        $imageData = I('imageData');
+
+        //整理数据
+        $is_ka = 1;
+        $parts_price = I('parts_price');
+        $door_price = I('door_price');
+        $service_price = I('service_price');
+        $total = $parts_price + $door_price + $service_price;
+        $orderCode = $this->getOrderCode();
+
+        //拼接主订单数据
+        $orderData['order_code'] = $orderCode;
+        $orderData['order_state'] = PAY_STATUS_PAY_COMPLETION;
+        $orderData['order_type'] = 1;
+        $orderData['member_id'] = $childOrderInfo['uid'];
+        $orderData['province'] = $childOrderInfo['province'];
+        $orderData['city'] = $childOrderInfo['city'];
+
+        $orderData['workers_id'] = $childOrderInfo['inspector_id'];
+        $orderData['facilitator_id'] = $childOrderInfo['facilitator_id'];
+        $orderData['supervisor_id'] = $childOrderInfo['inspection_supervisor_id'];
+        $orderData['store_name'] = $childOrderInfo['name'];
+        $orderData['detailed_address'] = $childOrderInfo['stores_address'];
+        $orderData['link_person'] = $childOrderInfo['link_person'];
+        $orderData['link_phone'] = $childOrderInfo['link_phone'];
+        $orderData['enterprise_name'] = $childOrderInfo['enterpriseName'];
+        $orderData['door_price'] = $door_price;
+        $orderData['service_price'] = $service_price;
+        $orderData['money_total'] = $total;
+        $orderData['create_time'] = date("Y-m-d H:i:s");
+        $orderData['update_time'] = date("Y-m-d H:i:s");
+
+        //拼接主订单扩展表数据
+        $orderItemData['equipment_name'] = $deviceName;
+        $orderItemData['malfunction_text'] = I('malfunction_text');
+        $orderItemData['brands_text'] = $deviceBrand;
+        $orderItemData['is_maintain'] = I("is_maintain");
+        $orderItemData['is_change_parts'] = I("is_change_parts");
+        $orderItemData['change_parts_text'] = I("change_parts_text");
+        $orderItemData['parts_price'] = $parts_price;
+        $orderItemData['create_time'] = date("Y-m-d H:i:s");
+        $orderItemData['update_time'] = date("Y-m-d H:i:s");
+
+        $wechatOrderModel = (new WechatOrderModel());
+        $wechatOrderItemModel = (new WechatOrderItemModel());
+
+        try{
+            //添加主订单数据
+            $resOrderId = $wechatOrderModel->add($orderData);
+
+            //添加图片表数据
+            if($resOrderId){
+                $this->inspectorRepairUploadImage($imageData,$resOrderId);
+            }
+
+            //添加扩展表数据
+            if($resOrderId){
+                $orderItemData['order_id'] = $resOrderId;
+                $wechatOrderItemModel->add($orderItemData);
+            }
+
+            $data['yet_repairs_id'] = $resOrderId;
+            $data['inspection_store_child_id'] = $inspectionStoreChildId;
+            $data['device_id'] = $deviceId;
+            $data['moeny'] = $total;
+
+            //修改已修的数据
+            $this->saveInspectionDeviceInfo(I('inspectionChildDeviceId'),$data);
+
+            return true;
+        }catch(\Exception $e){
+            return false;
+        }
+
+    }
+
+    /**
+     * 提交添加图片方法
+     * @param $imgData
+     * @param $id
+     * @return mixed|string
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    private function inspectorRepairUploadImage($imgData,$id){
+        //添加图片数据
+        $return = '';
+        if(!empty($imgData)){
+            foreach ($imgData as $k => $v) {
+                if(empty($v)){
+                    continue;
+                }
+                $tmp = [
+                    'path'=>$v,
+                    'type' => "wechat",
+                    'create_time' => time(),
+                    'status' =>1,
+                ];
+                $resultId = (new PictureModel())->add($tmp);
+                //图片预订单绑定
+                $tmp_pic = [
+                    'app'=>"WECHAT",
+                    'row_id'=>$id,
+                    'pic_id'=>$resultId,
+                    'type'=>0,//0 之前 1 之后
+                    'create_time'=>time(),
+                    'update_time'=>date("Y-m-d H:i:s"),
+                ];
+                $return = (new SomethingPicModel())->add($tmp_pic);
+            }
+        }
+        return $return;
+    }
+
+    /**
+     * 修改巡检子订单设备表数据
+     * @param $data
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function saveInspectionDeviceInfo($inspectionChildDeviceId,$data){
+
+        //整理数据
+        $nowTime = date('Y-m-d H:i:s');
+        $data['update_time'] = $nowTime;
+
+        $Model = (new WechatInspectionStoreChildDeviceModel());
+
+        //判断如果子订单设备标识存在的话就是 修改 编辑
+        if(!empty($inspectionChildDeviceId) && $inspectionChildDeviceId != 0){
+
+            $returnData = $Model->where(['inspection_child_device_id'=>$inspectionChildDeviceId])->save($data);
+        }else{
+            //反之如果不存在就是添加
+
+            $data['create_time'] = $nowTime;
+            $returnData = $Model->add($data);
+        }
+
+    }
+
+    //生成订单号
+    private function getOrderCode(){
+
+        $orderCode = date('ymdHis').rand(1000,9999);
+        return $orderCode;
+    }
+
+
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>巡检工单</title>
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#f8f5f6;">
+<if condition="$isSendOrder eq 1">
+    <div class="orderlistNav">
+    <ul>
+        <!--订单状态（1：新工单(服务商未接单)；2：服务中(服务商已接单)；3：已取消；4：已完成）-->
+    <li value="1" class="selected"><a href="javascript:;">未接单</a></li>
+    <!--<li value="2"><a href="javascript:;">已接单</a></li>-->
+    <li value="2"><a href="javascript:;">服务中</a></li>
+    <li value="4"><a href="javascript:;">已完成</a></li>
+    </ul>
+    </div>
+    <div style="height:2.48rem;"></div>
+</if>
+
+<!--未接单-->
+<div class="orderlistCon">
+
+    <if condition="$inspectionData neq 0">
+        <ul>
+            <volist name="inspectionData" id="data">
+                <li class="twoLine" onclick="jumpToUrl('{$data.inspection_id}')">
+                    <h3 class="title">订单编号：{$data.inspection_code}</h3>
+                    <p class="name">巡检门店数量：{$data.storeNum}</p>
+                    <p class="name">企业名称：{$data.enterprise_name}</p>
+                    <p class="title">下单时间：{$data.create_time}</p>
+                    <a><i class="arrow"></i></a>
+                </li>
+            </volist>
+        </ul>
+        <else />
+            <div class="emptyWarp">
+                <i class="emptyIcon"></i>
+                <p class="tip">暂无数据</p>
+            </div>
+        </if>
+</div>
+<script>
+    $(function(){
+        //导航切换
+        $('.orderlistNav ul li').click(function(){
+            $('.orderlistNav ul li').removeClass('selected');
+            $(this).addClass('selected');
+            var status = $(this).val();
+            console.log(status);
+            var loading = weui.loading('加载中');
+            $.post("{:U('inspectionYesOrderReceivingList')}",{status:status},function(res){
+
+                console.log(res);
+
+                loading.hide();
+                if(res.status == 1){
+                    var html = "<ul>";
+                    for(var i=0;i<res.data.length;i++){
+                        html += "<li class='twoLine' onclick=jumpToUrl("+res.data[i].inspection_id+")>";
+                        html += "<h3 class='title'>订单编号："+res.data[i].inspection_code+"</h3>";
+                        html += "<p class='name'>巡检门店数量："+res.data[i].storeNum+"</p>";
+                        html += "<p class='name'>企业名称："+res.data[i].enterprise_name+"</p>";
+                        html += "<p class='title'>下单时间："+res.data[i].create_time+"</p>";
+                        html += "<a href=''><i class='arrow'></i></a>";
+                        html += "</li>";
+                    }
+                    html += "</ul>";
+                    $(".orderlistCon").html(html);
+                }else{
+                    var html = '<div class="emptyWarp">';
+                    html +='<i class="emptyIcon"></i>';
+                    html +='<p class="tip">暂无数据</p>';
+                    html +='</div>';
+                    $(".orderlistCon").html(html);
+                }
+            },'json');
+        });
+    });
+    function jumpToUrl(id){
+
+        var url = "/index.php?s=/enterprise/distribution_supervisor/inspectionmainorderdetail/inspection_id/"+id;
+        window.location.href = url;
+    }
+</script>
+</body>
+</html>

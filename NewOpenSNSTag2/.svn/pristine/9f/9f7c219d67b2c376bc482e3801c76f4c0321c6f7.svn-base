@@ -1,0 +1,52 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionStoreModel extends Model
+{
+    /**
+     * 获取订单详情
+     * @param $map
+     * @param string $order
+     * @param $field
+     * @return mixed
+     */
+    public function getInspectionOrderChildrenList($map, $order = 'create_time desc', $field){
+        $list = M('WechatInspectionStore')
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+
+    /**
+     * 获取巡检主单的关联门店数据
+     * @param $map
+     * @param string $order
+     * @param $field
+     * @return mixed
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getInspectionOrderStoreData($map = '',$field = '*', $order = 'create_time desc'){
+        $list = $this
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->group('service_level')
+            ->select();
+
+        return $list;
+    }
+
+}

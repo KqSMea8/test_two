@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>开票历史</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+    <php>if(!empty($ticketData)){</php>
+    <div class="historyWarp">
+    <ul>
+        <notempty name="ticketData">
+            <volist name="ticketData" id="data">
+                <li>
+                    <a href="{:U('Wechat/index/invoiceDetail',array('id'=>$data['id']))}">
+                        <!--<div class="imgWarp"><img src="i/machine1.png"/></div>-->
+                        <div style="padding-left: 1.2rem;" class="con">
+                            <h3 class="title">金额：{$data.money}元</h3>
+                            <p class="time">{$data.create_time}</p>
+                        </div>
+                        <span class="status">
+                            <php>if($data['status']==1){</php>
+                            <span style="color: #FF3030">未开具</span>
+                            <php>}else{</php>
+                                已开具
+                            <php>}</php>
+                        </span>
+                    </a>
+                </li>
+            </volist>
+        </notempty>
+    </ul>
+    </div>
+    <php>}else{</php>
+    <div class="receiptOrderWarp">
+        <div class="emptyWarp">
+            <i class="emptyIcon"></i>
+            <p class="tip">暂无数据</p>
+        </div>
+    </div>
+    <php>}</php>
+
+</body>
+</html>

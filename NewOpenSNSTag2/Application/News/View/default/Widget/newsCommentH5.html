@@ -1,0 +1,47 @@
+<div class="commentOutter">
+	<h3 class="commentTitle">{$commentTitle}</h3>
+	<!--<div class="titleOutter"><div class="borderLine"></div><span>最新评论</span></div>-->
+    <empty name="comments">
+		<div style="text-align:center;height: 1.68rem;line-height: 1.68rem;font-size: 0.56rem;color: #747474;">暂无评论</div>
+    <else/>
+		<div class="commentCon">
+			<volist name="comments" id="comment">
+				<div class="commentOneCon">
+					<if condition="$members[$comment['uid']]['avatar64']">
+						<if condition="$members[$comment['uid']]['avatar64'] eq 'Public/images/default_avatar_64_64.jpg'">
+							<img class="pHead" src="Public/images/ic_avatar_default.png"/>
+						<else/>
+							<img class="pHead" src="{$members[$comment['uid']]['avatar64']}"/>
+						</if>
+					<else/>
+						<img class="pHead" src="Public/images/ic_avatar_default.png"/>
+					</if>
+
+					<div class="resCon">
+						<h3 class="pName">{$members[$comment['uid']]['nickname']}</h3>
+						<p class="cTime">{$comment['timeText']}</p>
+						<!--<div class="editOutter">
+							<span>
+								<if condition="($comment['support'] gt 0)">
+									{$comment["support"]} 赞
+								<else />
+
+								</if>
+							</span>
+						</div>-->
+						<p class="resDesc">{$comment['content']}</p>
+					</div>
+				</div>
+			</volist>
+			<!--<div class="commentOneCon">
+				<img class="pHead" src="__IMG__/head.png"/>
+				<div class="resCon">
+					<h3 class="pName">农民的好干部</h3>
+					<div class="editOutter"><span>2</span><img  width="18px" height="auto" src="__IMG__/zan.png"/></div>
+					<p class="resDesc">看到一楼的文章，国人的良心都到哪里去了呢啊！！</p>
+				</div>
+			</div>-->
+		 </div>
+		<a class="commentBtn" onclick="moreComments('{$newsId}')">查看更多</a>
+     </empty>
+</div>

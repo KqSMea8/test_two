@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>无数据</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#f8f5f6">
+<div class="networkWarp">
+    <i class="networkIcon"></i>
+    <p style="line-height:1.5rem" class="tip">该订单已被重新分配或已被顾客取消<br/>请知悉</p>
+</div>
+</body>
+</html>

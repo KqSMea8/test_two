@@ -1,0 +1,36 @@
+<!-- 模态框HTML -->
+<form class="ajax-form" method="post" action="{:addons_url('Lunbo://Admin/addSilider')}">
+    
+    
+    <div>
+
+        <label style="width:80px;">
+           图片链接:
+        </label>
+        <input name="link" type="text" /><br/>
+
+        <label style="width:80px;margin-top: 20px;">
+           图片地址:
+        </label>
+        <input  name="url" type="text"/><br/>
+		
+		<label style="width:80px;margin-top: 20px;">
+           排序:
+        </label>
+        <input  name="paixu" value="0" type="text"/><br/>
+		
+    </div>
+
+    <div style="height: 40px;margin-left: 18px;width: 120px; margin-top: 20px; ">
+    <span>
+        <p class="pull-left" style="margin-right: 5px">
+            <input type="submit" data-role="submitreport" value="确定" class="btn btn-primary send_box">
+        </p>
+    </span>
+    <span>
+        <p class="pull-left" style="margin-left: 5px;">
+            <input type="button" value="取消" class="btn btn-primary send_box" data-dismiss="modal">
+        </p>
+    </span>
+    </div>
+</form>

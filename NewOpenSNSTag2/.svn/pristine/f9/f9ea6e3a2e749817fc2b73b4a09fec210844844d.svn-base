@@ -1,0 +1,122 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionModel extends Model
+{
+
+    /**
+     * 获取主订单列表
+     * @param $map
+     * @param string $order
+     * @param $field
+     * @return mixed
+     */
+
+    public function getInspectionList($map, $order = 'i.create_time desc', $field, $page, $r){
+
+        $totalCount = M('WechatInspection')->alias("i")
+            ->join("jpgk_wechat_ka_enterprise as e on i.enterprise_id = e.id")
+            ->join("jpgk_wechat_facilitator as f on i.facilitator_id = f.id")
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->count();
+        if ($totalCount) {
+            $list = M('WechatInspection')->alias("i")
+                ->join("jpgk_wechat_ka_enterprise as e on i.enterprise_id = e.id")
+                ->join("jpgk_wechat_facilitator as f on i.facilitator_id = f.id")
+                ->where($map)
+                ->page($page, $r)
+                ->order($order)
+                ->field($field)
+                ->select();
+        }
+        return array($list, $totalCount);
+    }
+
+
+    /**
+     * 获取巡检主订单信息
+     * @param $map
+     * @param $field
+     * @return array
+     */
+    public function getInspectionOrderInfo($map = "",$field = "*"){
+        $data = M('WechatInspection')->alias("wi")
+            ->join("jpgk_wechat_ka_enterprise ent on wi.enterprise_id = ent.id")
+            ->where($map)
+            ->field($field)
+            ->find();
+        return $data;
+    }
+
+    /**
+     * 获取巡检主订单信息
+     * @param $map
+     * @param $field
+     * @return array
+     */
+    public function getInspectionOrderData($map = "",$field = "*"){
+
+        $data = $this->alias("wi")
+//            ->join("jpgk_wechat_ka_enterprise wke on wi.enterprise_id = wke.id")
+            ->join("left join jpgk_wechat_inspection_store wis on wi.inspection_id = wis.inspection_id")
+            ->where($map)
+            ->field($field)
+            ->order('wi.create_time desc')
+            ->group('wi.inspection_id')
+            ->select();
+
+        return empty($data) ? [] : $data;
+    }
+
+    /**
+     * 获取巡检主订单相关详情页面
+     * @param string $map
+     * @param string $field
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getMainInspectionOrderDetail($map = "",$field = "*"){
+        $data = $this->alias("wi")
+            ->join("jpgk_wechat_ka_enterprise wke on wi.enterprise_id = wke.id")
+            ->join("jpgk_wechat_facilitator wf on wi.facilitator_id = wf.id")
+            ->where($map)
+            ->field($field)
+            ->find();
+
+        return empty($data) ? [] : $data;
+    }
+
+    /**
+     * 获取巡检主订单中的门店数据
+     * @param string $map
+     * @param string $field
+     * @return array
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getInspectionStoreOrderData($map = "",$field = "*"){
+
+        $data = M('WechatInspectionStore')->alias("wis")
+            ->join("left join jpgk_wechat_inspection_store wis on wi.inspection_id = wis.inspection_id")
+            ->where($map)
+            ->field($field)
+            ->order('wi.create_time desc')
+            ->group('wi.inspection_id')
+            ->select();
+
+        return empty($data) ? [] : $data;
+    }
+}

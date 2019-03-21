@@ -1,0 +1,379 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <meta name="format-detection" content="telephone=yes">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css?1" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.qrcode.min.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .locationIcon {
+            display: inline-block;
+            width: 0.8rem;
+            height: 0.8rem;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+            background-size: 0.5rem auto;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+<div class="orderDetail" style="padding-top:0.7rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">订单编号：</span><div class="con">{$orderData.order_code}</div></li>
+        <li><span class="title">订单状态：</span>
+            <div class="con cor_red" style="font-weight:bold;">
+                <php>if($orderData['order_state']==10){</php>
+                未接单
+                <php>}else{</php>
+                {$orderData.order_state_text}
+                <php>}</php>
+            </div></li>
+        <li><span class="title">下单时间：</span><div class="con">{$orderData.create_time}</div></li>
+        <php>if($orderData['order_state_text']=="已完成"){</php>
+        <li><span class="title">完成时间：</span><div class="con">{$orderData.update_time}</div></li>
+        <php>}</php>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">师傅名称：</span><div class="con">{$orderData.name}</div></li>
+        <li><span class="title">师傅编号：</span><div class="con">{$orderData.uid}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.phone}</div></li>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if($orderData['is_ka']){</php>
+        <li><span class="title">企业名称：</span><div class="con">{$orderData.enterprise_name}</div></li>
+        <li><span class="title">门店名称：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}else{</php>
+        <li><span class="title">预约门店：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.location_name}
+            <php>if(!empty($orderData['latng'])){</php>
+            <i onclick="getNavigation('{$orderData.location_name}','{$orderData.latng}')" class="locationIcon"></i>
+            <php>}</php>
+        </div></li>
+        <li><span class="title">详细地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}</php>
+        <li><span class="title">联系人：</span><div class="con">{$orderData.link_person}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.link_phone}<a href="tel:{$orderData.link_phone}"><i class="phoneIcon"></i></a></div></li>
+        <php>if($orderData['fixed_line']!=""){</php>
+            <li><span class="title">固&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</span><div class="con">{$orderData.fixed_line}<a href="tel:{$orderData.fixed_line}"><i class="phoneIcon"></i></a></div></li>
+        <php>}</php>
+        <li><span class="title">设备名称：</span><div class="con">{$orderData.equipment_name}</div></li>
+        <li><span class="title">设备品牌：</span><div class="con">{$orderData.brands_text}</div></li>
+        <li><span class="title">故障现象：</span><div class="con">{$orderData.malfunction_text}</div></li>
+        <li><span class="title">订单级别：</span><div class="con">{$orderData.urgent_level_text}</div></li>
+        <php>if($orderData['order_state_text']=="已取消"){</php>
+        <li><span class="title">取消原因：</span><div class="con">{$orderData.cancel_text}</div></li>
+        <php>}</php>
+		<php>if($orderData['is_sh']==1){</php>
+        <li><span class="title">售后原因：</span><div class="con">{$orderData.after_sale_text}</div></li>
+        <php>}</php>
+		<php>if($orderData['order_state']==5){</php>
+        <li><span class="title">电话沟通结果：</span><div class="con">{$orderData.phone_solve_text}</div></li>
+        <php>}</php>
+		<php>if($orderData['is_sh']!=1){</php>
+		<li class="weui-uploader__files">
+            <span class="title">设备图片：</span>
+            <div class="machineImgWarp">
+                <notempty name="imgData">
+                    <volist name="imgData" id="data">
+                        <div class="oneImg">
+                            <php>$data['path'] = ltrim($data['path'],'.');</php>
+                            <img class="weui-uploader__file" src="{$data.path}"/>
+                        </div>
+                    </volist>
+                </notempty>
+            </div>
+        </li>
+		<php>}</php>
+    </ul>
+</div>
+
+<php>if($orderData['order_state_text']=="待支付" || $orderData['order_state_text']=="待验收"){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if(empty($orderData['change_parts_text'])){</php>
+        <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">未更换</div></li>
+        <php>}else{</php>
+        <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">{$orderData.change_parts_text}</div></li>
+        <php>}</php>
+        <li><span class="title"><b>配件费用：</b></span><div class="con cor_red">{$orderData.parts_price}元</div></li>
+        <li><span class="title"><b>上门检测费：</b></span><div class="con cor_red">{$orderData.door_price}元</div></li>
+        <li><span class="title"><b>维修费：</b></span><div class="con cor_red">{$orderData.service_price}元</div></li>
+        <li><span class="title"><b>总 计：</b></span><div class="con cor_red">{$orderData.money_total}元</div></li>
+    </ul>
+</div>
+<php>if($orderData['is_ka'] || $orderData['order_state_text']=="待验收"){</php>
+<div class="centerBtnWarp">
+    <!--<a href="javascript:;" class="centerBtn fl" onclick=" customerOrder('{$orderData.id}','{$orderData.member_id}')">生成支付二维码</a>-->
+    <!--<a class="centerBtn fr">维修完成</a>-->
+    <a class="centerBtn" href="{:U('Enterprise/DistributionSupervisor/repaireSuccess',['order_id'=>$orderData['id'],'order_code'=>$orderData['order_code'],'is_ka'=>$orderData['is_ka'],'is_change_price'=>1])}">修改订单费用</a>
+</div>
+<php>}else{</php>
+<div class="centerBtnWarp twoBtn">
+    <!--<a href="javascript:;" class="centerBtn fl" onclick=" customerOrder('{$orderData.id}','{$orderData.member_id}')">生成支付二维码</a>-->
+    <a href="javascript:;" class="centerBtn fl" id="getPaid">生成支付二维码</a>
+    <!--<a class="centerBtn fr">维修完成</a>-->
+    <a class="centerBtn fr" href="{:U('Enterprise/DistributionSupervisor/repaireSuccess',['order_id'=>$orderData['id'],'order_code'=>$orderData['order_code'],'is_ka'=>$orderData['is_ka'],'is_change_price'=>1])}">修改订单费用</a>
+</div>
+<php>}</php>
+<php>}</php>
+<php>if($orderData['order_state_text']=="已完成"){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if(empty($orderData['change_parts_text'])){</php>
+        <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">未更换</div></li>
+        <php>}else{</php>
+        <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">{$orderData.change_parts_text}</div></li>
+        <php>}</php>
+        <li><span class="title"><b>配件费用：</b></span><div class="con cor_red">{$orderData.parts_price}元</div></li>
+        <li><span class="title"><b>上门检测费：</b></span><div class="con cor_red">{$orderData.door_price}元</div></li>
+        <li><span class="title"><b>维修费：</b></span><div class="con cor_red">{$orderData.service_price}元</div></li>
+        <li><span class="title"><b>总 计：</b></span><div class="con cor_red">{$orderData.money_total}元</div></li>
+    </ul>
+</div>
+<php>}</php>
+<div style="height:3.16rem;"></div>
+<php>if($orderData['order_state'] == 10){</php>
+<div class="centerBtnWarp twoBtn"><a href="javascript:;" class="centerBtn fl" onclick="openPhoneResult()">无需上门</a><a href="javascript:;" onclick="acceptOrder({$orderData.id})" class="centerBtn fr">接 单</a></div>
+<php>}</php>
+<php>if($orderData['order_state'] == 1){</php>
+<div class="centerBtnWarp twoBtn"><a href="javascript:;" class="centerBtn fl" onclick="customerOrder('{$orderData.id}','{$orderData.member_id}')">顾客下单</a><a href="{:U('Enterprise/DistributionSupervisor/repaireSuccess',array('order_id'=>$orderData['id'],'order_code'=>$orderData['order_code'],'is_ka'=>$orderData['is_ka']))}" class="centerBtn fr">维修完成</a></div>
+<php>}</php>
+<!--电话沟通结果弹出框-->
+<div class="popLayer hide">
+    <div class="phonePop">
+        <h3 class="title">电话沟通结果</h3>
+        <input type="hidden" id="order_type" value="{$orderData.order_type}" />
+        <input type="hidden" id="fid" value="{$orderData.facilitator_id}" />
+        <div class="con">
+            <ul>
+                <li><i data-value="{$orderData.id}"></i><div>问题已解决，无需上门</div></li>
+                <li><i data-value="{$orderData.id}"></i><div>故障太严重，无法维修</div></li>
+                <li><i data-value="{$orderData.id}"></i><div>费用原因，顾客取消维修需求</div></li>
+            </ul>
+        </div>
+        <p class="tip">注意：请确认已和顾客电话沟通并达成一致，否则将会影响您的信誉程度。</p>
+        <a style="width: 4rem;background: #C0C0C0;" class="btn fl cancelBTN" href="javascript:;">取消</a>
+        <a style="width: 4rem" class="btn fr sureBTN" href="javascript:;">确定</a>
+    </div>
+</div>
+
+<!--找人代付弹出框-->
+<div class="popPayLayer hide">
+    <div class="codeWarp">
+        <h3>代付人微信扫码支付</h3>
+        <div class="codeImg" id="codeImgId"></div>
+        <img id='imgOne' style="width: 6.0rem;height: 6.0rem;margin-left: 2rem;margin-top: 1rem;"/>
+    </div>
+</div>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                //跳转到我的订单
+                window.location.href="{:U('Enterprise/DistributionSupervisor/orderShowList')}";
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+    $(function(){
+
+        $('.popLayer .cancelBTN').click(function(){
+            $('.popLayer').addClass('hide');
+        });
+        //电话沟通结果弹出框选择
+        $('.phonePop .con li').click(function(){
+            $('.phonePop .con li i').removeClass('selected');
+            $(this).children('i').addClass('selected');
+        });
+        //点击弹出框的确定按钮，关闭弹出框
+        $('.popLayer .sureBTN').click(function(){
+
+            //电话解决原因保存
+            var text = $('.phonePop .con li i.selected').parent().children('div').html();
+            var orderId = $('.phonePop .con li i.selected').attr("data-value");
+            var type = $("#order_type").val();
+            var fid = $("#fid").val();
+            if(!text){
+                weui.alert('请选择沟通结果');
+                return false;
+            }
+            $.ajax({
+                url: "{:U('Wechat/index/updateOrder')}",
+                type: 'post',
+                dataType: 'json',
+                data:{
+                    id:orderId,
+                    order_state:5, //0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+                    phone_solve_text:text
+                },
+                success: function (data) {
+                    if(data.status == 1){
+                        window.location.href="{:U('/Enterprise/distribution_supervisor/orderDetail/order_id/"+data.data.id+"/type/"+type+"/fid/"+fid+"')}";
+                    }else{
+                        weui.alert('提交失败，请刷新再试！');
+                    }
+                }
+            },'json');
+            $('.popLayer').addClass('hide');
+        });
+    });
+    function  openPhoneResult(){
+        $('.popLayer').removeClass('hide');
+    }
+    function acceptOrder(id){
+        var loading = weui.loading('正在更新订单');
+        $.ajax({
+            url: "{:U('Wechat/index/updateOrder')}",
+            type: 'post',
+            dataType: 'json',
+            data:{
+                id:id,
+                order_state:1 //0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+            },
+            success: function (data) {
+                loading.hide();
+                if(data.status == 1){
+                    window.location.href="{:U('/Enterprise/distribution_supervisor/maintainOrderDetail/order_id/"+data.data.id+"')}";
+                }else{
+                    weui.alert('接单失败，请刷新再试！');
+                }
+            }
+        },'json');
+        $('.popLayer').addClass('hide');
+    }
+    function customerOrder(orderId,memberId){
+        var loading = weui.loading('正在向顾客发送消息');
+        $.ajax({
+            url: "{:U('Enterprise/store_maintain/customerOrder')}",
+            type: 'post',
+            dataType: 'json',
+            data:{
+                order_id:orderId,
+                member_id:memberId
+            },
+            success: function (data) {
+                loading.hide();
+                if(data.status == 1){
+                    weui.alert(data.msg);
+                }else{
+                    weui.alert('通知失败，请刷新再试！');
+                }
+            }
+        },'json');
+        $('.popLayer').addClass('hide');
+    }
+</script>
+
+</body>
+</html>
+<script type="text/javascript">
+
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+    //腾讯地图定位
+    function getNavigation(address,latng) {
+        var strs=latng.split(","); //字符分割
+        window.location.href = "https://apis.map.qq.com/tools/routeplan/eword="+address+"&epointx="+strs[1]+"&epointy="+strs[0]+"?referer=myapp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77";
+    }
+</script>
+
+<script type="application/javascript">
+    $(function(){
+
+        //默认使用Canvas生成，并显示到图片 生成支付二维码图片
+        var qrcode= $('#codeImgId').qrcode('{$payUrl}').hide();
+        var canvas=qrcode.find('canvas').get(0);
+        $('#imgOne').attr('src',canvas.toDataURL('image/jpg'));
+    });
+
+    var orderId = "{$orderId}";
+    var orderCode = "{$orderCode}";
+    var orderState = "{$orderState}";
+
+    //点击显示扫码页面
+    $('#getPaid').click(function(){
+        $('.popPayLayer').removeClass('hide');
+    });
+
+    //隐藏显示扫码页面
+    $('.popPayLayer').click(function(){
+        $('.popPayLayer').addClass('hide');
+    });
+
+    $(document).ready(function () {
+
+        //待支付的订单增加检查订单状态的方法
+        if(orderState == 2){
+            setInterval("ajaxstatus()", 3000);
+        }
+    });
+
+    function ajaxstatus() {
+        var orderCodeNew = orderCode;
+        if (orderCodeNew != 0) {
+
+            $.ajax({
+                url: "{:U('Wechat/index/checkOrderStatus')}",type: 'post',dataType: 'json',
+                data:{orderCode:orderCodeNew},
+                success: function (data) {
+                    if(data.status == 1){
+                        weui.alert('支付成功！');
+                        location.href = "index.php?s=/Enterprise/distribution_supervisor/maintainOrderDetail/order_id/"+orderId+"";
+                    }
+
+                    //查询订单是否已经变更
+                    if(data.status == 2){
+
+                        weui.toast(data.msg, function() {
+                            location.href = "index.php?s=/Enterprise/distribution_supervisor/maintainOrderDetail/order_id/"+orderId+"";
+                        },1000);
+                    }
+                }
+            },'json');
+        }
+    }
+</script>

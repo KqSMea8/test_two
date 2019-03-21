@@ -1,0 +1,212 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            orderId = null;
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .locationIcon {
+            display: inline-block;
+            width: 0.8rem;
+            height: 0.8rem;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+            background-size: 0.5rem auto;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+<div class="orderDetail" style="padding-top:0.7rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">订单编号：</span><div class="con">{$orderData.order_code}</div></li>
+        <li><span class="title">订单状态：</span>
+            <div class="con cor_red" style="font-weight:bold;">
+                <php>if($orderData['order_state']==10){</php>
+                未接单
+                <php>}else{</php>
+                {$orderData.order_state_text}
+                <php>}</php>
+            </div></li>
+        <li><span class="title">下单时间：</span><div class="con">{$orderData.create_time}</div></li>
+        <php>if($orderData['order_state_text']=="已完成"){</php>
+        <li><span class="title">完成时间：</span><div class="con">{$orderData.update_time}</div></li>
+        <php>}</php>
+    </ul>
+</div>
+<php>if($orderData['facilitator_id']!=0){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">服务商：</span><div class="con">{$orderData.fname}</div></li>
+        <li><span class="title">服务商编号：</span><div class="con">{$orderData.fid}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.fphone}</div></li>
+    </ul>
+</div>
+<php>}</php>
+<php>if($orderData['order_state_text']!="派单中" && $orderData['order_state_text']!="已取消"){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">师傅名称：</span><div class="con">{$orderData.name}</div></li>
+        <li><span class="title">师傅编号：</span><div class="con">{$orderData.uid}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.phone}<a href="tel:{$orderData.phone}"><i class="phoneIcon"></i></a></div></li>
+    </ul>
+</div>
+<php>}</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if($orderData['is_ka']){</php>
+        <li><span class="title">企业名称：</span><div class="con">{$orderData.enterprise_name}</div></li>
+        <li><span class="title">门店名称：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}else{</php>
+        <li><span class="title">预约门店：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.location_name}
+            <php>if(!empty($orderData['latng'])){</php>
+            <i onclick="getNavigation('{$orderData.location_name}','{$orderData.latng}')" class="locationIcon"></i>
+            <php>}</php>
+        </div></li>
+        <li><span class="title">详细地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}</php>
+        <li><span class="title">联系人：</span><div class="con">{$orderData.link_person}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.link_phone}<a href="tel:{$orderData.link_phone}"><i class="phoneIcon"></i></a></div></li>
+        <php>if($orderData['fixed_line']!=""){</php>
+            <li><span class="title">固&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</span><div class="con">{$orderData.fixed_line}<a href="tel:{$orderData.fixed_line}"><i class="phoneIcon"></i></a></div></li>
+        <php>}</php>
+        <li><span class="title">门店面积：</span><div class="con">{$orderData.store_area}<span class="cell">(单位:平米)</span></div></li>
+        <li><span class="title">门店场景：</span><div class="con">{$orderData.store_scene}</div></li>
+        <li><span class="title">清洗类别：</span><div class="con">{$orderData.clean_type}</div></li>
+        <li><span class="title">上次清洗时间：</span><div class="con">{$orderData.last_clean_time}</div></li>
+        <php>if($orderData['is_sh']!=1){</php>
+        <li><span class="title">期望服务时间：</span><div class="con">{$orderData.door_time}</div></li>
+        <php>}</php>
+        <php>if($orderData['order_state_text']=="已取消"){</php>
+        <li><span class="title">取消原因：</span><div class="con">{$orderData.cancel_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['is_sh']==1){</php>
+        <li><span class="title">售后原因：</span><div class="con">{$orderData.after_sale_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['order_state']!=1 && $orderData['order_state']!=0 && $orderData['order_state']!=4 && $orderData['order_state']!=10){</php>
+
+        <li class="weui-uploader__files">
+            <span class="title">清洗前图片：</span>
+            <div class="machineImgWarp">
+                <notempty name="imgBefore">
+                    <volist name="imgBefore" id="data">
+                        <div class="oneImg">
+                            <php>$data['path'] = ltrim($data['path'],'.');</php>
+                            <img class="weui-uploader__file" src="{$data.path}"/>
+                        </div>
+                    </volist>
+                </notempty>
+            </div>
+        </li>
+        <li class="weui-uploader__files">
+            <span class="title">清洗后图片：</span>
+            <div class="machineImgWarp">
+                <notempty name="imgAfter">
+                    <volist name="imgAfter" id="data">
+                        <div class="oneImg">
+                            <php>$data['path'] = ltrim($data['path'],'.');</php>
+                            <img class="weui-uploader__file" src="{$data.path}"/>
+                        </div>
+                    </volist>
+                </notempty>
+            </div>
+        </li>
+        <li><span class="title">烟罩长度：</span><div class="con">{$orderData.petticoat_pipe}米</div></li>
+        <li><span class="title">竖烟罩长度：</span><div class="con">{$orderData.upright_flue_length}米</div></li>
+        <li><span class="title">横烟罩长度：</span><div class="con">{$orderData.across_flue_length}米</div></li>
+        <li><span class="title">烟道拐弯处开口数量：</span><div class="con">{$orderData.flue_round_num}个</div></li>
+        <li><span class="title">净化器净化片数量：</span><div class="con">{$orderData.purifier_slice_num}个</div></li>
+        <li><span class="title">风机数量（简单清洗）：</span><div class="con">{$orderData.draught_fan_clean_num}个</div></li>
+        <li><span class="title">风机数量（拆洗）：</span><div class="con">{$orderData.draught_fan_chaixi_num}个</div></li>
+        <li><span class="title">防火板长度（米）：</span><div class="con">{$orderData.fireproof_board_length}米</div></li>
+        <li><span class="title">整体油污程度：</span><div class="con">{$orderData.entirety_greasy_dirt}</div></li>
+        <php>}</php>
+    </ul>
+</div>
+<php>if($orderData['order_state_text']=="待支付" || $orderData['order_state_text']=="已完成"){</php>
+<div class="spaceLine"></div>
+<div class="orderDetailBottom" style="padding-top:0.7rem;padding-bottom:0.7rem;">
+    <div class="priceWarp">费用总计：<span class="cor_red">{$orderData.money_total}</span></div>
+</div>
+<php>}</php>
+<php>if($is_enterprise == 1){</php>
+
+<php>}else{</php>
+<php>if($orderData['order_state'] == 0){</php>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp twoBtn">
+    <a href="javascript:;" onclick="getOrder({$orderData.id})" class="centerBtn fl" >接单</a>
+    <a href="{:U('Enterprise/DistributionSupervisor/distributeTask',array('order_id'=>$orderData['id'],'order_type'=>$orderData['order_type'],'fid'=>$fid))}" class="centerBtn fr">分配任务</a>
+</div>
+<php>}elseif($orderData['order_state'] == 10 || $orderData['order_state'] == 1){</php>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp">
+    <a href="{:U('Enterprise/DistributionSupervisor/distributeTask',array('order_id'=>$orderData['id'],'order_type'=>$orderData['order_type'],'fid'=>$fid))}" class="centerBtn" >重新分配</a>
+</div>
+<php>}</php>
+<php>}</php>
+</body>
+</html>
+<script type="text/javascript">
+    var dubleCkick = false;
+    function getOrder(id){
+        if(dubleCkick){
+            return;
+        }
+        dubleCkick = true;
+        var loading = weui.loading('正在更新订单');
+        $.post("{:U('Enterprise/DistributionSupervisor/managerGetOrder')}",{id:id,order_type:3},function(res){
+            loading.hide();
+            if(res.status == 1){
+                window.location.href="{:U('Enterprise/DistributionSupervisor/noReceiveOrder')}";
+            }else{
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('接单失败，请刷新再试！');
+            }
+        },'json');
+    }
+</script>
+<script type="text/javascript">
+
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+    //腾讯地图定位
+    function getNavigation(address,latng) {
+        weui.loading('正在加载地图');
+        var strs=latng.split(","); //字符分割
+        window.location.href = "http://apis.map.qq.com/tools/routeplan/eword="+address+"&epointx="+strs[1]+"&epointy="+strs[0]+"?referer=myapp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77";
+    }
+</script>

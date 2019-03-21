@@ -1,0 +1,55 @@
+<extend name="Public/base"/>
+
+<block name="script">
+    <script type="text/javascript" src="__JS__/highcharts.js"></script>
+</block>
+<block name="body">
+
+    <div class="tab-content">
+    <div class="tab-pane in active" id="tab1">
+        <div class="with-padding-lg" style="position: relative">
+
+            <div id="myChart" height="400"></div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        $('#main-content').css('left', 0);
+        $(function () {
+            $('#myChart').highcharts({
+                chart: {
+                    type: "spline",
+                    style: {
+                        fontFamily: '"Microsoft Yahei", "宋体"'
+                    }
+                },
+                title: {
+                    text: "欢迎登录后台",
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '点击左侧微信管理查看订单',
+                    x: -20
+                },
+                yAxis: {
+                    title: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    verticalAlign: 'middle',
+                    borderWidth: 0,
+                    enabled: false
+                },
+                series: [{
+                    name: "{:L('_MEMBER_REG_TODAY_')}",
+                    data: eval('{$count.last_day.data}'),
+                    enable: true
+                }], credits: {enabled: false}
+            });
+        });
+
+
+    </script>
+
+</block>

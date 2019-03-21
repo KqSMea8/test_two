@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>巡检门店</title>
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/jquery.session.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script src="/Public/wechat/j/jquery.session.js"></script>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			// if(hWidth>800){
+			//     hWidth=800;
+			// }
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+
+</head>
+<body style="background-color: #f3f3f3;">
+<div class="store-top">
+	<div class="sel">
+		<input type="hidden" id="ins_id" value="">
+		<input type="hidden" id="service_level" value="1">
+		<input type="hidden" id="ent_id" value="">
+		<input type="hidden" id="ent_code" value="">
+		<input id="store_name" value="" type="text" placeholder="搜索门店">
+		<a onclick="searchStore()" href="javascript:void(0)"></a>
+	</div>
+</div>
+
+<div class="selall">
+	<span></span>全选 <em>门店</em>
+</div>
+<ul class="store-list">
+	<volist id="list" name="storeList">
+		<li value="{$list.id}"><span></span>{$list.name}</li>
+	</volist>
+</ul>
+<div class="btn">
+	<a href="javascript:void(0)" onclick="addStore()" class="sub-addstore">确认添加门店</a>
+</div>
+</body>
+<script>
+	$(function(){
+		var store_id = '{$store_id}';
+		var store_name = '{$store_name}';
+		var ins_id = '{$ins_id}';
+		var service_level = '{$service_level}';
+		var ent_id = '{$ent_id}';
+		var ent_code = '{$ent_code}';
+		$("#service_level").val(service_level);
+		$("#ins_id").val(ins_id);
+		$("#ent_id").val(ent_id);
+		$("#ent_code").val(ent_code);
+		if(store_name.length>0){
+			$("#store_name").val(store_name);
+		}
+		if(store_id.length > 0){
+			var store_arr = store_id.split(',');
+			$("ul.store-list li").each(function(){
+				var result = $.inArray($(this).val()+"", store_arr);
+				if(result >= 0){
+					$(this).addClass("hover");
+				}
+			});
+			var flag=0;
+			$("ul.store-list li").each(function(){
+				if(!$(this).hasClass("hover")){
+					$(".selall span").removeClass("hover");
+				}else{
+					flag++;
+				}
+				if(flag==$("ul.store-list li").length){
+					$(".selall span").addClass("hover");
+				}
+			})
+		}
+	});
+	//单选
+	$("ul.store-list li span").click(function(){
+		var elm=$(this).parents("li");
+		var id = elm.val();
+		checkOneStore(id,elm);
+		var flag=0;
+		$("ul.store-list li").each(function(){
+			if(!$(this).hasClass("hover")){
+				$(".selall span").removeClass("hover");
+			}else{
+				flag++;
+			}
+			if(flag==$("ul.store-list li").length){
+				$(".selall span").addClass("hover");
+			}
+		})
+	});
+	//全选
+	$(".selall span").click(function(){
+		if($(this).hasClass("hover")){
+			$(this).removeClass("hover");
+			$("ul.store-list li").removeClass("hover");
+		}else{
+			checkAllStore($(this));
+		}
+	})
+</script>
+<script>
+	//搜索门店
+	function searchStore(){
+		var store_id = '{$store_id}';
+		var checkd_store = '{$checkd_store}';
+		var ins_id = $("#ins_id").val();
+		var service_level = $("#service_level").val();
+		var ent_id = $("#ent_id").val();
+		var ent_code = $("#ent_code").val();
+		var store_name = $("#store_name").val();
+		window.location.href = "{:U('Enterprise/customer_services/showStoreList/ent_code/"+ent_code+"/ent_id/"+ent_id+"/checkd_store/"+checkd_store+"/store_id/"+store_id+"/service_level/"+service_level+"/ins_id/"+ins_id+"/store_name/"+store_name+"')}";
+	}
+	//确认添加门店
+	function addStore(){
+		var storeIdStr = "";
+		$("ul.store-list li").each(function(){
+			if($(this).hasClass("hover")){
+				var id = $(this).val();
+				storeIdStr += id + ",";
+			}
+		});
+		if(storeIdStr.length == 0){
+			weui.alert("请选择巡检门店");
+			return false;
+		}
+
+		var ent_code = $("#ent_code").val();
+		var ins_id = $("#ins_id").val();
+		var service_level = $("#service_level").val();
+		//编辑session中该模块等级的数据
+		var store_data = $.session.get('store_data');
+		store_data = JSON.parse(store_data);
+		for(var i=0;i<store_data.length;i++){
+			if(Number(store_data[i].service_level) == Number(service_level)){
+				storeIdStr = storeIdStr.substring(0,storeIdStr.length-1);
+				store_data[i].store_id = storeIdStr;
+				var store_num = storeIdStr.split(',').length;
+				var store = storeIdStr.split(',');
+				store_data[i].store_desc = "已选"+store_num+"家门店";
+			}
+		}
+		store_data = JSON.stringify(store_data);
+		$.session.set('store_data', store_data);
+		window.location.href = "{:U('Enterprise/customer_services/inputInspectionInfo/company_code/"+ent_code+"/inspection_id/"+ins_id+"')}";
+	}
+	//检验一个门店（单选）
+	function checkOneStore(id,elm){
+		$.post("{:U('checkStoreBindShopOwnner')}",{store_id:id},function(res){
+			if(res.status){
+				if(elm.hasClass("hover")){
+					elm.removeClass("hover");
+				}else{
+					elm.addClass("hover");
+				}
+			}else{
+				if(elm.hasClass("hover")){
+					elm.removeClass("hover");
+				}
+				weui.alert(res.msg);
+			}
+		});
+	}
+	//检验全部门店（全选）
+	function checkAllStore(obj){
+		var idStr = "";
+		$("ul.store-list li").each(function(){
+			var id = $(this).val();
+			idStr += id + ",";
+		});
+		$.post("{:U('checkAllStoreBindShopOwnner')}",{store_id:idStr},function(res){
+			if(res.status){
+				obj.addClass("hover");
+				$("ul.store-list li").addClass("hover");
+			}else{
+				obj.removeClass("hover");
+				$("ul.store-list li").each(function(){
+					$(this).removeClass("hover");
+				});
+				weui.alert(res.msg);
+			}
+		});
+	}
+</script>
+
+</html>

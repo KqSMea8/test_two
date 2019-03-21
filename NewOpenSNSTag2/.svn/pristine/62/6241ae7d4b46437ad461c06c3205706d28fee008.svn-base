@@ -1,0 +1,29 @@
+<!-- 模态框HTML -->
+<form class="ajax-form" method="post" action="{:addons_url('Lunbo://Admin/handleSilider')}">
+    <input type="hidden" name="ids" value="{$ids}">
+  
+    
+    <div>
+       
+        <label>
+            <input id="doinghandle" name="user_choose" value="1" type="radio" >启用
+        </label>
+        <label>
+            <input id="hashandele" name="user_choose" value="0" type="radio">禁用
+        </label>
+
+    </div>
+
+    <div style="height: 40px;margin-left: 18px;width: 120px ">
+    <span>
+        <p class="pull-left" style="margin-right: 5px">
+            <input type="submit" data-role="submitreport" value="确定" class="btn btn-primary send_box">
+        </p>
+    </span>
+    <span>
+        <p class="pull-left" style="margin-left: 5px;">
+            <input type="button" value="取消" class="btn btn-primary send_box" data-dismiss="modal">
+        </p>
+    </span>
+    </div>
+</form>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title>企业用户</title>
+	<link href="/Public/wechat/c/canxun.css?111" rel="stylesheet" type="text/css">
+	<link href="/Public/wechat/c/weui.min.css?222" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		.qiyeVerifyWarp .conWarp li:nth-child(2):before {
+			width: 0;
+			height: 0;
+		}
+		.qiyeVerifyWarp .conWarp li:nth-child(2):after {
+			height: 0;
+			width: 0;
+		}
+	</style>
+</head>
+<body>
+<div class="qiyeVerifyWarp">
+	<h3 class="title">企业用户</h3>
+	<div class="conWarp">
+		<ul>
+			<li><input placeholder="企业编号" id="companycode" type="number"/></li>
+			<li style="border:0px;padding-top:1.86rem;"><a  onclick="checkCode()" href="javascript:;">确定</a></li>
+			</li>
+		</ul>
+	</div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+	var doubleClick = false;
+	function checkCode(){
+		var companycode = $('#companycode').val();
+		if(!companycode){
+			weui.alert('请填写企业编号');
+			$("#companycode").focus();
+			return false;
+		}
+//        if(doubleClick){
+//            return;
+//        }else{
+//            doubleClick = true;
+//        }
+		var postData = {
+			company_code:companycode
+		};
+		var loading = weui.loading('正在检验，请稍候');
+		$.post("{:U('Enterprise/CustomerServices/checkCompanyCode')}",postData,function(res){
+			loading.hide();
+			if(res.status == 1){
+				window.location.href="{:U('Enterprise/customer_services/inputInspectionInfo/company_code/"+companycode+"')}";
+			}else{
+//                doubleClick = false;
+				weui.alert(res.msg);
+			}
+		},'json');
+	}
+</script>

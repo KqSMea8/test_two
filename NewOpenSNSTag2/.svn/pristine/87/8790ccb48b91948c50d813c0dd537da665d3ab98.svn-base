@@ -1,0 +1,210 @@
+@charset "utf-8";
+.clearfix {
+    zoom: 1;
+}
+.clearfix:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+.hide {
+    display: none;
+}
+.fl {
+    float: left;
+}
+.fr {
+    float: right;
+}
+.font_arial {
+    font-family: 'Arial';
+}
+.hsBody {
+    max-width: 800px;
+}
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: #aaaaaa;
+}
+input:-moz-placeholder,
+textarea:-moz-placeholder {
+    color: #aaaaaa;
+}
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+    color: #aaaaaa;
+}
+.weui-picker__item {
+    padding: 7px 0 7px;
+    height: 34px;
+    font-size: 16px;
+}
+* {
+    font-family: "Microsoft YaHei";
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+    /* For some Androids */
+}
+body {
+    font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.428571429;
+    color: #333333;
+    background-color: #ffffff;
+}
+li {
+    list-style: none;
+}
+img {
+    border: none;
+}
+input,
+select,
+textarea {
+    outline: none;
+    border: none;
+    background: none;
+    -webkit-appearance: none;
+}
+textarea {
+    resize: none;
+}
+a {
+    outline: none;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-size: 12px;
+    font-weight: normal;
+}
+i {
+    font-style: normal;
+}
+.centerBtnWarp {
+    bottom: 0px;
+    height: 3.985rem;
+    width: 100%;
+    z-index: 10;
+}
+.centerBtnWarp .centerBtn {
+    width: 12rem;
+    height: 1.7rem;
+    line-height: 1.7rem;
+    text-align: center;
+    background: #feea0d;
+    -webkit-border-radius: 0.2rem;
+    -moz-border-radius: 0.2rem;
+    border-radius: 0.2rem;
+    display: block;
+    margin: 0 auto;
+    font-size: 0.68rem;
+    color: #000000;
+}
+.fl{
+    float: left;
+}
+.fr{
+    float: right;
+}
+.twoBtn {
+    padding: 0px 1.1rem;
+    padding-top: 0.8rem;
+}
+.twoBtn a.centerBtn {
+    width: 6rem;
+}
+.twoBtn a:nth-child(2) {
+    background: #494172;
+    color: #ffffff;
+}
+
+/*用户关注公众号页面*/
+.concernsPage {
+    position: fixed;
+    top: 0px;
+    bottom: 0px;
+    width: 100%;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.5);
+}
+.concernsPage .concernsWarp {
+    height: 7.16rem;
+    width: 12rem;
+    background: #fff;
+    -webkit-border-radius: 0.3rem;
+    -moz-border-radius: 0.3rem;
+    border-radius: 0.3rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -3.58rem;
+    margin-left: -6rem;
+}
+.concernsPage .concernsWarp .title {
+    height: 1.92rem;
+    line-height: 1.92rem;
+    margin-top: 0.54rem;
+    font-size: 0.01rem;
+    color: #333333;
+    /*padding-left: 0.9rem;*/
+    text-align: center;
+}
+.concernsPage .concernsWarp .tip {
+    height: 1.68rem;
+    line-height: 1.68rem;
+    font-size: 0.68rem;
+    color: #666666;
+    padding: 0px 0.9rem;
+}
+.concernsPage .concernsWarp .btn {
+    display: block;
+    width: 8rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    background: #ffea10;
+    font-size: 0.6rem;
+    color: #333333;
+    -webkit-border-radius: 0.2rem;
+    -moz-border-radius: 0.2rem;
+    border-radius: 0.2rem;
+    margin: 0 auto;
+    margin-top: 0.7rem;
+}
+
+.concernsPageBottom{
+    background-color: #f6f5f5;
+    position: fixed;
+    z-index: 1000;
+    width: 12rem;
+    top:70.4%;
+    left: 50%;
+    margin-left: -6rem;
+    border-radius: 0.3rem;
+    height: 3.7rem;
+}
+.concernsPageBottom p{
+    height: 2.3rem;
+    width: 9.8rem;
+    margin-top: 0.8rem;
+    margin-left: 1.2rem;
+}
+
+/*关注页面背景图*/
+.concernsBodyImg{
+    background-image:url("../i/focusOnServiceNumber.png");
+    background-repeat:no-repeat;
+    background-size:100% auto;
+    -moz-background-size:100% auto;
+}

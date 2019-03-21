@@ -1,0 +1,27 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionStoreChildDeviceModel extends Model
+{
+
+    /**
+     * 获取一条信息
+     * @param $map
+     * @param string $field
+     * @return mixed
+     */
+    public function getInspectionStoreChildDeviceByInspectionStoreChildId($map, $field = '*'){
+
+        $data = $this->where($map)->field($field)->select();
+        return $data;
+    }
+}

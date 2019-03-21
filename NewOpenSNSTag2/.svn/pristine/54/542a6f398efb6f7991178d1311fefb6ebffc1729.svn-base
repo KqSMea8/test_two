@@ -1,0 +1,248 @@
+@charset "utf-8";
+.clearfix {
+	zoom: 1;
+}
+.clearfix:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+.hide {
+	display: none;
+}
+.fl {
+	float: left;
+}
+.fr {
+	float: right;
+}
+* {
+	font-family: "Microsoft YaHei";
+}
+.body-class{
+	background-color: #f2f2f2;
+}
+.delete-div{
+	display: -webkit-flex;
+	display: flex;
+	-webkit-align-items: center;
+	align-items: center;
+	width: 100%;
+	font-size: 0.5rem;
+	color: #8a8a8a;
+}
+.delete-img{
+	margin-left: 12.04rem;
+	width: 0.48rem;
+	height: 0.48rem;
+	padding-top: 0.4rem;
+}
+.delete-font{
+	display: inline-block;
+	margin-left: 0.22rem;
+	padding-top: 0.35rem;
+}
+/*****************************地址列表******************************************/
+.all-content{
+	margin-bottom: 4.5rem;
+}
+.content-div{
+	width: 14rem;
+	height: 3.6rem;
+	background-color: #ffffff;
+	margin:0.4rem auto;
+}
+.content-checkbox{
+	width: 1.48rem;
+	height: 3.6rem;
+	float: left;
+}
+/*************************复选框 start*****************************/
+.checkbox-class{
+	margin: 1.6rem 0 0 0.5rem;
+	border-radius: 0.06rem;
+	height: 0.52rem;
+	width: 0.52rem;
+	border: 0.02rem solid #a0a0a0;
+}
+.checkbox-class::after{
+	display: block;
+	content: "";
+	height: 0.52rem;
+	width: 0.52rem;
+	background: #fff;
+	border: 0.02rem solid #bfbfbf;
+}
+.checkbox-class:checked::after{
+	border-radius: 0.06rem;
+	height: 0.52rem;
+	width: 0.52rem;
+	color: #ffe512;
+	background: #000000;
+	border: 0.02rem solid #fff;
+	content:'✔';
+	font-size: 0.4rem;
+	font-weight: bold;
+	text-align: center;
+}
+/*************************复选框 end*****************************/
+.content-text{
+	width: 11.18rem;
+	height: 3.6rem;
+	float: left;
+}
+.content-edit{
+	width: 1.34rem;
+	height: 3.6rem;
+	float: left;
+}
+.content-img{
+	width: 0.96rem;
+	height: 0.96rem;
+	margin-left: -0.4rem;
+	margin-top: 1.32rem;
+}
+.store-name{
+	margin-top: 0.56rem;
+	font-size: 0.6rem;
+	line-height: 1.2;
+}
+.store-name-default{
+	margin-left: 0.6rem;
+	padding: 0.01rem 0.16rem;
+	background-color: #feea0d;
+	border-radius: 0.2rem;
+	font-size: 0.4rem;
+}
+.address{
+	font-size: 0.45rem;
+	line-height: 2.5;
+	color: #999999;
+}
+.link-type{
+	font-size: 0.45rem;
+}
+.link-type-phone{
+	margin-left: 0.36rem;
+}
+.button{
+	bottom: 0;
+	position: fixed;
+	width: 100%;
+	height: 3.92rem;
+	background-color: #f2f2f2;
+	text-align: center;
+}
+.button-text{
+	margin: 0 auto;
+	width: 12rem;
+	height: 1.72rem;
+	background-color: #feea0d;
+	border-radius: 0.2rem;
+	line-height: 2.5;
+	font-size: 0.64rem;
+}
+/**********************暂无门店地址信息*****************************/
+.empty-div{
+	font-size: 0.64rem;
+	color: #979696;
+	text-align: center;
+	margin-top: 3.12rem;
+}
+.empty-img{
+	width: 5.2rem;
+	height: 6.2rem;
+}
+/******************新增地址*************************/
+.phoneIcon {
+	padding-bottom: 1rem;
+	display: inline-block;
+	width: 0.8rem;
+	height: 0.8rem;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+	background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+	background-size: 0.45rem auto;
+	vertical-align: bottom;
+}
+.address-div{
+	padding-left: 0.4rem;
+	margin: 0.4rem auto 4rem auto;
+	background-color: #ffffff;
+	width: 14rem;
+	height: 16.5rem;
+}
+.input-div{
+	width: 100%;
+	border-bottom: 0.02rem solid #eff2fb;
+	display: inline-flex;
+	height: 1.84rem;
+}
+.address-text{
+	line-height: 3.5;
+	float: left;
+	font-size: 0.54rem;
+	color: #a9a9a9;
+	width: 3.2rem;
+}
+.select-province{
+	margin-top: 0.5rem;
+	height: 1rem;
+	margin-left: 0.64rem;
+	border: none;
+	width: 4.2rem;
+}
+.select-city{
+	margin-top: 0.5rem;
+	height: 1rem;
+	border: none;
+	margin-left: 1rem;
+	width: 4.2rem;
+}
+.address-input{
+	margin-left: 0.64rem;
+	font-size: 0.6rem;
+	width: 9.76rem;
+	border: none;
+}
+.notes-div{
+	font-size: 0.48rem;
+	color: #a9a9a9;
+}
+.default-text{
+	margin-left: 0.38rem;
+	font-size: 0.6rem;
+}
+.bottom-div{
+	height: 1.6rem;
+}
+/*************************复选框 start*****************************/
+.radio-class{
+	-webkit-appearance: none;
+	height: 0.52rem;
+	width: 0.52rem;
+	background: #fff;
+}
+.radio-class::after{
+	display: block;
+	content: "";
+	height: 0.52rem;
+	width: 0.52rem;
+	border-radius: 50%;
+	background: #fff;
+	border: 0.02rem solid #bfbfbf;
+}
+.radio-class:checked::after{
+	border-radius: 50%;
+	height: 0.52rem;
+	width: 0.52rem;
+	color: #ffe512;
+	background: #000000;
+	border: 0.02rem solid #fff;
+	content:'✔';
+	font-size: 0.4rem;
+	font-weight: bold;
+	text-align: center;
+}
+/*************************复选框 end*****************************/

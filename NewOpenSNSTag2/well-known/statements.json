@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.jpgk.news",
+    "sha256_cert_fingerprints": [" C3:B0:70:F6:BC:2B:7E:B4:56:37:C2:28:66:B9:CD:EF:08:27:BA:41:DA:63:66:4E:F2:8B:AA:50:B9:99:A2:5A"]
+    }
+}]

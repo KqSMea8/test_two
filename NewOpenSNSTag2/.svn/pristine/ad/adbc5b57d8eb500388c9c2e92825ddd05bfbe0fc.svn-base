@@ -1,0 +1,73 @@
+﻿@charset "utf-8";
+/* 全局样式 */
+*, *:before, *:after { box-sizing: border-box; }
+body, ul, dl, dd, dt, ol, li, p, h1, h2, h3, h4, h5, h6, textarea, form, select, fieldset, table, td, div, input { margin: 0; padding: 0; -webkit-text-size-adjust: none }
+h1, h2, h3, h4, h5, h6 { font-size: 12px; font-weight: normal }
+body>div, form>div, body>section { margin: 0 auto }
+div { text-align: left }
+a img { border: 0 }
+table { border-collapse: collapse; border-spacing: 0 }
+select, input, textarea { outline: none }
+body { color: #898989; text-align: center; font: 12px Arial, "微软雅黑"; min-width: 320px; margin: 0 auto; 
+}
+ul, ol, li { list-style-type: none; vertical-align: 0 }
+a { outline-style: none; color: #666; text-decoration: none }
+a, area { blr:expression(this.onFocus=this.blur())
+}
+:focus { -moz-outline-style: none }
+.clear { clear: both; height: 0; overflow: hidden; visibility: hidden; }
+.hidden, .hide { display: none }
+.block, .show { display: block }
+.fl { float: left }
+.fr { float: right }
+.fline { float: left; display: inline }
+.clearfix:after { clear: both; content: "."; height: 0; display: block; visibility: hidden }
+.chgBtn { cursor: pointer }
+.fwr { font-family: "微软雅黑" }
+.far { font-family: Arial }
+.fb { font-weight: bold }
+.auto { margin-left: auto!important; margin-right: auto!important }
+.cor_red { color: #C00 }
+.cor_org { color: #FF4400; }
+.cor_bs, .cor_bs:hover { color: #fff }
+.mt10 { margin-top: 10px; }
+.mb10 { margin-bottom: 10px; }
+.autoImg img { width: 100%; height: auto }
+.mapp_body1 { background: #FFBE31;}
+.cyOuter {
+    width: 100%;
+    position: relative;
+    font-size: 0px;
+}
+.cyBtn {
+    display: block;
+    width: 5.56rem;
+    height: 1.8rem;
+    line-height: 1.8rem;
+    background:rgba(0,0,0,0.7);
+    font-size: 0.8rem;
+    text-align: center;
+    color: #ffffff;
+    -webkit-border-radius: 0.6rem;
+    -moz-border-radius: 0.6rem;
+    border-radius: 0.8rem;
+    position: absolute;
+    bottom: 5rem;
+    left: 50%;
+    margin-left: -2.78rem;
+    text-decoration:none;
+}
+.cyLayer {
+    position:fixed;
+    top: 0px;
+    width: 100%;
+    bottom: 0px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    max-width:800px;
+}
+.cyLayer img {
+    display: block;
+    margin: 0 auto;
+}

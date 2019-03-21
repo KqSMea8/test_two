@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title></title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<!--<link href="https://weui.io/weui.css" rel="stylesheet" type="text/css">-->
+	<link href="/Public/wechat/c/storeBinding.css?11" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		.weui-cell{
+			padding: 0.8rem 0.5rem;
+		}
+		.navigationBtn{
+			width: 3.6rem;
+			height: 1.2rem;
+			line-height: 1.2rem;
+			text-align: center;
+			background: #feea0d;
+			border-radius: 0.2rem;
+			display: block;
+			margin: 0 auto;
+			font-size: 0.6rem;
+			color: #000000;
+		}
+	</style>
+</head>
+<body style="background:#f8f5f6;">
+<div class="weui-cells" style="margin-bottom: 4.2rem;">
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>门店名称：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.name}</div>
+	</div>
+	<if condition="$storeInfo['is_bind'] eq 1">
+		<div class="weui-cell">
+			<div class="weui-cell__bd">
+				<p>地址导航：</p>
+			</div>
+			<div class="weui-cell__ft">{$storeInfo.location_address}</div>
+		</div>
+	<else/>
+		<div onclick="getMyLocation()" class="weui-cell">
+			<div class="weui-cell__bd">
+				<p>地址导航：</p>
+			</div>
+			<if condition="$storeInfo.location_address neq null">
+				<div class="weui-cell__ft">
+					{$storeInfo.location_address}
+				</div>
+			<else/>
+				<div class="weui-cell__ft">
+					<a class="navigationBtn">点击添加</a>
+				</div>
+			</if>
+		</div>
+	</if>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>详细地址：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.stores_address}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>负责人：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.link_person}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>联系电话：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.link_phone}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>所属物业：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.tenement_name}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>所属街道：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.street_name}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>所属辖区：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.popedom_name}</div>
+	</div>
+</div>
+<input type="hidden" id="store_name" value="{$storeInfo.name}">
+<input type="hidden" id="latng" value="{$storeInfo.latng}">
+<input type="hidden" id="location_address" value="{$storeInfo.location_address}">
+<input type="hidden" id="province" value="{$storeInfo.province}">
+<input type="hidden" id="city" value="{$storeInfo.city}">
+<input type="hidden" id="detail_address" value="{$storeInfo.stores_address}">
+<input type="hidden" id="link_person" value="{$storeInfo.link_person}">
+<input type="hidden" id="link_phone" value="{$storeInfo.link_phone}">
+<input type="hidden" id="member_id" value="{$storeInfo.member_id}">
+<input type="hidden" id="store_id" value="{$storeInfo.store_id}">
+<if condition="$storeInfo['is_bind'] eq 1">
+	<div class="centerBtnWarp" style="position: fixed;bottom: -1rem;">
+		<a href="javascript:;" style="background-color: #D4D4D4" class="centerBtn">已绑定</a>
+	</div>
+	<else/>
+	<div onclick="bindStore()" class="centerBtnWarp" style="position: fixed;bottom: -1rem;">
+		<a href="javascript:;" class="centerBtn">立即绑定</a>
+	</div>
+</if>
+</body>
+</html>
+<script>
+	///腾讯地图定位
+	function getMyLocation() {
+		var backurl = window.location.href;
+		var latng = $("#latng").val();
+		if(latng){
+			window.location.href = "https://apis.map.qq.com/tools/locpicker?search=1&policy=1&type=0&coord="+latng+"&backurl="+backurl+"&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp";
+		}else{
+			window.location.href = "https://apis.map.qq.com/tools/locpicker?search=1&policy=1&type=0&backurl="+backurl+"&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp";
+		}
+	}
+	var doubleClick = false;
+	function bindStore(){
+		var store_name 			= $("#store_name").val();
+		var latng 				= $("#latng").val();
+		var location_address 	= $("#location_address").val();
+		var province 			= $("#province").val();
+		var city 				= $("#city").val();
+		var detail_address 		= $("#detail_address").val();
+		var link_person 		= $("#link_person").val();
+		var link_phone 			= $("#link_phone").val();
+		var member_id 			= $("#member_id").val();
+		var store_id 			= $("#store_id").val();
+
+		if(latng == "undefined" || latng == null || latng == ""){
+			weui.alert("您好，您还没有在【地址导航】中设置地图定位，设置完成后方便服务人员能够更快找到贵店！谢谢配合");
+			return false;
+		}
+		//创建订单时，根据规则生成相应的服务费用，维修和清洗默认0
+		var postData = {
+			store_name:store_name,
+			latng:latng,
+			location_address:location_address,
+			province:province,
+			city:city,
+			detail_address:detail_address,
+			link_person:link_person,
+			link_phone:link_phone,
+			member_id:member_id,
+			store_id:store_id
+		};
+
+		if(doubleClick){
+			return;
+		}else{
+			doubleClick = true;
+		}
+
+		var loading = weui.loading('正在绑定门店');
+		$.post("{:U('Wechat/bindstore/bindstore')}",postData,function(res){
+			loading.hide();
+			if(res.status == 1){
+				doubleClick = false;
+				weui.alert(res.msg, function() {
+					WeixinJSBridge.call('closeWindow');
+				},2000);
+			}else{
+				doubleClick = false;
+				if(res.msg){
+					weui.alert(res.msg);
+				}
+				weui.alert('门店绑定失败，请刷新再试！');
+			}
+		},'json');
+	}
+</script>

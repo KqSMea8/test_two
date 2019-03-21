@@ -1,0 +1,109 @@
+<extend name="Public/base"/>
+<link href="__ZUI__/css/zui.css" rel="stylesheet">
+<link href="__ZUI__/css/zui-theme.css" rel="stylesheet">
+<link href="__PUBLIC__/css/core.css" rel="stylesheet"/>
+<link type="text/css" rel="stylesheet" href="__PUBLIC__/js/ext/magnific/magnific-popup.css"/>
+<include file="Public/head"/>
+<block name="style">
+    <link href="Application/Event/Static/css/event.css" rel="stylesheet" type="text/css"/>
+    <link href="__ZUI__/lib/datetimepicker/datetimepicker.min.css" rel="stylesheet" type="text/css">
+</block>
+<block name="header">
+    <include file="_nav"/>
+</block>
+<block name="body">
+    <div id="frm-post-popup " class="white-popup1 boxShadowBorder col-xs-12" style="">
+        <div>
+            <div class="row">
+                <div style="padding: 0 10px;width: 840px;float: left;">
+                    <form class="form-horizontal ajax-form" role="form" action="{:U('addMemberStore')}" method="post">
+                        <div class="form-group has-feedback">
+                            <label class="control-label">用户名</label>
+                            <div class="col-xs-5">
+                                <!--<input type="text" id="eTime" name="eTime" class="form-control text"/>-->
+                                <span class="form-control text">{$user.name}</span>
+                                <input type="hidden" name="uid" value="{$user.uid}">
+                            </div>
+                        </div>
+
+                        <div class="form-group has-feedback">
+                            <label for="enterprise" class="control-label">企业</label>
+                            <div class="col-xs-5">
+                                <select id="enterprise" name="enterprise" class="form-control select" onchange="show(this.value)">
+                                    <option>==选择企业==</option>
+                                    <volist name="enterprise" id="vo">
+                                    <option value="{$vo.id}" <?php if($user['enterprise_id'] == $vo['id']) echo 'selected';?>>{$vo.name}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group  has-feedback">
+                            <label  class="control-label">门店</label>
+                            <div class="col-xs-10" id="storeArrId">
+                                <select id="store" name="store[]" style="width: 400px" class="chosen-select" multiple="multiple">
+                                        <option value=""></option>
+                                </select>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="form-group">
+                            <div class="col-xs-2" style="margin-left: 50px;">
+                                <button type="submit" class="btn ajax-post btn-primary " target-form="form-horizontal"  href="{:U('addMemberStore')}" style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;">{:L('_SUBMIT_')}
+                                </button>
+                            </div>
+                            <div class="col-xs-8">
+                                <button onclick="history.go(-1);" class="btn btn-default " type="button"  style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;">{:L('_RETURN_')}
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="__STATIC__/uploadify/jquery.uploadify.min.js"></script>
+    <link href="__ROOT__/Application/Core/Static/css/form_check.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="__ROOT__/Application/Core/Static/js/form_check.js"></script>
+    <script type="text/javascript" src="__ZUI__/lib/datetimepicker/datetimepicker.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/Public/js/jquery.js" charset="UTF-8"></script>
+    <script>
+        memberStore = {$memberStore};
+        $(document).ready(function(){
+            var id = $("#enterprise").val();
+            show(id);
+        });
+
+        function show(obj){
+            console.log(memberStore);
+            $.post("{:U('getStore')}", {id: obj}, function(result){
+                if(result.status == 1){
+                    var html = "<select id='store' name='store[]' style='width: 400px' class='chosen-select' multiple='multiple'>";
+                    for(var i=0;i<result.data.length;i++){
+                        if($.inArray(result.data[i].id,memberStore)!== -1){
+                            html += "<option value='"+result.data[i].id+"' selected >"+result.data[i].name+"</option>";
+                        }else{
+                            html += "<option value='"+result.data[i].id+"' >"+result.data[i].name+"</option>";
+                        }
+                    }
+                    html += "</select>";
+
+                $("#storeArrId").html(html);
+
+                var config = {
+                    '.chosen-select'           : {search_contains: true, drop_width: '400px',no_results_text:"{:L('_OPTION_MATCHED_NONE_')}"},
+                };
+                for (var selector in config) {
+                    $(selector).chosen(config[selector]);
+                }
+                $('#store_chosen').css('width','400px');
+
+                }
+            });
+        }
+    </script>
+</block>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>用户类别说明</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<style>
+    *{
+        font-family: "微软雅黑", Helvetica, Tahoma, Arial, sans-serif;
+    }
+    .setFont{
+        font-size: 0.8rem;
+    }
+</style>
+<!--<body style="background:#ffe500;">-->
+<body>
+
+<!--<div class="receiptInfoWarp"  style="background:#ffe500;">-->
+<!--<h3 style="text-align: center" class="title">用户类别说明</h3>-->
+<!--</div>-->
+<!--&lt;!&ndash;我的积分-积分规则&ndash;&gt;-->
+<!--<div class="questionWarp">-->
+<!--<div class="qiyeTop" style="height: 7rem"></div>-->
+<!--<div class="questionCon">-->
+<!--<p class="setFont" style="margin-top: 0.8rem">1.企业用户指已与餐讯网平台签署合作协议的连锁企业用户，由餐讯网统一颁发企业编号及门店编号；</p>-->
+<!-- -->
+<!--<p class="setFont">2.普通用户即非以上所述用户；</p> -->
+
+<!--<p class="setFont">3.拥有10家以上餐饮门店的餐饮企业可申请企业用户，详情请咨询客服电话：<a href="tel:18810250371">188 1025 0371</a></p>-->
+<!--</div>-->
+<!--</div>-->
+<div>
+    <img width="100%" height="100%" src="/Public/wechat/i/description.jpg" />
+</div>
+<div class="centerBtnWarp">
+    <a class="centerBtn" onclick="loadLastPage()">关闭</a></div>
+</div>
+</body>
+</html>
+<script>
+    function hideTheDialog(){
+        $("#server").hide()
+    }
+    function connectServer(){
+        $("#server").show()
+    }
+
+    //跳转到上一页
+    function loadLastPage(){
+        history.go(-1);
+    }
+</script>

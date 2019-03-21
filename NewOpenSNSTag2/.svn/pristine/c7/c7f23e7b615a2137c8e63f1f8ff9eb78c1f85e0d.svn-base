@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>巡检详情页面</title>
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            // if(hWidth>800){
+            //     hWidth=800;
+            // }
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background: #f3f3f3;">
+ <div class="store-top wxbb-top">
+     <ul class="sqsb-top-content">
+         <li>
+             <span>门&emsp;&emsp;店：</span>
+             <em id="result">嘉和一品大钟寺店</em>
+         </li>
+         <li>
+             <span>到店时间：</span>
+             <input class="weui-input" style="color: white;width: auto;" type="date">
+         </li>
+     </ul>
+ </div>
+
+ <!-------------------------------------------------------------巡检员第一次开始------------------------------------------------------------->
+
+ <!--<div class="sqsb-index-text">巡检结果</div>-->
+
+ <!--<div class="weui-cells weui-cells_form" id="uploader" style="position: fixed;top: 6rem;background-color: transparent;">-->
+     <!--<div class="weui-cell">-->
+         <!--<div class="weui-cell__bd">-->
+             <!--<div class="weui-uploader">-->
+                 <!--<div class="weui-uploader__hd">-->
+                     <!--<p class="weui-uploader__title">设备图片<label style="color: #ff3333">*</label></p>-->
+                     <!--<div class="weui-uploader__info"><span id="uploadCount">0</span>/6</div>-->
+                 <!--</div>-->
+                 <!--<div class="weui-uploader__bd">-->
+                     <!--<ul class="weui-uploader__files" id="uploaderFiles"></ul>-->
+                     <!--<div class="weui-uploader__input-box">-->
+                         <!--<input id="uploaderInput" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">-->
+                     <!--</div>-->
+                 <!--</div>-->
+             <!--</div>-->
+         <!--</div>-->
+     <!--</div>-->
+ <!--</div>-->
+
+ <!--<div class="centerBtnWarp centerBtn" style="height: 2rem;padding-top: 0.2rem;">-->
+     <!--<a href="javascript:;" class="centerBtn">完成工单</a>-->
+ <!--</div>-->
+
+ <!-------------------------------------------------------------巡检员第一次结束------------------------------------------------------------->
+
+
+ <!-------------------------------------------------------------巡检员第二次开始------------------------------------------------------------->
+
+ <div class="sqsb-index-search">
+    <input class="sqsb-index-search text" type="text">
+    <a class="sqsb-index-search search-logo"></a>
+</div>
+ <ul class="sheet-list-title">
+     <li>
+         <div>设备编号</div>
+         <div>设备名称</div>
+         <div>巡检结果</div>
+     </li>
+ </ul>
+ <ul class="sheet-list-li">
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+     <li><div>TA11111</div><div>电冰箱</div><div><a onclick="showTip()">操作</a> <a href="">报修</a> <a href="">详情</a></div></li>
+ </ul>
+ <div class="centerBtnWarp twoBtn">
+     <!--<a href="javascript:;" class="centerBtn fl" onclick=" customerOrder('{$orderData.id}','{$orderData.member_id}')">生成支付二维码</a>-->
+     <a href="javascript:;" class="centerBtn fl">添加新设备</a>
+     <a href="javascript:;" class="centerBtn fr">完成工单</a>
+ </div>
+ <!-------------------------------------------------------------巡检员第二次结束------------------------------------------------------------->
+
+ <!--巡检操作-->
+ <div class="popLayer hide">
+     <div class="phonePop">
+         <h3 class="title">巡检操作</h3>
+         <div class="con">
+             <ul>
+                 <li><i data-value="{$orderData.id}"></i><div>进行了除霜</div></li>
+                 <li><i data-value="{$orderData.id}"></i><div>疏通了出风口</div></li>
+                 <li><i data-value="{$orderData.id}"></i><div>进行了内部清洗</div></li>
+                 <li><i data-value="{$orderData.id}"></i><div>查看了整个运行流程</div></li>
+             </ul>
+         </div>
+         <textarea class="textRemark">备注</textarea>
+         <a style="width: 4rem;background: #C0C0C0;" class="xjbtn fl cancelBTN" href="javascript:;">取消</a>
+         <a style="width: 4rem" class="xjbtn fr sureBTN" href="javascript:;">确定</a>
+     </div>
+ </div>
+</body>
+<script src="/Public/wechat/j/jquery.js"></script>
+<script>
+    $(function() {
+
+        //提示框页面关闭
+        $('.popLayer .cancelBTN').click(function () {
+            $('.popLayer').addClass('hide');
+        });
+
+        //巡检操作选项选择
+        $('.phonePop .con li').click(function () {
+//            $('.phonePop .con li i').removeClass('selected');
+//            $(this).children('i').addClass('selected');
+            $(this).children('i').toggleClass('selected');
+        });
+    });
+
+    //显示巡检操作问题选择
+    function showTip(){
+        $('.popLayer').removeClass('hide');
+    }
+
+</script>
+
+<script>
+    // 缩略图预览
+    $('#uploaderFiles').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCount;
+                    uploadCountDom.html(uploadCount);
+
+                    for (var i = 0, len = uploadList.length; i < len; ++i) {
+                        var file = uploadList[i];
+                        if(file.id == id){
+                            delete uploadImageList[id];
+                            file.stop();
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCount = 0, uploadList = [],uploadImageList = [];
+    var uploadCountDom = $("#uploadCount");
+
+    try{
+        weui.uploader('#uploader', {
+            url: "{:U('Wechat/index/downLoadImage')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCount + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCount;
+                uploadCountDom.html(uploadCount);
+            },
+            onQueued: function(){
+                uploadList.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+                uploadImageList[this.id] = ret.data;
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title>地址管理</title>
+	<link href="/Public/wechat/c/address.css?22" rel="stylesheet" type="text/css">
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/jquery.session.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		.weui-toast{font-size: small}
+	</style>
+</head>
+<body class="body-class">
+<div class="address-div">
+	<div class="input-div">
+		<div class="address-text">门店名称</div>
+		<input class="address-input" id="store_name" type="text" name="store_name">
+	</div>
+	<div class="input-div">
+		<div class="address-text">所在区域</div>
+		<select class="select-province" id="province" onchange="changeCity()">
+			<option value ="">请选择城市</option>
+			<volist name="province" id="data">
+				<option value ="{$data.id}">{$data.name}</option>
+			</volist>
+		</select>
+		<select class="select-city" id="city">
+			<option value ="">请选择区域</option>
+			<volist name="city" id="data">
+				<option value="{$data.id}">{$data.name}</option>
+			</volist>
+		</select>
+	</div>
+	<div class="input-div">
+		<div class="address-text">详细地址</div>
+		<input class="address-input" id="detail_address" type="text" name="detail_address">
+	</div>
+	<div class="input-div">
+		<div class="address-text">地址导航<i class="phoneIcon"></i></div>
+		<input type="hidden" value="{$latng}" id="latng">
+		<input type="hidden" id="type" value="{$type}">
+		<input type="hidden" id="equip_id" value="{$equip_id}">
+		<input class="address-input" id="store_address" value="{$location_address}" onclick="getMyLocation()" type="text" name="store_address">
+	</div>
+	<div class="input-div">
+		<div class="address-text">联系人</div>
+		<input class="address-input" id="link_person" type="text" name="link_person">
+	</div>
+	<div class="input-div">
+		<div class="address-text">手机号</div>
+		<input class="address-input" id="link_phone" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" name="link_phone">
+	</div>
+	<div class="input-div">
+		<div class="address-text">固话(座机)</div>
+		<input class="address-input" id="fixed_line" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" name="fixed_line">
+	</div>
+	<div class="bottom-div">
+		<input class="radio-class" id="is_default" type="checkbox" name="is_default">
+		<span class="default-text">设置为默认地址</span>
+	</div>
+	<div class="notes-div">注：设置为默认地址后，每次下单会自动使用该地址。</div>
+
+</div>
+<if condition="empty($type)">
+	<div class="button">
+		<div onclick="saveAddress()" class="button-text">保存</div>
+	</div>
+<else/>
+	<div class="button">
+		<!--直接跳转到下单页面-->
+		<div onclick="saveAddress()" class="button-text">保存并使用</div>
+	</div>
+</if>
+</body>
+</html>
+
+<script>
+	$(function(){
+		//如果session存在值就默认上，并把session中的值置空
+		var type = $.session.get('type');
+		var store_name = $.session.get('store_name');
+		var detail_address = $.session.get('detail_address');
+		var link_person = $.session.get('link_person');
+		var link_phone = $.session.get('link_phone');
+		var fixed_line = $.session.get('fixed_line');
+		var is_default = $.session.get('is_default');
+		var province = $.session.get('province');
+		var city = $.session.get('city');
+		if(type != '0' && type){
+			$("#type").val(type);
+		}
+		if(store_name){
+			$("#store_name").val(store_name);
+		}
+		if(detail_address){
+			$("#detail_address").val(detail_address);
+		}
+		if(link_person){
+			$("#link_person").val(link_person);
+		}
+		if(link_phone){
+			$("#link_phone").val(Number(link_phone));
+		}
+		if(fixed_line){
+			$("#fixed_line").val(Number(fixed_line));
+		}
+		if(is_default && is_default != 'null' && is_default != "undefined" && is_default != 'false'){
+			$("#is_default").prop("checked","checked")
+		}
+		if(province){
+			$("#province").val(province);
+		}
+		if(city){
+			$("#city").val(city);
+		}
+
+		$.session.set('type',0);
+		$.session.set('store_name',"");
+		$.session.set('detail_address',"");
+		$.session.set('link_person',"");
+		$.session.set('link_phone',"");
+		$.session.set('fixed_line',"");
+		$.session.set('is_default',"");
+		$.session.set('province',"");
+		$.session.set('city',"");
+	});
+	///腾讯地图定位
+	function getMyLocation() {
+		var backurl = window.location.href;
+		var latng = $("#latng").val();
+		$.session.set('type', $("#type").val());
+		$.session.set('store_name', $("#store_name").val());
+		$.session.set('detail_address', $("#detail_address").val());
+		$.session.set('link_person', $("#link_person").val());
+		$.session.set('link_phone', $("#link_phone").val());
+		$.session.set('fixed_line', $("#fixed_line").val());
+		$.session.set('is_default', $("#is_default").prop("checked"));
+		$.session.set('province', $("#province").val());
+		$.session.set('city', $("#city").val());
+		if(latng){
+			window.location.href = "https://apis.map.qq.com/tools/locpicker?search=1&policy=1&type=0&coord="+latng+"&backurl="+backurl+"&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp";
+		}else{
+			window.location.href = "https://apis.map.qq.com/tools/locpicker?search=1&policy=1&type=0&backurl="+backurl+"&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp";
+		}
+	}
+	/**
+	 * 保存地址
+	 */
+	function saveAddress(){
+		//获取要添加的信息
+		var store_name = $("#store_name").val();
+		var store_address = $("#store_address").val();
+		var detail_address = $("#detail_address").val();
+		var link_person = $("#link_person").val();
+		var link_phone = $("#link_phone").val();
+		var fixed_line = $("#fixed_line").val();
+		var is_default = $("#is_default").prop("checked");
+		var latng = $("#latng").val();
+		var province_id = $("#province").val();
+		var city_id = $("#city").val();
+		if(store_name.length <= 0){
+			weui.alert("请填写门店名称");
+			return false;
+		}
+		if(province_id.length <= 0 || city_id.length <= 0){
+			weui.alert("请选择所在区域");
+			return false;
+		}
+		if(detail_address.length <= 0){
+			weui.alert("请填写详细地址");
+			return false;
+		}
+		if(store_address.length <= 0){
+			weui.alert("请选择导航地址");
+			return false;
+		}
+		if(link_person.length <= 0){
+			weui.alert("请填写联系人");
+			return false;
+		}
+		if(link_phone.length <= 0){
+			weui.alert("请填写手机号");
+			return false;
+		}
+		var pattern = /^1[3456789]\d{9}$/;
+		if(!pattern.test(link_phone)){
+			weui.alert("请填写正确格式手机号");
+			return false;
+		}
+		is_default = is_default ? 1 : 0;
+		var addressData = {
+			store_name : store_name,
+			latng : latng,
+			location_address : store_address,
+			detail_address : detail_address,
+			link_person : link_person,
+			link_phone : link_phone,
+			fixed_line : fixed_line,
+			is_default : is_default,
+			province_id : province_id,
+			city_id : city_id
+		};
+
+		var type = $("#type").val();
+		var equip_id = $("#equip_id").val();
+		var loading = weui.loading('正在提交地址信息');
+		$.ajax({
+			url: "{:U('Wechat/index/createAddress')}",
+			type: 'post',
+			dataType: 'json',
+			data:addressData,
+			success: function (data) {
+				loading.hide();
+				if(data.status){
+					if(type && type == 1){
+						window.location.href = "{:U('Wechat/index/appointmentStoreRepaire/add_id/"+data.add_id+"/equip_id/"+equip_id+"')}";
+					}else if(type && type == 2){
+						window.location.href = "{:U('Wechat/index/appointmentCleanKill/add_id/"+data.add_id+"')}";
+					}else if(type && type == 3){
+						window.location.href = "{:U('Wechat/index/appointmentCleaning/add_id/"+data.add_id+"')}";
+					}else{
+						window.location.href = "{:U('Wechat/index/addressList')}";
+					}
+				}else{
+					weui.alert(data.msg);
+				}
+			}
+		})
+	}
+	function changeCity(){
+		var upid = $("#province").val();
+		$.ajax({
+			url: "{:U('Wechat/index/getArea')}",
+			type: 'post',
+			dataType: 'json',
+			data:{upid:upid},
+			success: function (data) {
+				// 先清空第二个
+				$("#city").empty();
+				// 实际的应用中，这里的option一般都是用循环生成多个了
+				var option = "<option value=''>请选择区域</option>";
+				for(var i in data){
+					option += "<option value='"+data[i].id+"'>"+data[i].name+"</option>"
+				}
+				$("#city").append(option);
+			}
+		})
+	}
+</script>

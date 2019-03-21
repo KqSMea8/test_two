@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=4D2BZ-MZM3J-JACFM-KU7RM-JHHET-5GFDC"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .weui-cells{font-size:16px;}
+        .weui-label{color:#666;}
+        .weui-select option{font-size:16px;}
+    </style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <div class="weui-cells weui-cells_form">
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单编号</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="order_code" value="{$data.order_code}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡检门店</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="store_name" value="{$data.store_name}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡&nbsp;&nbsp;检&nbsp;&nbsp;人</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="name" value="{$data.name}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">设备名称</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.device_name}" type="text" id="device_name" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">故障描述</label></div>
+            <div class="weui-cell__bd">
+                <textarea rows="5" value="{$data.malfunction_text}" maxlength="200" readonly="readonly" cols="20" id="malfunction_text">{$data.malfunction_text}</textarea>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">是否维修</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="is_maintain"  value="{$data.is_maintain}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">更换零件</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.is_change_parts}" type="text" id="is_change_parts" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">零件名称</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.change_parts_text}" type="text" id="change_parts_text" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">检测费(元)</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.door_price}" type="text" id="door_price" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">零件费(元)</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.parts_price}" type="text" id="parts_price" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">维修费(元)</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.service_price}" type="text" id="service_price" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <!--<div class="weui-cell__hd"><label class="weui-label">维修部位图片</label></label></div>-->
+            <!--<div class="weui-cell__bd">-->
+                <!--<volist name="img" id="vo">-->
+                <!--<img src="{$vo.path}" id="img" class="weui-uploader__file" style="width: 50px; height: 50px;"/>-->
+                <!--</volist>-->
+            <!--</div>-->
+            <li class="weui-uploader__files">
+                <div class="weui-cell__hd"><label class="weui-label">维修部位图片</label></label></div>
+                <div class="machineImgWarp">
+                    <volist name="img" id="vo">
+                        <div class="oneImg">
+                            <php>$vo['path'] = ltrim($vo['path'],'.');</php>
+                            <img class="weui-uploader__file" src="{$vo.path}"/>
+                        </div>
+                    </volist>
+                </div>
+            </li>
+        </div>
+
+    </div>
+</div>
+
+<div style="height:3.16rem;"></div>
+</body>
+</html>
+<script type="text/javascript">
+
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+</script>

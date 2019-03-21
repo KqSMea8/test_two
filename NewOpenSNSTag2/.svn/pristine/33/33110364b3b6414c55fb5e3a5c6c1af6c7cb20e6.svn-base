@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <style>
+        .receiptInfoWarp li{margin-bottom:1rem;}
+    </style>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+
+<body>
+<div class="receiptInfoWarp" id="cancelOrder" style="display: none;">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog">
+        <div class="weui-dialog__hd"><strong style="color: #9d1e15" class="weui-dialog__title  font_alert"><b>信息确认</b></strong></div>
+        <div class="weui-dialog__bd">
+            <div class="weui-cells">
+                <div style="padding: 0.4rem" class="weui-cells_form">
+                    <div class="fl font_alert">清洗费(元):</div>
+                    <div id="door_sum" class="fr font_alert cor_red">0</div>
+                </div>
+            </div>
+        </div>
+        <div style="height:3.16rem;"></div>
+        <div class="centerBtnWarp twoBtn">
+            <a style="width: 4rem" href="javascript:;" onclick="hideMakesure()" class="centerBtn fl">修 改</a>
+            <a  style="width: 4rem" href="javascript:;" onclick="subData()" class="centerBtn fr">确 认</a>
+        </div>
+    </div>
+</div>
+<div class="receiptInfoWarp" style="padding-top:1rem;">
+    <input type="hidden" value="{$order_id}" id="orderId">
+    <input type="hidden" id="is_ka" value="{$is_ka}" />
+    <input type="hidden" id="is_change_price" value="{$is_change_price}" />
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">订单编号</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" type="text" value="{$order_code}" disabled="disabled"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">烟罩长度(米)</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="yzlength" placeholder="烟罩长度"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">防火板长度（米）</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="fhbnum" placeholder="防火板长度"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">竖烟道长度(米)</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="sdlength" placeholder="竖烟道长度"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">横烟道长度(米)</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="hdlength" placeholder="横烟道长度"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">烟道拐弯处开口数量</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="kknum" placeholder="烟道拐弯处开口数量"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">净化器净化片数量</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="jhpnum" placeholder="净化器净化片数量"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">风机数量(简单清洗)</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="fjnum" placeholder="风机数量(简单清洗)"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">风机数量(拆洗)</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="cxnum" placeholder="风机数量(拆洗)"/>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">整体油污程度</label></div>
+        <div class="weui-cell__bd">
+            <select class="weui-select" id="cleantype">
+                <option value="0">请选择</option>
+                <option value="3">重度</option>
+                <option value="2">中度</option>
+                <option value="1">轻度</option>
+            </select>
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">清洗费(元)</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="money" placeholder="清洗费"/>
+        </div>
+    </div>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="makesure()" class="centerBtn">提 交</a></div>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+
+    var doubleClick = false;
+
+    function subData(){
+
+        var postData = {
+            petticoat_pipe:$("#yzlength").val(),
+            upright_flue_length:$("#sdlength").val(),
+            across_flue_length:$("#hdlength").val(),
+            flue_round_num:$("#kknum").val(),
+            purifier_slice_num:$("#jhpnum").val(),
+            draught_fan_clean_num:$("#fjnum").val(),
+            draught_fan_chaixi_num:$("#cxnum").val(),
+            fireproof_board_length:$("#fhbnum").val(),
+            entirety_greasy_dirt:$("#cleantype").val(),
+            money_total:$("#money").val(),
+            id:$("#orderId").val(),
+            is_ka:$("#is_ka").val(),
+            is_change_price:$("#is_change_price").val(),
+            order_state:2,//0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+        var loading = weui.loading('正在提交');
+        $.post("{:U('Enterprise/StoreCleaning/updateCleaningOrder')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                window.location.href="{:U('/Enterprise/store_cleaning/orderDetail/order_id/"+res.data.id+"')}";
+            }else{
+                doubleClick = false;
+                $("#cancelOrder").hide()
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+    function makesure(){
+        //设备必选
+        if(!$("#yzlength").val()){
+            weui.alert('请填写烟罩长度');
+            $("#yzlength").focus();
+            return false;
+        }
+        if(!$("#sdlength").val()){
+            weui.alert('请填写竖烟道长度');
+            $("#sdlength").focus();
+            return false;
+        }
+        if(!$("#hdlength").val()){
+            weui.alert('请填写横烟道长度');
+            $("#hdlength").focus();
+            return false;
+        }
+        if(!$("#kknum").val()){
+            weui.alert('请填写烟道拐弯处开口数量');
+            $("#kknum").focus();
+            return false;
+        }
+        if(!$("#jhpnum").val()){
+            weui.alert('请填写净化器净化片数量');
+            $("#jhpnum").focus();
+            return false;
+        }
+        if(!$("#fjnum").val()){
+            weui.alert('请填写风机数量(简单清洗)');
+            $("#fjnum").focus();
+            return false;
+        }
+        if(!$("#cxnum").val()){
+            weui.alert('请填写风机数量(拆洗)');
+            $("#cxnum").focus();
+            return false;
+        }
+        if(!$("#fhbnum").val()){
+            weui.alert('请填写防火板长度');
+            $("#fhbnum").focus();
+            return false;
+        }
+        if(!$("#money").val()){
+            weui.alert('请填写清洗费');
+            $("#money").focus();
+            return false;
+        }
+        if($("#cleantype").val() == "0"){
+            weui.alert('请选择整体油污程度');
+            return false;
+        }
+        var door_sum = $("#money").val();
+        $("#door_sum").html(door_sum);
+        $("#cancelOrder").show()
+    }
+    function hideMakesure(){
+        $("#cancelOrder").hide()
+    }
+</script>
+</body>
+</html>

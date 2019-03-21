@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>分配工单</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="dispatchWarp">
+    <h3 class="title">选择师傅</h3>
+    <input id="orderId" type="hidden" value="{$order_id}" />
+    <ul class="con">
+        <notempty name="masterData">
+            <volist name="masterData" id="data">
+                 <li><i class="icon" data-value="{$data.uid}"></i><span class="name">{$data.uname}</span><span style="margin-left: 1.0rem">ID:{$data.uid}</span><span class="fr taskNum">任务数：<i class="cor_red">{$data.num}</i></span></li>
+            </volist>
+        </notempty>
+    </ul>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="distributeTask()" class="centerBtn">确认分配</a></div>
+<!--分配弹框-->
+<div class="popLayer hide">
+    <div class="dispatchPop">
+        <h3 class="title">分配成功</h3>
+        <p class="con">工单分配成功！</p>
+        <a class="btn" href="{:U('Enterprise/DistributionSupervisor/noReceiveOrder')}">返 回</a>
+    </div>
+</div>
+<script>
+    var dubleCkick = false;
+    $(function(){
+        //选择师傅
+        $('.dispatchWarp .con li').click(function(){
+            $('.dispatchWarp .con li i.icon').removeClass('selected');
+            $(this).children('.icon').addClass('selected');
+        });
+    });
+    function distributeTask(){
+        if(dubleCkick){
+            return;
+        }
+        dubleCkick = true;
+        var order_id = $("#orderId").val();
+        var uid = $('.dispatchWarp .con li i.selected').attr('data-value');
+        if(!uid){
+            weui.alert('请选择师傅！');
+            return false;
+        }
+        //更新订单状态为未接单，并绑定师傅ID
+        var loading = weui.loading('正在分配');
+        $.post("{:U('Enterprise/DistributionSupervisor/updateCustomerOrder')}",{id:order_id,uid:uid},function(res){
+            loading.hide();
+            if(res.status == 1){
+                $('.popLayer').show();
+            }else{
+                weui.alert(res.msg);
+            }
+        },'json');
+    }
+</script>
+</body>
+</html>

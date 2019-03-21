@@ -1,0 +1,108 @@
+@charset "utf-8";
+.clearfix {
+	zoom: 1;
+}
+.clearfix:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+.hide {
+	display: none;
+}
+.fl {
+	float: left;
+}
+.fr {
+	float: right;
+}
+body{
+	background-color: #f2f2f2;
+	font-family: 'Microsoft YaHei';
+}
+.main-device-div{
+	margin-bottom: 4.5rem;
+}
+.device-div{
+	font-size: 0.5rem;
+	width:14rem;
+	margin: 0 auto;
+}
+.device-form-demo{
+	margin-top: 0.5rem;
+	background-color: #fff;
+	margin-bottom: 0.5rem;
+}
+.form-head{
+	background-color: #ffe512;
+	height: 1.6rem;
+	padding: 0 0.5rem;
+}
+.device-head{
+	line-height: 3.2;
+}
+.delete-img{
+	margin-top: 0.48rem;
+	float: right;
+	width: 0.6rem;
+	height: 0.56rem;
+}
+/*增加按钮*/
+.add-div{
+	margin-left: 0.56rem;
+	font-size: 0.5rem;
+}
+.add-span{
+	border-radius: 0.15rem;
+	padding: 0.28rem;
+	color: #ffe512;
+	background-color: #000;
+}
+/*报修 已修*/
+.repaire-div{
+	text-align: center;
+	margin: 0.64rem 0;
+	width: 100%;
+}
+.to-repaire{
+	margin-top: 1rem;
+	border-radius: 0.15rem;
+	padding: 0.28rem 1.5rem;
+	color: #ffe512;
+	background-color: #000;
+}
+.empty-line{
+	margin-top: 1rem;
+	padding: 0 0.5rem;
+}
+.yet-repaire{
+	margin-top: 1rem;
+	border-radius: 0.15rem;
+	padding: 0.28rem 1.5rem;
+	color: #ffe512;
+	background-color: #000;
+}
+/*确定按钮*/
+.centerBtnWarp {
+	position: fixed;
+	bottom: 0;
+	height: 3.4rem;
+	width: 100%;
+	background: #f2f2f2;
+	z-index: 10;
+	padding-top: 0.4rem;
+}
+.centerBtnWarp .centerBtn {
+	width: 12rem;
+	height: 1.7rem;
+	line-height: 1.7rem;
+	text-align: center;
+	background: #ffea10;
+	-webkit-border-radius: 0.2rem;
+	-moz-border-radius: 0.2rem;
+	border-radius: 0.2rem;
+	display: block;
+	margin: 0 auto;
+	font-size: 0.68rem;
+	color: #333333;
+}

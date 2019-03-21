@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <style>
+        .receiptInfoWarp li{margin-bottom:1rem;}
+        .centerBtnWarp{
+            left: 0.1rem;
+        }
+    </style>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+
+
+<div class="receiptInfoWarp" style="padding-top:1rem;">
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单编号:</label></div>
+            <div class="weui-cell__bd" style="font-size: 0.55rem">
+                {$childInfo.child_order_code}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">下单时间:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.create_time}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">工单状态:</label></div>
+            <div class="weui-cell__bd" style="color:red;">
+                {$childInfo.status_text}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预约门店:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.storeName}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">详细地址:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.stores_address}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系人:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.storePerson}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+            <div class="weui-cell__bd">
+                <a href="tel:{$childInfo.storePhone}">{$childInfo.storePhone}</a>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">服务商:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.fName}
+            </div>
+        </div>
+        <if condition="$isSource eq 'master'">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">巡检主管:</label></div>
+                <div class="weui-cell__bd">
+                    {$childInfo.supervisorName}
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+                <div class="weui-cell__bd">
+                    <a href="tel:{$childInfo.supervisorPhone}">{$childInfo.supervisorPhone}</a>
+                </div>
+            </div>
+        </if>
+        <if condition="$childInfo['isNoMaster'] neq 0">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">巡检员:</label></div>
+                <div class="weui-cell__bd">
+                    {$childInfo.mentorName}
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+                <div class="weui-cell__bd">
+                    <a href="tel:{$childInfo.mentorPhone}">{$childInfo.mentorPhone}</a>
+                </div>
+            </div>
+        </if>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">本次服务:</label></div>
+            <div class="weui-cell__bd" style="color: red">
+                第{$childInfo.service_num}次服务
+            </div>
+        </div>
+    </div>
+
+    <if condition="$childInfo['status'] eq 1">
+        <div class="centerBtnWarp twoBtn">
+            <a href="javascript:;" class="centerBtn fl" onclick="orderReceiving()">接单</a>
+            <a href="javascript:;" class="centerBtn fr" onclick="disributeInspectionOrder()">分配任务</a>
+        </div>
+    </if>
+    <if condition="($childInfo['status'] eq 2) or ($childInfo['status'] eq 3)">
+        <div class="centerBtnWarp">
+            <a href="javascript:;" onclick="disributeInspectionOrder()" class="centerBtn">重新分配</a>
+        </div>
+    </if>
+
+    <!--
+        [service_num] => 1
+        [arrive_time] =>
+        [finish_time] => 2018-08-23
+        [mentorPhone] => 18410140180-->
+</div>
+</body>
+<script>
+    $(document).ready(function(e) {
+
+        inspectionChildId = "{$childInfo['inspection_store_child_id']}";
+        userWxCode = "{$userWxCode}";
+    });
+
+
+    //分配任务
+    function disributeInspectionOrder(){
+
+        var url = "/index.php?s=/enterprise/distribution_supervisor/distributeInspectionOrder/inspection_store_child_id/"+inspectionChildId;
+        window.location.href = url;
+    }
+
+    //接单
+    function orderReceiving(){
+
+        var loading = weui.loading('正在更新订单信息');
+        $.post("{:U('Enterprise/DistributionSupervisor/inspectionSupervisorOrderReceiving')}",{inspectionChildId:inspectionChildId,userWxCode:userWxCode},function(res){
+            if(res.status == 1){
+                loading.hide();
+                weui.toast(res.msg, function() {
+                    location.reload();
+                },1000);
+            }else{
+                loading.hide();
+                if(res.msg){
+                    weui.alert(res.msg);
+                }else{
+                    weui.alert('接单失败，请刷新再试！');
+                }
+            }
+        },'json');
+    }
+
+
+
+</script>
+</html>

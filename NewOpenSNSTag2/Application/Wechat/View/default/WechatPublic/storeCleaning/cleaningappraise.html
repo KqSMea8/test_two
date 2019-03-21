@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>评价</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="valueTop"><i class="icon"></i>您的订单支付已完成，<br/>给师傅评个分吧！</div>
+<div class="spaceLine"></div>
+<div class="valueCon">
+    <div class="valueConTop">评分:<span id="starWarp"><i id="1"></i><i id="2"></i><i id="3"></i><i id="4"></i><i id="5"></i></span></div>
+    <div class="valueConBottom">
+        <input type="hidden" id="member_id" value="{$member_id}" />
+        <input type="hidden" id="workers_id" value="{$workers_id}" />
+        <input type="hidden" id="order_id" value="{$order_id}" />
+        <textarea id="content" placeholder="您可以根据服务商的专业技能、服务质量、上门时间对服务商做出综合评价。"></textarea>
+        <span>不多于200字</span>
+    </div>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp twoBtn"><a href="javascript:;" onclick="history.go(-1);" class="centerBtn fl" >取 消</a><a href="javascript:;" onclick="subAppraise()" class="centerBtn fr">提 交</a></div>
+<!--评价成功弹出框-->
+<div id="successApp" class="popLayer hide">
+    <div class="valuePop">
+        <h3 class="title">评价成功</h3>
+        <input type="hidden" id="orderId" value="{$order_id}" />
+        <div class="con">
+            感谢您的评价和建议！餐讯网会不断优化，为广大餐饮同行提供最优秀的服务！
+        </div>
+        <a class="btn" href="{:U('Wechat/index/showcleaningorder',array('order_id'=>$order_id))}">关 闭</a>
+    </div>
+</div>
+<script>
+    $(function(){
+        //点击星星
+        $('#starWarp i').click(function(){
+            $(this).addClass('on');
+            $(this).prevAll().addClass('on');
+            $(this).nextAll().removeClass('on');
+        });
+        //点击弹出框关闭按钮
+        $('.popLayer .btn').click(function(){
+            $('.popLayer').addClass('hide');
+        });
+    });
+    function subAppraise(){
+        var star = $(".on").length;
+        if(star === 0){
+            weui.alert('请先评分再提交哦！');
+            return false;
+        }
+        if(!$("#content").val()){
+            weui.alert('请填写评价内容！');
+            return false;
+        }
+        var postData = {
+            member_id:$("#member_id").val(),
+            workers_id:$("#workers_id").val(),
+            order_id:$("#order_id").val(),
+            delivery_score:star,
+            content:$("#content").val(),
+            order_state:7//已评价
+        };
+        $.post("{:U('Wechat/index/createOrderAppraise')}",postData,function(res){
+            if(res.status == 1){
+                $("#successApp").show();
+            }else{
+                weui.alert(res.msg);
+            }
+        },'json');
+    }
+</script>
+</body>
+</html>

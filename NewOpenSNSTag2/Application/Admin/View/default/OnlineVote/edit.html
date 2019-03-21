@@ -1,0 +1,167 @@
+<extend name="Public/base"/>
+<link href="__ZUI__/css/zui.css" rel="stylesheet">
+<link href="__ZUI__/css/zui-theme.css" rel="stylesheet">
+<link href="__PUBLIC__/css/core.css" rel="stylesheet"/>
+<link type="text/css" rel="stylesheet" href="__PUBLIC__/js/ext/magnific/magnific-popup.css"/>
+<include file="Public/head"/>
+<block name="style">
+	<link href="Application/Event/Static/css/event.css" rel="stylesheet" type="text/css"/>
+	<link href="__ZUI__/lib/datetimepicker/datetimepicker.min.css" rel="stylesheet" type="text/css">
+</block>
+<block name="body">
+    <div id="frm-post-popup " class="white-popup1 boxShadowBorder col-xs-12" >
+        <style>
+            .messager{left: 45%}
+        </style>
+        <div>
+            <div class="row">
+                <div style="padding: 0 10px;width: 270px;float: left;">
+                    <div class="controls">
+                        <input type="file" id="upload_picture_cover">
+
+                        <div class="upload-img-box" style="margin-top: 20px;width:250px">
+                            <div class="upload-pre-item"><img src="http://image.lz517.com/catering{$content.cover_id|get_cover='path'}"></div>
+                        </div>
+                    </div>
+
+                </div>
+                <div style="padding: 0 10px;width: 840px;float: left;">
+                    <form method="post" class="form-horizontal" action="{:U('doPost')}" >
+                        <div class="form-group has-feedback">
+                            <label for="title" class="control-label">{:L('_TITLE_')}</label>
+
+                            <div class="col-xs-10">
+                                <input id="title" name="title" class="form-control form_check" check-type="Text" value="{$content.title}" placeholder="{:L('_TITLE_')}"/>
+                            </div>
+                            <input type="hidden" name="id" id="id" value="{$content.id}"/>
+                            <input type="hidden" name="cover_id" id="cover_id_cover" value="{$content.cover_id}"/>
+                        </div>
+
+                        <div class="form-group has-feedback">
+                            <label for="" class="control-label">活动时间</label>
+
+                            <div class="col-xs-5">
+                                <input id="sTime" name="sTime" class="time form-control form_check" check-type="Date" value="{:date('Y-m-d H:i',$content['sTime'])}" placeholder="{:L('_TIME_START_')}"/>
+                            </div>
+
+                            <div class="col-xs-5">
+                                <input id="eTime" name="eTime" class="time form-control form_check" check-type="Date" value="{:date('Y-m-d H:i',$content['eTime'])}" placeholder="{:L('_TIME_OVER_')}"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group  has-feedback">
+                            <label for="deadline" class="control-label">投票截止时间</label>
+                            <div class="col-xs-10">
+                                <input type="text" id="deadline" name="deadline" readonly class="time form-control form_check " check-type="Text" value="{:date('Y-m-d H:i',$content['deadline'])}" placeholder="投票截止" required/>
+                            </div>
+                        </div>
+
+                        <div class="form-group has-feedback">
+                            <label for="sort" class="control-label">排序</label>
+
+                            <div class="col-xs-10">
+                                <input id="sort" name="sort" class="form-control " check-type="Num" value="{$content.sort}"/>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="explain" class="control-label">活动介绍</label>
+
+                            <div class="col-xs-10">
+
+                                <php>
+                                    $config="toolbars:[['source','|','bold','italic','underline','fontsize','forecolor','justifyleft','fontfamily','attachment','|','map','emotion','insertimage','insertcode']]";
+                                </php>
+
+                                {:W('Common/Ueditor/editor',array('myeditor_edit','explain',$content['explain'],'800px','250px',$config))}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-xs-2" style="margin-left: 50px;">
+                                <button type="submit" class="btn ajax-post btn-primary " target-form="form-horizontal" href="{:U('Event/Index/doPost')}" style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;">{:L('_SUBMIT_')}
+                                </button>
+
+                            </div>
+                            <div class="col-xs-8">
+                                <input type="button" class="btn btn-default" style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;" onclick="javascript:history.back(-1);"value="返回">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="__STATIC__/uploadify/jquery.uploadify.min.js"></script>
+    <link href="__ROOT__/Application/Core/Static/css/form_check.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="__ROOT__/Application/Core/Static/js/form_check.js"></script>
+    <script type="text/javascript" src="__ZUI__/lib/datetimepicker/datetimepicker.min.js"></script>
+
+    <!--封面上传图片js-->
+    <script>
+        $("#upload_picture_cover").uploadify({
+            "height": 30,
+            "swf": "__STATIC__/uploadify/uploadify.swf",
+            "fileObjName": "download",
+            "buttonText": "{:L('_UPLOAD_COVER_')}",
+            "buttonClass": "uploadcover",
+            "uploader": "{:U('Core/File/uploadPicture',array('session_id'=>session_id()))}",
+            "width": 250,
+            'removeTimeout': 1,
+            'fileTypeExts': '*.jpg; *.png; *.gif;',
+            "onUploadSuccess": uploadPicturecover,
+            'overrideEvents': ['onUploadProgress', 'onUploadComplete', 'onUploadStart', 'onSelect'],
+            'onFallback': function () {
+                alert("{:L('_NOT_DETECTED_')}");
+            }, 'onUploadProgress': function (file, bytesUploaded, bytesTotal, totalBytesUploaded, totalBytesTotal) {
+                $("#cover_id_cover").parent().find('.upload-img-box').html(totalBytesUploaded + ' bytes uploaded of ' + totalBytesTotal + ' bytes.');
+            }, 'onUploadComplete': function (file) {
+                //alert('The file ' + file.name + ' finished processing.');
+            }, 'onUploadStart': function (file) {
+                //alert('Starting to upload ' + file.name);
+            }, 'onQueueComplete': function (queueData) {
+                // alert(queueData.uploadsSuccessful + ' files were successfully uploaded.');
+            }
+        });
+        function uploadPicturecover(file, data) {
+            var data = $.parseJSON(data);
+            var src = '';
+            if (data.status) {
+                $("#cover_id_cover").val(data.id);
+                src = data.url || data.path
+                $('.upload-img-box').html(
+                        '<div class="upload-pre-item"><img src="http://image.lz517.com/catering' + src + '"/></div>'
+                );
+            } else {
+                toast.error('{:L("_UPLOAD_FAIL_")}', '{:L("_TIP_GENTLE_")}');
+            }
+        }
+
+        $('.time').datetimepicker({
+            language:'zh-CN',
+            weekStart:1,
+            todayBtn:1,
+            autoclose:1,
+            todayHighlight:1,
+            startView:2,
+            minView:0,
+            forceParse:0,
+            format: 'yyyy-mm-dd hh:ii'
+        });
+
+        $('.time_d').datetimepicker({
+            language:'zh-CN',
+            weekStart:1,
+            todayBtn:1,
+            autoclose:1,
+            todayHighlight:1,
+            startView:2,
+            minView:2,
+            forceParse:0,
+            format: 'yyyy-mm-dd'
+        });
+
+    </script>
+</block>

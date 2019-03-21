@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>添加新设备</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/add_device.css?1" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		.weui-select option{
+			font-family: 'Microsoft YaHei';
+		}
+		.weui-label-new {
+			display: block;
+			word-wrap: break-word;
+			word-break: break-all;
+		}
+		.weui-input::-webkit-input-placeholder{
+			font-family: 'Microsoft YaHei';
+		}
+		.weui-select{
+			color: #000;
+			font-family: 'Microsoft YaHei';
+		}
+		.device-remark{
+			height: 3rem;
+		}
+		.input-box{
+			width: 2.4rem;
+			height: 2.4rem;
+		}
+		.weui-uploader__file{
+			width: 2.4rem;
+			height: 2.4rem;
+		}
+	</style>
+</head>
+<body>
+<div class="main-device-div">
+<div class="device-div">
+	<div class="device-form-demo" id="demo1">
+		<div class="form-head"><span class="device-head">设备1</span></div>
+		<!--<div class="form-head"><span class="device-head">设备1</span><img class="delete-img" src="/Public/wechatInspection/i/delete.png"/></div>-->
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label-new">设备名称：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="请输入设备名称" type="text" value="" id="device_name1" onblur="save(1)"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label-new">设备品牌：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="请输入设备品牌" type="text" value="" id="brand1" onblur="save(1)"/>
+			</div>
+		</div>
+		<div class="weui-cell weui-cell_select weui-cell_select-after">
+			<div class="weui-cell__hd"><label class="weui-label-new">设备类别：</label></div>
+			<div class="weui-cell__bd">
+				<select class="weui-select" name="select" id="select1" onblur="save(1)">
+					<option value="0">请选择</option>
+					<volist name="deviceType" id="data">
+						<option value="{$data.id}">{$data.name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label-new" style="height: 3.5rem;">巡检备注：</label>
+			</div>
+			<div class="weui-cell__bd">
+				<textarea class="weui-input device-remark" type="text" placeholder="请输入巡检备注" id="remark1" onblur="save(1)"></textarea>
+			</div>
+		</div>
+		<div class="weui-cell uploader">
+			<div class="weui-cell__bd">
+				<div class="weui-uploader">
+					<div class="weui-uploader__hd">
+						<p class="weui-uploader__title">设备图片：</p>
+						<div class="weui-uploader__info"><span class="uploadCount">0</span>/3</div>
+					</div>
+					<div class="weui-uploader__bd">
+						<ul class="weui-uploader__files uploaderFiles"></ul>
+						<div class="weui-uploader__input-box input-box">
+							<input id="uploaderInput" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="repaire-div">
+				<span class="to-repaire" onclick="repair(1)">报修</span>
+				<span class="empty-line"></span>
+				<span class="yet-repaire" onclick="repaired(1)">已修</span></div>
+			</div>
+	</div>
+</div>
+	<div class="add-div"><span onclick="addDiv()" class="add-span">+增加</span></div>
+	<div class="button-div"></div>
+</div>
+<div class="centerBtnWarp">
+	<a href="javascript:;" onclick="confirmDeviceBtn()" class="centerBtn">确 定</a>
+</div>
+<input type="hidden" id="enterpriseId" value="{$inspectionChildData.enterprise_id}">
+</body>
+</html>
+<script type="text/javascript" src="/Public/wechat/j/jquery.js"></script>
+<script>
+
+	//点击确认跳转页面
+	function confirmDeviceBtn(){
+
+		//从缓存中取出数据
+		var cacheData = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+		cacheData = eval('('+ cacheData +')');
+
+		//定义错误提醒
+		var errorMsg = '';
+
+		//参数判断
+		if(isEmpty(cacheData)){
+			errorMsg += "【请先添加设备数据】<br/>";
+		}
+
+		//循环判断数据
+		jQuery.each(cacheData, function(i, val) {
+
+			var deviceNum = i.split("div")[1];
+			deviceNum = "设备"+deviceNum;
+
+			//设备名称
+			if(!val[0]){
+				errorMsg += "【"+deviceNum+",未填写设备名称】<br/>";
+			}
+
+			//设备品牌
+			if(!val[1]){
+				errorMsg += "【"+deviceNum+",未填写设备品牌】<br/>";
+			}
+
+			//设备类别
+			if(!val[2]){
+				errorMsg += "【"+deviceNum+",未填写设备类别】<br/>";
+			}
+
+			//巡检备注
+			if(!val[3]){
+				errorMsg += "【"+deviceNum+",未填写设备备注】<br/>";
+			}
+
+			//设备图片
+			if(isEmpty(val[4])){
+				errorMsg += "【"+deviceNum+",未填写设备图片】<br/>";
+			}
+		});
+
+		if(errorMsg){
+			weui.alert(errorMsg);
+			return false;
+		}
+
+
+		$.post("{:U('StoreMaintain/addInspectionOtherDevice')}", {
+			deviceData:cacheData,
+			inspectionStoreChildId:inspectionStoreChildId,
+			inspectorId:inspectionChildDataJs['inspector_id'],//巡检员标识
+		}, function (result) {
+
+			//添加成功
+			if(result.status == 1){
+
+				//添加缓存，记录已经数据已经提交
+				localStorage.setItem("submitType"+inspectionStoreChildId,1);
+
+				weui.toast('添加成功！', function() {
+					window.location.href = "index.php?s=/Enterprise/StoreMaintain/showInspectionOperationDetail/inspection_store_child_id/"+inspectionStoreChildId+"";
+				},1000);
+			}else{
+				weui.alert(result.msg);
+				return false;
+			}
+		});
+	}
+
+	/**
+	 * 获取数据存储到localStorage中
+	 * @param num
+     */
+	function save(num){
+		var divnum = 'div'+num;
+
+		//从缓存中取出数据
+		var cacheData = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+		cacheData = eval('('+ cacheData +')');
+
+		var img = "";
+		var deviceIdTemp = "";
+		var childdeviceIdTemp = "";
+		if(cacheData){
+			for(var i in cacheData) {
+				if(i == divnum && cacheData[i][4]){
+
+					//将内存中的图片赋值新数组中
+//					localImg[num] = cacheData[i][4];
+
+					//如果本次操作的内容是已经添加的数据，则每次修改操作，还是有值
+					if(cacheData[i][5] && cacheData[i][6]){
+						deviceIdTemp = cacheData[i][5];
+						childdeviceIdTemp = cacheData[i][6];
+					}
+				}
+			}
+		}
+
+		//清除数组中的空值
+		for(var i = 0 ;i<uploadImageList[num].length;i++){
+			if(uploadImageList[num][i] == "" || typeof(uploadImageList[num][i]) == "undefined"){
+				uploadImageList[num].splice(i,1);
+				i= i-1;
+			}
+		}
+
+		//合并内存中图片和新上传图片到新数组
+//		if((isEmpty(localImg[num]) == false) || (isEmpty(uploadImageList[num]) == false)){
+//			var localImgTemp = isEmpty(localImg[num]) ? [] : localImg[num];
+//			var uploadImageListNewTemp = isEmpty(uploadImageList[num]) ? [] : uploadImageList[num];
+//
+//			//数组合并 去重
+//			img = $.unique(localImgTemp.concat(uploadImageListNewTemp));
+//		}
+
+		//获取到本次操作的栏目数据
+		var device_name = $("#device_name"+num).val();
+		var brand = $("#brand"+num).val();
+		var select = $("#select"+num).val();
+		var remark = $("#remark"+num).val();
+
+		var arr = [device_name,brand,select,remark,uploadImageList[num]];
+
+		if(!isEmpty(deviceIdTemp) && !isEmpty(childdeviceIdTemp)){
+			arr = [device_name,brand,select,remark,uploadImageList[num],deviceIdTemp,childdeviceIdTemp];
+		}
+
+		//添加至缓存中
+		if(cacheData){
+			cacheData["div"+num+""] = arr;
+			localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(cacheData));
+		}else{
+			menu["div"+num+""] = arr;
+			localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(menu));
+		}
+
+	}
+
+	//添加空缓存数据
+	function addEmptyLocalCache(){
+		var cacheData = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+		cacheData = eval('('+ cacheData +')');
+
+		var newTemp = {};
+
+		//获取当前缓存中的数据长度
+		if(!cacheData){
+			var tempNum = 0;
+		}else{
+			var tempNum = Object.keys(cacheData).length;
+		}
+
+		++tempNum;
+
+		//获取到本次操作的栏目数据
+		var arr = ["","","","","","",""];
+
+		//添加至缓存中
+		if(cacheData){
+			cacheData["div"+tempNum+""] = arr;
+
+			localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(cacheData));
+		}else{
+			newTemp["div"+tempNum+""] = arr;
+
+			localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(newTemp));
+		}
+
+	}
+
+	//判断数据是否为空
+	function isEmpty(obj) {
+		// 检验 undefined 和 null
+		if(!obj && obj !== 0 && obj !== ''){
+			return true;
+		}
+		if(Array.prototype.isPrototypeOf(obj) && obj.length === 0) {
+			return true;
+		}
+		if(Object.prototype.isPrototypeOf(obj) && Object.keys(obj).length === 0){
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 点击报修操作
+	 * @param num
+     */
+	function repair(num){
+
+		let cacheData = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+		cacheData = eval('('+ cacheData +')');
+		let divNum = 'div'+num;
+
+		let device_id = '';
+		if(cacheData[divNum][5] != undefined){
+			device_id = cacheData[divNum][5];
+		}
+		//todo 得增加判断 如果该条数据已经创建了订单，如果创建了的话需要
+//		weui.confirm('确定报修操作？', function(){
+//
+//		});
+		var device_name = $("#device_name"+num).val();
+		var brand = $("#brand"+num).val();
+		var select = $("#select"+num).val();
+		var remark = $("#remark"+num).val();
+
+		//获取该设备是否已报修
+		var repairsid = $("#repairsid"+num).val();
+
+		if(device_name == ''){
+			weui.alert('设备名称不可为空');return;
+		}
+		if(brand == ''){
+			weui.alert('设备品牌不可为空');return;
+		}
+		if(select == 0){
+			weui.alert('设备类别不可为空');return;
+		}
+		if(remark == ''){
+			weui.alert('巡检备注不可为空');return;
+		}
+//		console.log(repairsid);return;
+		//如果报修的订单标识已经生成，就跳转到维修详情页面
+		if(repairsid != 'null' && repairsid != undefined){
+			window.location.href="{:U('Wechat/Index/showStoreRepaireOrderForInspection/id/"+repairsid+"')}";
+		}else{
+			$.post("{:U('storeMaintain/addDevice')}", {device_name:device_name,deviceId:device_id,brand:brand,select:select,remark:remark,inspectionStoreChildId:inspectionStoreChildId,storeId:storeId}, function(result){
+				if(result.status == 1){
+					var enterpriseId = $("#enterpriseId").val();
+					window.location.href="index.php?s=/Enterprise/StoreMaintain/showInspectionRepairCreate/inspectionChildDeviceId/"+result.data.inspectionChildDeviceId+"/inspectionStoreChildId/"+result.data.inspectionStoreChildId+"/companyId/"+enterpriseId+"/source/otherdevice/storeId/"+storeId+"/deviceId/"+result.data.deviceId+"";
+				}else{
+					weui.alert(result.msg);
+				}
+			});
+		}
+	}
+
+	/**
+	 * 已修操作
+	 * @param num
+     */
+	function repaired(num){
+
+		let cacheData = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+		cacheData = eval('('+ cacheData +')');
+		let divNum = 'div'+num;
+		let divCacheInfo = cacheData[divNum];
+
+		let device_id = '';
+		if(cacheData[divNum][5] != undefined){
+			device_id = cacheData[divNum][5];
+		}
+
+		var device_name = $("#device_name"+num).val();
+		var brand = $("#brand"+num).val();
+		var select = $("#select"+num).val();
+		var remark = $("#remark"+num).val();
+
+		//获取该设备是否已报修
+		var yetrepairsid = $("#yetrepairsid"+num).val();
+
+		if(device_name == ''){
+			weui.alert('设备名称不可为空');return;
+		}
+		if(brand == ''){
+			weui.alert('设备品牌不可为空');return;
+		}
+		if(select == 0){
+			weui.alert('设备类别不可为空');return;
+		}
+		if(remark == ''){
+			weui.alert('巡检备注不可为空');return;
+		}
+		if(yetrepairsid != 'null' && yetrepairsid != undefined){
+			window.location.href="{:U('Wechat/Index/showStoreRepaireOrderForInspection/id/"+yetrepairsid+"')}";
+		}else {
+			//如果已修的订单标识已经生成，就跳转到已修详情页面
+			$.post("{:U('storeMaintain/addDevice')}", {
+				device_name: device_name,
+				deviceId: device_id,
+				brand: brand,
+				select: select,
+				remark: remark,
+				inspectionStoreChildId: inspectionStoreChildId,
+				storeId: storeId
+			}, function (result) {
+				if (result.status == 1) {
+
+					if(result.data.deviceId){
+
+						divCacheInfo[5] = 'device_id:'+result.data.deviceId;
+						divCacheInfo[6] = 'inspection_child_device_id:'+result.data.inspectionChildDeviceId;
+
+						cacheData[divNum] = divCacheInfo;
+						localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(cacheData));
+					}
+
+					var enterpriseId = $("#enterpriseId").val();
+					window.location.href = "index.php?s=/Enterprise/StoreMaintain/showInspectionYetRepairPage/inspectionChildDeviceId/" + result.data.inspectionChildDeviceId + "/inspectionStoreChildId/" + result.data.inspectionStoreChildId + "/companyId/" + enterpriseId + "/source/otherdevice/storeId/" + storeId + "/deviceId/" + result.data.deviceId + "";
+				} else {
+					weui.alert(result.msg);
+				}
+			});
+		}
+	}
+
+	var uploadCount = [], uploadList = [],uploadImageList = [],uploadListTemp = [],uploadImageListTemp = [], localImg = [], newDivInfo = {};
+	var uploadCountDom = [];
+	var changeNum = '';
+	var menu = {};
+
+	//页面初始化数据
+	$(function() {
+//		localStorage.clear();
+
+		inspectionStoreChildId = '{$inspectionStoreChildId}';
+		storeId = '{$storeId}';
+		inspectionChildDataJs = eval("("+'{$inspectionChildData}'+")");
+		deviceTypeJs = eval("("+'{$deviceTypeJs}'+")");
+		deviceLength = '{$deviceLength}';
+
+		//获取已经报修的设备 或 已修的设备
+		deviceList = eval("("+'{$deviceList}'+")");
+
+		showData();
+	});
+
+	//渲染数据
+	function showData(){
+
+		var info = JSON.parse(localStorage.getItem("cacheDeviceData"+inspectionStoreChildId));
+
+		var device_num = 0;
+		if(info){
+
+			//删除页面添加时自带的html代码
+			$("#demo1").remove();
+
+			for (var key in info){
+
+				var deviceNum = ++device_num;
+
+				//初始化所用到的数组 避免报未定义的错误
+				uploadCount[deviceNum] = 0;
+				uploadList[deviceNum] = [];
+				uploadImageList[deviceNum] = [];
+				localImg[deviceNum] = [];
+				uploadCountDom[deviceNum] = $(".uploadCount"+deviceNum);
+
+				//有内存时使用,中转使用,主要用于删除中
+				uploadListTemp[deviceNum] = [];
+				uploadImageListTemp[deviceNum] = [];
+
+				var buttonhtml = "";
+				var problem = "<div class=\"device-form-demo\">";
+				if(deviceNum == 1){
+					problem +="<div class=\"form-head\"><span class=\"device-head\">设备"+deviceNum+"</span></div>";
+				}else{
+					problem +="<div class=\"form-head\"><span class=\"device-head\">设备"+deviceNum+"</span><img class=\"delete-img\" onclick='delDiv(this)' src=\"/Public/wechatInspection/i/delete.png\" /></div>";
+				}
+				problem +="<div class=\"weui-cell\">"+
+						"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\">设备名称：</label></div>"+
+						"<div class=\"weui-cell__bd\">"+
+						"<input class=\"weui-input\" placeholder=\"请输入设备名称\" type=\"text\" value=\""+info[key][0]+"\" id=\"device_name"+deviceNum+"\" onblur=\"save("+deviceNum+")\"/>"+
+						"</div></div>"+
+						"<div class=\"weui-cell\">"+
+						"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\">设备品牌：</label></div>"+
+						"<div class=\"weui-cell__bd\">"+
+						"<input class=\"weui-input\" placeholder=\"请输入设备品牌\" type=\"text\" value=\""+info[key][1]+"\" id=\"brand"+deviceNum+"\" onblur=\"save("+deviceNum+")\"/>"+
+						"</div></div>"+
+						"<div class=\"weui-cell weui-cell_select weui-cell_select-after\">"+
+						"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\">设备类别：</label></div>"+
+						"<div class=\"weui-cell__bd\">"+
+						"<select class=\"weui-select\" name=\"select\" id=\"select"+deviceNum+"\" onblur=\"save("+deviceNum+")\">"+
+						"<option value=\"0\">请选择</option>";
+				for(var i=0;i<deviceTypeJs.length;i++){
+					if(info[key][2] == deviceTypeJs[i].id){
+						problem +="<option value="+deviceTypeJs[i].id+" selected >"+deviceTypeJs[i].name+"</option>";
+					}else{
+						problem +="<option value="+deviceTypeJs[i].id+" >"+deviceTypeJs[i].name+"</option>";
+					}
+				}
+				problem +="	</select>"+
+						"</div></div>"+
+						"<div class=\"weui-cell\">"+
+						"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\" style=\"height: 3.5rem;\">巡检备注：</label></div>"+
+						"<div class=\"weui-cell__bd\">"+
+						"<textarea class=\"weui-input device-remark\" type=\"text\" placeholder=\"请输入巡检备注\" id=\"remark"+deviceNum+"\" onblur=\"save("+deviceNum+")\">"+info[key][3]+"</textarea>"+
+						"</div></div>"+
+						"<div class=\"weui-cell uploader"+deviceNum+"\"><div class=\"weui-cell__bd\"><div class=\"weui-uploader\">"+
+						"<div class=\"weui-uploader__hd\">"+
+						"<p class=\"weui-uploader__title\">设备图片：</p>"+
+						"<div class=\"weui-uploader__info\"><span class=\"uploadCount"+deviceNum+"\">";
+
+				if(info[key][4].length > 0){
+
+					problem += info[key][4].length;
+
+					//记录图片的数量
+					uploadCount[deviceNum] = info[key][4].length;
+				}else{
+
+					problem += 0;
+
+					//记录图片的数量
+					uploadCount[deviceNum] = 0;
+
+					info[key][4] = [];
+				}
+
+				problem +="</span>/3</div></div>"+
+
+						"<div class=\"weui-uploader__bd\">"+
+						"<ul class=\"weui-uploader__files uploaderFiles"+deviceNum+"\"  onclick='changeNumfun("+deviceNum+")'>";
+//						for(var i=0;i<info[key][4].length;i++){
+//							var urls = window.location.host;
+//							var str = "http://"+ urls +"/"+ info[key][4][i] +"";
+//							problem +="<li class=\"weui-uploader__file\" data-id=\""+i+"\" style=\"background-image: url("+str+");\">  </li>";
+//						}
+
+				if(info[key][4] != undefined){
+					var adviceId = 11;
+					var advicehtml = '';
+					var urls = window.location.host;
+
+					for(var i=0;i<info[key][4].length;i++) {
+						var advice = new Blob();
+						advice['id'] = adviceId;
+						advice['stop'] = function () {};
+//								advice['url'] = "http://"+window.location.host+adviceImg[i]['path'];
+						advice['url'] = "http://" + urls + "/" + info[key][4][i] + "";
+						uploadImageList[deviceNum][i] = info[key][4][i];
+						uploadImageListTemp[deviceNum][adviceId] = info[key][4][i];
+						var imgpath = "http://" + window.location.host + info[key][4][i];
+						advicehtml += "<li class='weui-uploader__file' data-id='" + adviceId + "' style='background-image: url(" + imgpath + ")'></li>";
+
+						adviceId++;
+//								uploadCountBefore[deviceNum]++;
+						uploadList[deviceNum].push(advice);
+						uploadListTemp[deviceNum].push(advice);
+					}
+//							uploadCountBefore = adviceImg.length;
+//							uploadCountBeforeDom.html(uploadCountBefore);
+
+					//增加设备图片
+					problem += advicehtml;
+				}
+
+				problem +="</ul>"+
+						"<div class=\"weui-uploader__input-box input-box\" onclick='changeNumfun("+deviceNum+")'>"+
+						"<input id=\"uploaderInput\" value=\"\" class=\"weui-uploader__input\" type=\"file\" accept=\"image/*\" multiple=\"multiple\">"+
+						"</div></div></div></div></div>";
+
+				if(!isEmpty(deviceList)){
+					for(var i=0;i<deviceList.length;i++){
+
+						if(info[key][0] == deviceList[i]['device_name'] && info[key][1] == deviceList[i]['device_brand'] && info[key][2] == deviceList[i]['device_category_id'] && info[key][3] == deviceList[i]['remark']){
+//							console.log('已进入判断2');
+//							console.log(info[key]);
+							//将已经添加的设备数据拼接到缓存中，避免重复添加
+							info[key][5] = 'device_id:'+deviceList[i]['device_id'];
+							info[key][6] = 'inspection_child_device_id:'+deviceList[i]['inspection_child_device_id'];
+
+							localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(info));
+
+							//判断如果设备已报修 或者 已修，则分别展示出不同的按钮
+							if(deviceList[i]['repairs_id']){
+								buttonhtml +="<div class=\"weui-cell\">" +
+										"<div class=\"repaire-div\">" +
+										"<span class=\"to-repaire\" onclick=\"repair("+deviceNum+")\">报修</span>" +
+										"<input type='hidden' id='repairsid"+deviceNum+"' value="+deviceList[i]['repairs_id']+">" +
+										"<input type='hidden' id='deviceid"+deviceNum+"' value="+deviceList[i]['device_id']+">" +
+										"<input type='hidden' id='childDeviceId"+deviceNum+"' value="+deviceList[i]['inspection_child_device_id']+">" +
+										"</div>" +
+										"</div>" +
+										"</div>";
+							}else if(deviceList[i]['yet_repairs_id']){
+								buttonhtml +="<div class=\"weui-cell\">" +
+										"<div class=\"repaire-div\">" +
+										"<input type='hidden' id='yetrepairsid"+deviceNum+"' value="+deviceList[i]['yet_repairs_id']+">" +
+										"<input type='hidden' id='deviceid"+deviceNum+"' value="+deviceList[i]['device_id']+">" +
+										"<input type='hidden' id='childDeviceId"+deviceNum+"' value="+deviceList[i]['inspection_child_device_id']+">" +
+										"<span class=\"yet-repaire\" onclick=\"repaired("+deviceNum+")\">已修</span>" +
+										"</div>" +
+										"</div>" +
+										"</div>";
+							}else{
+								buttonhtml +="<div class=\"weui-cell\"><div class=\"repaire-div\">" +
+										"<input type='hidden' id='deviceid"+deviceNum+"' value="+deviceList[i]['device_id']+">" +
+										"<input type='hidden' id='childDeviceId"+deviceNum+"' value="+deviceList[i]['inspection_child_device_id']+">" +
+										"<span class=\"to-repaire\" onclick=\"repair("+deviceNum+")\">报修</span>" +
+										"<span class=\"empty-line\"></span>"+
+										"<span class=\"yet-repaire\" onclick=\"repaired("+deviceNum+")\">已修</span></div>" +
+										"</div></div>";
+							}
+						}
+					}
+				}
+
+				//避免出现多余按钮的问题
+				if(buttonhtml){
+					problem += buttonhtml;
+				}else{
+					problem +="<div class=\"weui-cell\"><div class=\"repaire-div\">" +
+							"<span class=\"to-repaire\" onclick=\"repair("+deviceNum+")\">报修</span>" +
+							"<span class=\"empty-line\"></span>"+
+							"<span class=\"yet-repaire\" onclick=\"repaired("+deviceNum+")\">已修</span></div>" +
+							"</div></div>";
+				}
+
+				$(".device-div").append(problem);
+
+				try{
+					weui.uploader('.uploader'+deviceNum, {
+						//获取当前操作的div class值
+						url: "{:U('Wechat/index/downLoadImageFoDevice')}",
+						auto: true,
+						type: 'file',
+						fileVal: 'fileVal',
+						onBeforeQueued: function(files) {
+							if(this.size > 10 * 1024 * 1024){
+								weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+								return false;
+							}
+							if (files.length > 3) { // 防止一下子选中过多文件
+								weui.alert('最多只能上传3张图片，请重新选择');
+								return false;
+							}
+							if (uploadCount[changeNum] + 1 > 3) {
+								weui.alert('最多只能上传3张图片');
+								return false;
+							}
+
+							++uploadCount[changeNum];
+							uploadCountDom[changeNum].html(uploadCount[changeNum]);
+						},
+						onQueued: function(){
+							uploadList[changeNum].push(this);
+						},
+						onBeforeSend: function(data, headers){
+							// $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+							// $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+							// return false; // 阻止文件上传
+						},
+						onProgress: function(procent){
+						},
+						onSuccess: function (ret) {
+
+							uploadImageList[changeNum][this.id] = ret.data;
+							uploadImageListTemp[changeNum][this.id] = ret.data;
+
+							save(changeNum);
+						},
+						onError: function(err){
+						}
+					});
+				}catch (e){
+					alert(e);
+				}
+
+				// 缩略图预览
+				$('.uploaderFiles'+deviceNum).on('click', function(e){
+					var target = e.target;
+					while(!target.classList.contains('weui-uploader__file') && target){
+						target = target.parentNode;
+					}
+					if(!target) return;
+
+					var url = target.getAttribute('style') || '';
+					var id = target.getAttribute('data-id');
+
+					if(url){
+						url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+					}
+					var gallery = weui.gallery(url, {
+						className: 'custom-name',
+						onDelete: function(){
+//							console.log(uploadImageList);
+							weui.confirm('确定删除该图片？', function(){
+								for (var i = 0, len = uploadList[changeNum].length; i < len; ++i) {
+									var file = uploadList[changeNum][i];
+									if(file.id == id){
+
+										//循环数据，数据值对应上了就 删除
+										for(var j = 0,lenTemp = uploadImageList[changeNum].length; j < lenTemp; ++j){
+
+											if(uploadImageList[changeNum][j] == uploadImageListTemp[changeNum][id]){
+												delete uploadImageList[changeNum][j];
+												delete uploadImageListTemp[changeNum][id];
+
+												--uploadCount[changeNum];
+												$('.uploadCount'+changeNum).html(uploadCount[changeNum]);
+											}
+										}
+										break;
+									}
+								}
+								target.remove();
+								gallery.hide();
+
+								save(changeNum);
+							});
+						}
+					});
+				});
+
+			}
+
+		}else{
+			//缓存中没有数据默认为添加 TODO 有一种特殊情况，就是操作了设备，缓存中有了，但是一直没有提交。缓存失效后 是有问题的，暂不考虑
+			addEmptyLocalCache();
+		}
+	}
+
+	//修改记录每一栏目操作的标识值
+	function changeNumfun(num){
+		changeNum = num;
+	}
+
+	//新增操作
+	function addDiv() {
+		var deviceLevel = $(".device-div .device-form-demo").length;
+		var deviceNum = Number(deviceLevel)+1;
+		deviceNum = parseInt(deviceNum);
+		var problem = "<div class=\"device-form-demo\">"+
+		"<div class=\"form-head\"><span class=\"device-head\">设备"+deviceNum+"</span><img class=\"delete-img\" onclick='delDiv(this)' src=\"/Public/wechatInspection/i/delete.png\" /></div>"+
+		"<div class=\"weui-cell\">"+
+		"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\">设备名称：</label></div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"<input class=\"weui-input\" placeholder=\"请输入设备名称\" type=\"text\" value=\"\" id=\"device_name"+deviceNum+"\" onblur=\"save("+deviceNum+")\"/>"+
+		"</div></div>"+
+		"<div class=\"weui-cell\">"+
+		"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\">设备品牌：</label></div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"<input class=\"weui-input\" placeholder=\"请输入设备品牌\" type=\"text\" value=\"\" id=\"brand"+deviceNum+"\" onblur=\"save("+deviceNum+")\"/>"+
+		"</div></div>"+
+		"<div class=\"weui-cell weui-cell_select weui-cell_select-after\">"+
+		"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\">设备类别：</label></div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"<select class=\"weui-select\" name=\"select\" id=\"select"+deviceNum+"\" onblur=\"save("+deviceNum+")\">"+
+				"<option value=\"0\">请选择</option>";
+
+		for(var i=0;i<deviceTypeJs.length;i++){
+			problem +="<option value="+deviceTypeJs[i].id+">"+deviceTypeJs[i].name+"</option>";
+		}
+		problem +="	</select>"+
+		"</div></div>"+
+		"<div class=\"weui-cell\">"+
+		"<div class=\"weui-cell__hd\"><label class=\"weui-label-new\" style=\"height: 3.5rem;\">巡检备注：</label></div>"+
+		"<div class=\"weui-cell__bd\">"+
+		"<textarea class=\"weui-input device-remark\" type=\"text\" placeholder=\"请输入巡检备注\" id=\"remark"+deviceNum+"\" onblur=\"save("+deviceNum+")\"></textarea>"+
+		"</div></div>"+
+		"<div class=\"weui-cell uploader"+deviceNum+"\"><div class=\"weui-cell__bd\"><div class=\"weui-uploader\">"+
+		"<div class=\"weui-uploader__hd\">"+
+		"<p class=\"weui-uploader__title\">设备图片：</p>"+
+		"<div class=\"weui-uploader__info\"><span class=\"uploadCount"+deviceNum+"\">0</span>/3</div></div>"+
+		"<div class=\"weui-uploader__bd\">"+
+		"<ul class=\"weui-uploader__files uploaderFiles"+deviceNum+"\"></ul>"+
+		"<div class=\"weui-uploader__input-box input-box\" onclick='changeNumfun("+deviceNum+")'>"+
+		"<input id=\"uploaderInput\" value=\"\" class=\"weui-uploader__input\" type=\"file\" accept=\"image/*\" multiple=\"multiple\">"+
+		"</div></div></div></div></div>"+
+		"<div class=\"weui-cell\"><div class=\"repaire-div\">" +
+		"<span class=\"to-repaire\" onclick=\"repair("+deviceNum+")\">报修</span>" +
+		"<span class=\"empty-line\"></span>"+
+		"<span class=\"yet-repaire\" onclick=\"repaired("+deviceNum+")\">已修</span></div>" +
+		"</div></div>";
+		$(".device-div").append(problem);
+
+		uploadCount[deviceNum] = 0;
+		uploadList[deviceNum] = [];
+		uploadImageList[deviceNum] = [];
+		localImg[deviceNum] = [];
+		uploadCountDom[deviceNum] = $(".uploadCount"+deviceNum);
+
+		//添加缓存数据
+		addEmptyLocalCache();
+
+		try{
+			weui.uploader('.uploader'+deviceNum, {
+				url: "{:U('Wechat/index/downLoadImageFoDevice')}",
+				auto: true,
+				type: 'file',
+				fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+				onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+					if(this.size > 10 * 1024 * 1024){
+						weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+						return false;
+					}
+					if (files.length > 3) { // 防止一下子选中过多文件
+						weui.alert('最多只能上传3张图片，请重新选择');
+						return false;
+					}
+					if (uploadCount[changeNum] + 1 > 3) {
+						weui.alert('最多只能上传3张图片');
+						return false;
+					}
+
+					++uploadCount[changeNum];
+					uploadCountDom[changeNum].html(uploadCount[changeNum]);
+				},
+				onQueued: function(){
+					uploadList[changeNum].push(this);
+				},
+				onBeforeSend: function(data, headers){
+					// $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+					// $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+					// return false; // 阻止文件上传
+				},
+				onProgress: function(procent){
+				},
+				onSuccess: function (ret) {
+
+					uploadImageList[changeNum][this.id] = ret.data;
+					save(changeNum);
+				},
+				onError: function(err){
+				}
+			});
+		}catch (e){
+			alert(e);
+		}
+
+		// 缩略图预览
+		$('.uploaderFiles'+deviceNum).on('click', function(e){
+			var target = e.target;
+			while(!target.classList.contains('weui-uploader__file') && target){
+				target = target.parentNode;
+			}
+			if(!target) return;
+
+			var url = target.getAttribute('style') || '';
+			var id = target.getAttribute('data-id');
+
+			if(url){
+				url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+			}
+			var gallery = weui.gallery(url, {
+				className: 'custom-name',
+				onDelete: function(){
+					weui.confirm('确定删除该图片？', function(){
+//						console.log(uploadCount);
+//						uploadCountDom.html(uploadCount);
+//						console.log(uploadList[changeNum]);
+//						console.log(uploadImageList[changeNum]);
+//						console.log("id = "+id);
+
+						for (var i = 0, len = uploadList[changeNum].length; i < len; ++i) {
+							var file = uploadList[changeNum][i];
+							if(file.id == id){
+								--id;
+								delete uploadImageList[changeNum][id];
+
+								--uploadCount[changeNum];
+								$('.uploadCount'+changeNum).html(uploadCount[changeNum]);
+								break;
+							}
+						}
+
+						target.remove();
+						gallery.hide();
+
+						save(changeNum);
+					});
+				}
+			});
+		});
+	}
+
+	//删除功能
+	function delDiv(obj){
+
+		//从页面中移除该栏目
+		var nowNum = $(obj).parent().parent().index();
+		$(obj).parent().parent().remove('div');
+
+		//从缓存中取出数据
+		var divName = 'div'+(parseInt(nowNum)+1);
+		var cacheData = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+		info = eval('('+ cacheData +')');
+
+		let nowDiv = info[divName];
+
+		//判断如果操作的数据有 生成值 则删除
+		if(nowDiv[5].length > 0){
+
+			$.ajax({
+				url: "{:U('Enterprise/StoreMaintain/delDeviceForInspectionIng')}",
+				type: 'post',
+				dataType: 'json',
+				data:{
+					deviceId:nowDiv[5],
+					inspectionChildDeviceId:nowDiv[6]
+				},
+				success: function (data) {
+					console.log(data);
+				}
+			},'json');
+		}
+
+		delete info[divName];
+
+		localStorage.removeItem("cacheDeviceData"+inspectionStoreChildId);
+//		delete info.'div'+divNum; //删除内存中的div
+
+		//重新赋值
+//		localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(info));
+//		var cacheDataNew = localStorage.getItem("cacheDeviceData"+inspectionStoreChildId);
+//		console.log(cacheDataNew);
+
+		//重新赋值到新数组
+		var newNum = 0;
+		var newDivInfo = {};
+		for(var i in info) {
+			newNum = ++newNum;
+			newDivInfo["div"+newNum+""] = info[i];
+		}
+
+//		console.log(newDivInfo);
+		localStorage.setItem("cacheDeviceData"+inspectionStoreChildId,JSON.stringify(newDivInfo));
+
+//
+////		localStorage.removeItem("div"+divNum+"");
+//		delete uploadCount[nowNum];
+//		delete uploadList[nowNum];
+//		delete uploadImageList[nowNum];
+//		delete uploadCountDom[nowNum];
+//		$(".device-div .device-form-demo").each(function () {
+// 			var num = $(this).index();
+//			$(this).find(".device-head").html("设备"+num);
+//		});
+
+		$(".device-div").empty();
+		showData();
+	}
+</script>
+<script type="text/javascript">
+
+	uploadCount[1] = 0;
+	uploadList[1] = [];
+	uploadImageList[1] = [];
+	uploadCountDom[1] = $(".uploadCount");
+
+	// 缩略图预览
+	$('.uploaderFiles').on('click', function(e){
+		var target = e.target;
+		while(!target.classList.contains('weui-uploader__file') && target){
+			target = target.parentNode;
+		}
+		if(!target) return;
+
+		var url = target.getAttribute('style') || '';
+		var id = target.getAttribute('data-id');
+
+		if(url){
+			url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+		}
+		var gallery = weui.gallery(url, {
+			className: 'custom-name',
+			onDelete: function(){
+				weui.confirm('确定删除该图片？', function(){
+
+					for (var i = 0, len = uploadList[1].length; i < len; ++i) {
+						var file = uploadList[1][i];
+						if(file.id == id){
+							--id;
+							delete uploadImageList[1][id];
+
+							--uploadCount[changeNum];
+							$('.uploadCount'+changeNum).html(uploadCount[1]);
+							break;
+						}
+					}
+
+					target.remove();
+					gallery.hide();
+
+					save(1);
+				});
+			}
+		});
+	});
+
+	try{
+		weui.uploader('.uploader', {
+			url: "{:U('Wechat/index/downLoadImageFoDevice')}",
+			auto: true,
+			type: 'file',
+			fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+			onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+				if(this.size > 10 * 1024 * 1024){
+					weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+					return false;
+				}
+				if (files.length > 3) { // 防止一下子选中过多文件
+					weui.alert('最多只能上传3张图片，请重新选择');
+					return false;
+				}
+				if (uploadCount[1] + 1 > 3) {
+					weui.alert('最多只能上传3张图片');
+					return false;
+				}
+
+				++uploadCount[1];
+				uploadCountDom[1].html(uploadCount[1]);
+			},
+			onQueued: function(){
+				uploadList[1].push(this);
+			},
+			onBeforeSend: function(data, headers){
+				// $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+				// $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+				// return false; // 阻止文件上传
+			},
+			onProgress: function(procent){
+			},
+			onSuccess: function (ret) {
+				uploadImageList[1][this.id] = ret.data;
+				save(1);
+			},
+			onError: function(err){
+			}
+		});
+	}catch (e){
+		alert(e);
+	}
+</script>

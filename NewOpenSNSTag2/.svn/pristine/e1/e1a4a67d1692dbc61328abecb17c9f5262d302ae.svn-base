@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>用户类别选择</title>
+    <link href="/Public/wechat/c/canxun.css?111" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css?222" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        /*弹出框*/
+        .msgLayer {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            background: #332e00;
+            /*电话沟通结果*/
+        }
+        .msgLayer .valuePop {
+            width: 12.02rem;
+            background: #ffffff;
+            margin: 25% auto 0;
+        }
+        .msgLayer .valuePop .btn {
+            text-align: center;
+            background: -webkit-linear-gradient(left, #ffc412 , #ff9812); /* Safari 5.1 - 6.0 */
+            background: -o-linear-gradient(right, #ffc412 , #ff9812); /* Opera 11.1 - 12.0 */
+            background: -moz-linear-gradient(right, #ffc412 , #ff9812); /* Firefox 3.6 - 15 */
+            background: linear-gradient(to right, #ffc412 , #ff9812); /* 标准的语法（必须放在最后） */
+            width: 10.1rem;
+            height: 1.58rem;
+            color: #fff;
+            line-height: 2.8;
+            margin: 0 auto;
+            border-radius: 1rem;
+        }
+        .btnPop{
+            width: 12.02rem;
+            height: 2.5rem;
+        }
+        .imgPop{
+            width: 12.02rem;
+            height: 13.46rem;
+        }
+    </style>
+</head>
+<body style="background:#ffe500;">
+<!--<div id="toastMsg" class="msgLayer">
+    <div class="valuePop">
+        <img class="imgPop" src="/Public/wechat/i/holiday.jpg" />
+        <div class="btnPop">
+            <div class="btn" onclick="closeToastMsg()"><b>我知道了</b></div>
+        </div>
+    </div>
+</div>-->
+<div class="qiyeTop"></div>
+<div class="qiyeConWarp">
+    <php>if($door_type == 1){</php>
+        <a class="qiyeBtn" href="{:U('Wechat/index/selectEqipmentType')}">
+    <php>}elseif($door_type == 2){</php>
+        <a class="qiyeBtn" href="{:U('Wechat/index/appointmentCleanKill')}">
+    <php>}else{</php>
+        <a class="qiyeBtn" href="{:U('Wechat/index/appointmentCleaning')}">
+    <php>}</php>
+        <h3>立即下单</h3>
+        <!--<p>(平台合作连锁餐厅)</p>-->
+    </a>
+    <a class="qiyeBtn" href="{:U('Wechat/index/inputCompanyStoreCode',array('door_type'=>$door_type))}">
+        <h3>企业版登录</h3>
+        <p>(已申请企业账号)</p>
+    </a>
+</div>
+<div style="text-align:center;padding-top:1.4rem;"><a class="qiyeTypeDesc" href="{:U('Wechat/index/userClassDescription')}">下单说明»</a></div>
+</body>
+</html>
+<script>
+    function closeToastMsg(){
+        $("#toastMsg").hide();
+    }
+</script>

@@ -1,0 +1,21 @@
+<div class="data-table with-padding">
+    <table class="table table-bordered table-striped ">
+        <thead>
+        <tr>
+            <th class="">设备名称</th>
+            <th class="">配件名称</th>
+            <th class="">费用（元）</th>
+
+        </tr>
+        </thead>
+        <tbody>
+            <volist name="list" id="vo">
+                <tr>
+                    <td>{$vo.device_name}</td>
+                    <td>{$vo.change_parts_text}</td>
+                    <td>{$vo.money}</td>
+                </tr>
+            </volist>
+        </tbody>
+    </table>
+</div>

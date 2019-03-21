@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>分配工单</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+
+    <style>
+        .dispatchWarp .con li .name{
+            max-width: 3.6rem;
+        }
+    </style>
+</head>
+<body>
+<div class="dispatchWarp">
+    <h3 class="title">选择师傅</h3>
+    <ul class="con" id="masterId">
+         <!--<li>-->
+             <!--<i class="icon" data-value="{$data.uid}"></i>-->
+             <!--<span class="name">黄师傅</span>-->
+             <!--<span style="margin-left: 1.0rem">ID:11</span>-->
+             <!--&lt;!&ndash;<span class="fr taskNum">任务数：<i class="cor_red">22</i></span>&ndash;&gt;-->
+         <!--</li>-->
+    </ul>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="distributeTask()" class="centerBtn">确认分配</a></div>
+<!--分配弹框-->
+<div class="popLayer hide">
+    <div class="dispatchPop">
+        <h3 class="title">分配成功</h3>
+        <p class="con">工单分配成功！</p>
+        <a class="btn" onclick="jumpToUrl()">返 回</a>
+    </div>
+</div>
+<script>
+    var dubleCkick = false;
+    $(function(){
+        inspectorId = "{$inspector_id}";
+        inspectionChildId = "{$inspection_child_id}";
+        masterList = eval(""+'{$masterList}'+"");
+        showMasterList();
+
+        //选择师傅
+        $('.dispatchWarp .con li').click(function(){
+            $('.dispatchWarp .con li i.icon').removeClass('selected');
+            $(this).children('.icon').addClass('selected');
+        });
+    });
+
+    //循环师傅数据
+    function showMasterList(){
+
+        if(masterList){
+            var html = "";
+            for(var i=0;i<masterList.length;i++){
+
+                html += "<li>";
+                if(inspectorId == masterList[i].uid){
+                    html += "<i class=\"icon selected\" data-value="+masterList[i].uid+"></i>";
+                }else{
+                    html += "<i class=\"icon\" data-value="+masterList[i].uid+"></i>";
+                }
+                html += "<span class=\"name\">"+masterList[i].name+"</span>";
+                html += "<span style=\"margin-left: 1.0rem\">ID:"+masterList[i].uid+"</span>";
+                html += "</li>";
+            }
+            $("#masterId").html(html);
+
+        }else{
+            //没有数据展示暂无数据的页面
+
+        }
+    }
+
+    //分配工单
+    function distributeTask(){
+        if(dubleCkick){
+            return;
+        }
+        dubleCkick = true;
+        var order_id = inspectionChildId;
+        var uid = $('.dispatchWarp .con li i.selected').attr('data-value');
+        if(!uid){
+            weui.alert('请选择师傅！');
+            return false;
+        }
+
+        //更新订单状态为未接单，并绑定师傅ID
+        var loading = weui.loading('正在分配');
+        $.post("{:U('Enterprise/DistributionSupervisor/setChildInspectorStatus')}",{inspectionChildId:order_id,uid:uid},function(res){
+            loading.hide();
+            if(res.status == 1){
+                $('.popLayer').show();
+            }else{
+                weui.alert(res.msg);
+            }
+        },'json');
+    }
+
+    function jumpToUrl(id){
+
+        var url = "/index.php?s=/Enterprise/DistributionSupervisor/inspectionChildOrderDetail/inspection_store_child_id/"+inspectionChildId;
+        window.location.href = url;
+    }
+</script>
+</body>
+</html>

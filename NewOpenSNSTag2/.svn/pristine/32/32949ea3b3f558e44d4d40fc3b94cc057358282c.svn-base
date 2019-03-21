@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=4D2BZ-MZM3J-JACFM-KU7RM-JHHET-5GFDC"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .weui-cells{font-size:16px;}
+        .weui-label{color:#666;width: 100px;}
+        .weui-select option{font-size:16px;}
+    </style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <div class="weui-cells weui-cells_form">
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单编号</label></div>
+            <div class="weui-cell__bd" style="font-size: 0.7rem">
+                <input class="weui-input" type="text" id="order_code" value="{$data.order_code}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡检门店</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="store_name" value="{$data.store_name}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡&nbsp;&nbsp;检&nbsp;&nbsp;人</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="name" value="{$data.name}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">设备名称</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.device_name}" type="text" id="device_name"  readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">设备编号</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$data.device_code}" type="text" id="device_code"  readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡检操作</label></div>
+            <div class="weui-cell__bd">
+                <textarea rows="5" style="font-size: 0.7rem;" readonly="readonly" value="{$data.operation}" maxlength="200"  cols="20" id="operation">{$data.operation}</textarea>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</label></div>
+            <div class="weui-cell__bd">
+                <textarea rows="5" style="font-size: 0.7rem;" value="{$data.remark}"  readonly="readonly" maxlength="200"  cols="20" id="remark">{$data.remark}</textarea>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<div style="height:3.16rem;"></div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <style>
+        .receiptInfoWarp li{margin-bottom:0.6rem;}
+    </style>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="receiptInfoWarp" style="padding-top:1rem;">
+    <ul class="con">
+        <input id="orderId" type="hidden" value="{$order_id}" />
+        <li style="height: 1.3rem;"><span style="width: auto" class="subTitle">订单编号：</span>{$order_code}</li>
+        <li style="height: 1.3rem;"><span style="width: auto" class="subTitle">服务费用：</span><input style="width:4.4rem;" id="money" type="number" placeholder="服务费用" value=""/><span> (单位:元）</span></li>
+        <li style="height:auto;"><span style="width: auto" class="subTitle" >差价原因：</span> <div class="con"><textarea id="cancel" class="reasonArea" placeholder="写明差价原因，如：顾客预约服务时提交的门店面积是300平米，经师傅勘察， 门店实际面积在500平米以上，与顾客协商并达成一致，按收费标准，需补差价100元"></textarea></div></li>
+    </ul>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="submitData()" class="centerBtn">提 交</a></div>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+    function submitData(){
+        var orderId = $("#orderId").val();
+        var money = $("#money").val();
+        var cancel = $("#cancel").val();
+        if(!money){
+            weui.alert('请填写差价');
+            return false;
+        }
+        if(!cancel){
+            weui.alert('请填写原因');
+            return false;
+        }
+        //更新订单状态为未接单，并绑定师傅ID
+        $.post("{:U('wechat/index/updateOrder')}",{id:orderId,order_state:2,difference_price:money,difference_text:cancel},function(res){
+
+            if(res.status == 1){
+                window.location.href="{:U('/Enterprise/store_clean_kill/orderDetail/order_id/"+res.data.id+"')}";
+            }else{
+                weui.alert('补差价失败，请刷新再试！');
+            }
+        },'json');
+    }
+</script>
+</body>
+</html>

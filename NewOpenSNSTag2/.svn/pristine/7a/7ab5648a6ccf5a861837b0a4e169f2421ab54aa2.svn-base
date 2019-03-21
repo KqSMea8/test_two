@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>按订单开票</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#f8f5f6;">
+<div id="successApp" class="popLayer hide">
+    <div class="valuePop">
+        <h3 class="title">发票确认</h3>
+        <div class="con">
+            您好，发票邮寄均为顺丰到付。
+            您可以累计一次性开具发票，谢谢！
+        </div>
+        <a class="btn" href="javascript:;" onclick="sureForTicket()">确 定</a>
+    </div>
+</div>
+<div class="receiptOrderWarp">
+    <php>if(!empty($orderData)){</php>
+    <ul>
+        <notempty name="orderData">
+            <volist name="orderData" id="data">
+                <li>
+                    <i data-value="{$data.money_total}" data-after="{$data.id}"></i>
+                    <!--<div class="imgOuter"></div>-->
+                    <div style="padding-left: 1.28rem" class="con">
+                        <h3>{$data.order_type_text}</h3>
+                        <p>{$data.create_time}</p>
+                        <span class="money">{$data.money_total}元</span>
+                    </div>
+                </li>
+            </volist>
+        </notempty>
+
+    </ul>
+    <php>}else{</php>
+    <div class="emptyWarp">
+        <i class="emptyIcon"></i>
+        <p class="tip">暂无数据</p>
+    </div>
+    <php>}</php>
+</div>
+<div style="height:2.6rem;"></div>
+<input type="hidden" id="orderId" value="">
+<div class="receiptOrderBottom"><div class="checkAllWarp"><i></i>全选</div><span id="number">0</span>个订单，共<span id="money" class="cor_red">0</span>元<a class="btn" onclick="nextStep()" href="javascript:;">下一步</a></div>
+<script>
+    $(function(){
+        //点击选择按钮
+        $('.receiptOrderWarp ul li i').click(function(){
+            $(this).toggleClass('selected');
+            var allNum=$('.receiptOrderWarp ul li').length;
+            var currentNum=$('.receiptOrderWarp ul li i.selected').length;
+            //如果当前选中数量等于总数则全选按钮为选中状态
+            if(currentNum>=allNum){
+                $('.checkAllWarp i').addClass('selected');
+            }else{
+                $('.checkAllWarp i').removeClass('selected');
+            }
+            //获取当前总金额，如果是选中就加上选中的金额否则减去点击的目标的金额
+            var money = Number($(".cor_red").html());//总金额
+            var orderMoney = Number($(this).attr("data-value"));//当前点击目标的金额
+            var lastmoney = 0;
+            if($(this).hasClass('selected')){
+                lastmoney = money+orderMoney;
+            }else{
+                lastmoney = money-orderMoney;
+            }
+            $("#number").html(currentNum);
+            $("#money").html(lastmoney);
+            //每次点击需要更新隐藏框的订单ID
+            var orderIds = "";
+            $('.receiptOrderWarp ul li i.selected').each(function() {
+                        var id = Number($(this).attr("data-after"));
+                        orderIds += id+",";
+                    }
+            );
+            $("#orderId").val(orderIds);
+
+        });
+        //点击全选按钮,更新总金额，总订单数，隐藏框的ID
+        $('.checkAllWarp i').click(function(){
+            $(this).toggleClass('selected');
+
+            var total = 0;
+            var orderIds = "";
+            if($(this).hasClass('selected')){
+                $('.receiptOrderWarp ul li i').addClass('selected');
+                var currentNum=$('.receiptOrderWarp ul li i.selected').length;
+                $('.receiptOrderWarp ul li i.selected').each(function() {
+                        var nowMoney = Number($(this).attr("data-value"));
+                        total += nowMoney;
+
+                        var id = Number($(this).attr("data-after"));
+                        orderIds += id+",";
+                    }
+                );
+                $("#money").html(total)
+            }else{
+                $('.receiptOrderWarp ul li i').removeClass('selected');
+                var currentNum=$('.receiptOrderWarp ul li i.selected').length;
+                $('.receiptOrderWarp ul li i.selected').each(function() {
+                            var nowMoney = Number($(this).attr("data-value"));
+                            total += nowMoney;
+                            var id = Number($(this).attr("data-after"));
+                            orderIds += id+",";
+                        }
+                );
+            }
+            $("#number").html(currentNum);//订单数
+            $("#money").html(total);//总金额
+            $("#orderId").val(orderIds);//订单ID
+        });
+    });
+    function nextStep(){
+        var moneytotal = $("#money").html();//总金额
+
+        var orderid = $("#orderId").val();//订单ID
+        if(orderid == "" || !moneytotal){
+            weui.alert('请先选择要开发票的订单');
+            return false;
+        }
+        $("#successApp").show();
+    }
+    function sureForTicket(){
+        var moneytotal = $("#money").html();//总金额
+        var orderid = $("#orderId").val();//订单ID
+        window.location.href="{:U('Wechat/index/applyInvoice/total_money/"+ moneytotal +"/order_id/"+ orderid +"')}";
+    }
+</script>
+</body>
+</html>

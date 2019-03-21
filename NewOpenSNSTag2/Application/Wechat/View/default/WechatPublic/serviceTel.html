@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>{$title}</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+	  <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div id="server">
+    <div class="kefuLayer">
+        <div style="top: 35%;height: 17rem;" class="kefuWarp">
+            <h3 class="title">{$csCenter}</h3>
+            <p class="tip">{$phone}：<img style="width: 0.6rem;height: 0.6rem;" src="/Public/images/bphoneIcon.png" /> <a href="tel:18810250371">18810250371</a></p>
+            <p class="tip" style="height: 11rem;">在线客服：<img style="width: 100%;" src="/Public/images/service.png" /><p style="text-align: center;font-size: 0.68rem;color: #666666;">长按添加客服微信</p></p>
+        </div>
+    </div>
+</div>
+<!--<div class="centerBtnWarp">-->
+    <!--<a class="centerBtn" onclick="loadLastPage()">关闭</a></div>-->
+<!--</div>-->
+
+</body>
+</html>
+<script>
+    //跳转到上一页
+//    function loadLastPage(){
+//        history.go(-1);
+//    }
+</script>

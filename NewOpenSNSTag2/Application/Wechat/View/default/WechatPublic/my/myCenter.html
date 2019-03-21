@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>个人中心</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+	  <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<!--个人中心已登录-->
+<div class="centerTop">
+    <div class="title">{$memData.name}</div>
+    <p class="con" onclick="loadMyCenter()">查看并完善个人资料</p>
+    <div class="head"><img src="{$memData.pic}"/></div>
+</div>
+<div class="spaceLine"></div>
+<div class="centerCon">
+    <ul>
+        <li><span class="title">手机号</span><div class="con">{$memData.phone}</div></li>
+        <li><span class="title">门店</span><div class="con"><php>if($memData['store_name']){echo $memData['store_name'];}else{echo "未完善";}</php></div></li>
+        <li><span class="title">地址</span><div class="con"><php>if($memData['address_name']){echo $memData['address_name'];}else{echo "未完善";}</php></div></li>
+    </ul>
+</div>
+</body>
+</html>
+<script>
+    function loadMyCenter(){
+        window.location.href="/index.php?s=/Wechat/index/editMyCenter";
+    }
+</script>

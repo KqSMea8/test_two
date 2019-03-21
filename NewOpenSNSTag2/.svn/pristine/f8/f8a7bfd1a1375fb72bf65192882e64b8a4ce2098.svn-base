@@ -1,0 +1,160 @@
+<?php
+
+namespace Enterprise\Service;
+
+use Think\Log;
+use Wechat\Model\WechatInspectionModel;
+use Wechat\Model\WechatInspectionStoreChildModel;
+use Wechat\Model\WechatInspectionStoreModel;
+
+
+/**
+ * 微信企业号
+ *
+ * @author songbin
+ *
+ */
+include_once "php/WXBizMsgCrypt.php";
+
+class InspectionService
+{
+    private $encodingAesKey;
+    private $token;
+    private $corpId;
+    private $corpsecret;
+    private $_accessToken = null;
+    private $_jsapiTicket = null;
+    const GET_ACCESS_TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?";
+    const GET_USER_INFO_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?";
+    const GET_USER_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/get?";
+    const GET_MEDIA_URL = "https://qyapi.weixin.qq.com/cgi-bin/media/get?";
+    const GET_DEPARTMENT_LIST = "https://qyapi.weixin.qq.com/cgi-bin/department/list?";
+    const GET_DEPARTMENT_USER_SIMPLE_LIST = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?";
+    const GET_DEPARTMENT_USER_LIST = "https://qyapi.weixin.qq.com/cgi-bin/user/list?";
+    const MEDIA_UPLOAD = "https://qyapi.weixin.qq.com/cgi-bin/media/upload?";
+    const SEND_MESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/message/send?";
+    const GET_JS_API_TICKET_URL = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?";
+    const GET_CODE = "https://open.weixin.qq.com/connect/oauth2/authorize?";
+    const USER_CREATE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/create?";
+    const USER_UPDATE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/update?";
+    const USER_DELETE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?";
+    const USER_BATCHDELETE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/batchdelete?";
+    const INVITE_SEND_URL = "https://qyapi.weixin.qq.com/cgi-bin/invite/send?";
+
+    // 构造函数
+    public function __construct($encodingAesKey, $token, $corpId = COMPANY_CORPID, $corpsecret)
+    {
+        $this->encodingAesKey = $encodingAesKey;
+        $this->token = $token;
+        $this->corpId = $corpId;
+        $this->corpsecret = $corpsecret;
+    }
+
+
+    /**
+     * 获取巡检主订单数据
+     * @param string $where
+     * @param string $fields
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getMainInspectionOrderData($where = ''){
+
+        $wechatInspectionModel = new WechatInspectionModel();
+        $fields = 'wi.inspection_id,wi.inspection_code,wi.enterprise_name,wi.create_time,count(wis.inspection_store_id) storeNum';
+        $returnData = $wechatInspectionModel -> getInspectionOrderData($where,$fields);
+
+        return $returnData;
+    }
+
+    /**
+     * 获取巡检主订单相关详情页面 展示的数据
+     * @param string $where
+     * @return mixed
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getMainInspectionOrderDetail($where = ''){
+
+        $wechatInspectionModel = new WechatInspectionModel();
+        $fields = 'wi.inspection_id,wi.inspection_code,wi.inspection_status,wi.service_start_time,wi.service_end_time,wi.service_price,wi.payment,wi.finish_time,wi.create_time,wf.name wfname,wf.phone wfphone,wke.name kename,wke.link_person,wke.link_phone';
+        $returnData = $wechatInspectionModel -> getMainInspectionOrderDetail($where,$fields);
+
+        return $returnData;
+    }
+
+    /**
+     * 获取巡检主订单中的门店数据
+     * @param string $where
+     * @return array
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getInspectionStoreOrderDetail($where = ''){
+
+        $wechatInspectionModel = new WechatInspectionStoreModel();
+        $fields = 'inspection_store_id,type,cycle,service_num_total,service_money,GROUP_CONCAT(store_id) storeId,COUNT(inspection_store_id) as storeNum';
+        $returnData = $wechatInspectionModel -> getInspectionOrderStoreData($where,$fields);
+
+        return $returnData;
+    }
+
+    /**
+     * 获取巡检子订单数据
+     * @param string $id
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderInfoForChildId($id = ''){
+
+        $model = new WechatInspectionStoreChildModel();
+        $fields = 'wisc.inspection_store_child_id,wisc.service_num,wisc.child_order_code,wisc.status,wisc.arrive_time,wisc.finish_time,wisc.create_time,wks.name as storeName,wks.stores_address,wks.link_person as storePerson,wks.link_phone as storePhone,wf.name as fName,wms.name as supervisorName,wms.phone as supervisorPhone,wm.name as mentorName,wm.phone as mentorPhone';
+        $where = [
+            'wisc.inspection_store_child_id'=>$id,
+            'wms.status'=>1,
+            'wm.status'=>1,
+            'wks.status'=>1,
+            'wf.status'=>1,
+        ];
+        $return = $model->getChildOrderDetail($where,$fields);
+
+        return $return;
+    }
+
+
+    /**
+     * 获取巡检子订单列表
+     * @param string $where
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderList($where = ''){
+
+        $field = "wisc.inspection_store_child_id,wisc.child_order_code,wisc.status,wisc.service_num,wisc.create_time,store.name store_name";
+        $return = (new WechatInspectionStoreChildModel())->getChildList($where,$field);
+
+        return $return;
+    }
+
+
+    /**
+     * 获取子订单数据 设备列表数据
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getChildOrderDeviceList($where = ''){
+
+        $field = "wisc.`status`,wd.device_code,wd.device_name,wiscd.repairs_id,wiscd.yet_repairs_id,wiscd.inspection_operate,wd.is_operate";
+        $return = (new WechatInspectionStoreChildModel())->getChildOrderDeviceList($where,$field);
+
+        return $return;
+    }
+
+
+}

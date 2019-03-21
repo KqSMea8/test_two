@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>维修明细</title>
+
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            // if(hWidth>800){
+            //     hWidth=800;
+            // }
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+
+        .sheet-list-title{
+            top: 1rem;
+        }
+        .sheet-list-li{
+            margin: 3.6rem auto;
+        }
+
+
+    </style>
+</head>
+<body style="background: #f3f3f3;">
+
+<ul class="sheet-list-title">
+    <li>
+        <div>设备编号</div>
+        <div>配件名称</div>
+        <div>费用(元)</div>
+    </li>
+</ul>
+<ul class="sheet-list-li">
+    <volist name="list" id="vo">
+    <li>
+        <div>{$vo.device_name}</div>
+        <div>{$vo.change_parts_text}</div>
+        <div>{$vo.money}</div>
+    </li>
+    </volist>
+</ul>
+</body>
+
+</html>

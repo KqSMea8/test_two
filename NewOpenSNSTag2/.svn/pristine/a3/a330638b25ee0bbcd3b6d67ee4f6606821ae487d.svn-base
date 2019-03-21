@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>企业主管订单列表页面</title>
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			// if(hWidth>800){
+			//     hWidth=800;
+			// }
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		body{
+			background: #f3f3f3;
+		}
+	</style>
+
+</head>
+<body>
+
+<div class="time excel-time record-time staff-time">
+	<div class="time-left">
+		<input type="hidden" value="{$store_id}" id="store_id" />
+		<input type="hidden" value="{$ins_id}" id="ins_id" />
+		<input type="text" value="" placeholder="开始时间" class="input-value" id="startTime" readonly/>
+	</div>
+	<div class="time-mid">-</div>
+	<div class="time-right">
+		<input type="text" value="" placeholder="结束时间" class="input-value" id="endTime" readonly/>
+	</div>
+</div>
+<ul class="record-list distribute-list staff-list">
+	<php>if(!empty($childList)){</php>
+	<ul>
+		<volist id="child" name="childList">
+			<li style="height: 5.2rem;">
+				<div class="left" onclick="jumpToUrl('{$child.inspection_store_child_id}','{$child.status}')">
+					<!--<div>订单编号：<span>{$child.child_order_code}</span></div>-->
+					<div><span>{$child.store_name}</span></div>
+					<div>巡检时间：<span>{$child.create_time}</span></div>
+					<!--<div>本次服务：<span>第{$child.service_num}次巡检(<span style="color: #910d1e">{$child.status_text}</span>)</span></div>-->
+				</div>
+				<div class="right refuse"></div>
+			</li>
+		</volist>
+	</ul>
+	<php>}else{</php>
+	<div class="emptyWarp">
+		<i class="emptyIcon"></i>
+		<p class="tip">暂无数据</p>
+	</div>
+	<php>}</php>
+</ul>
+
+<script>
+	$(function(){
+		var startTime = '{$startTime}';
+		var endTime = '{$endTime}';
+		if(startTime){
+			$("#startTime").val(startTime);
+			$('#startTime').css({"color":"#4d4d4d"});
+		}
+		if(endTime){
+			$("#endTime").val(endTime);
+			$('#endTime').css({"color":"#4d4d4d"});
+		}
+	});
+	//开始时间
+	$('#startTime').click(function(){
+		weui.datePicker({
+			start: 2018,
+			end: 2030,
+			cron: '* * *',  // 每逢周日、周六
+			defaultValue: [new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()],
+			onChange: function(result){
+
+			},
+			onConfirm: function(result){
+				console.log(result);
+				if(result[1].value<10){
+					result[1].value = "0"+result[1].value;
+				}
+				if(result[2].value<10){
+					result[2].value = "0"+result[2].value;
+				}
+				var dateText=result[0].value+'-'+result[1].value+'-'+result[2].value;
+				$('#startTime').val(dateText);
+				$('#startTime').css({"color":"#4d4d4d"});
+				reloadData();
+			},
+			id: 'datePicker'
+		});
+	});
+	//结束时间
+	$('#endTime').click(function(){
+		weui.datePicker({
+			start: 2018,
+			end: 2030,
+			cron: '* * *',  // 每逢周日、周六
+			defaultValue: [new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()],
+			onChange: function(result){
+
+			},
+			onConfirm: function(result){
+				console.log(result);
+				if(result[1].value<10){
+					result[1].value = "0"+result[1].value;
+				}
+				if(result[2].value<10){
+					result[2].value = "0"+result[2].value;
+				}
+				var dateText=result[0].value+'-'+result[1].value+'-'+result[2].value;
+				$('#endTime').val(dateText);
+				$('#endTime').css({"color":"#4d4d4d"});
+				reloadData();
+			},
+			id: 'datePicker'
+		});
+	});
+	function reloadData(){
+		var starttime = $("#startTime").val();
+		var endtime = $("#endTime").val();
+		var store_id = $("#store_id").val();
+		var ins_id = $("#ins_id").val();
+		window.location.href = "{:U('Wechat/Index/showChildList/store_id/"+store_id+"/ins_id/"+ins_id+"/start_time/"+starttime+"/end_time/"+endtime+"')}";
+	}
+
+	//跳转详情页面
+	function jumpToUrl(id,status){
+
+		window.location.href = "{:U('Wechat/Index/inspectionChildOrderDetail/inspection_store_child_id/"+id+"/status/"+status+"')}";
+	}
+</script>
+</body>
+</html>

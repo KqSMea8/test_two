@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width,user-scalable=no" name="viewport">
+<title>资源详情</title>
+<link href="__PUBLIC__/page/css/common.css" rel="stylesheet" type="text/css">
+<link href="__PUBLIC__/page/css/resList.css" rel="stylesheet" type="text/css">
+    <script src="__PUBLIC__/page/js/jquery.js"></script>
+</head>
+<!--去掉y_comment是有评论的背景-->
+<body class="hsBody y_comment">
+<div class="resOneCon">
+    <div class="resCon">
+        <div class="resName">餐厅转让餐厅转让</div>
+        <p class="resDesc">本店为于沙河镇满井西村，营业面积90平米，房租2，5万每年，无水费卫生费，互近多所大学，客流量大。本人另有发展，现在转让本店，转让费9万。广告误扰。</p>
+        <div class="resBottom"><span>2评论</span><span>0浏览</span></div>
+        <!-- <ul class="resGroupImg"><li><img src="__PUBLIC__/page/images/resList/resImg.png"/></li><li><img src="__PUBLIC__/page/images/resList/resImg.png"/></li><li><img src="__PUBLIC__/page/images/resList/resImg.png"/></li></ul> -->
+    </div>
+</div>
+<div class="emptyLine"></div>
+<div class="commentOutter">
+<!--有内容情况-->
+    <div class="y_commentCon">
+        <div class="commentCon">
+            <ul>
+                <li>
+                    <div class="resOneCon">
+                        <img class="pHead" src="__PUBLIC__/page/images/resList/head.png"/>
+                        <div class="resCon others">
+                            <h3 class="pName">58同城</h3>
+                            <div class="editOutter">5月18日 00:13</div>
+                            <p class="resDesc">本人在西直门有家餐厅，主题供货价撒地方带你飞阿萨德飞呢阿萨德能爱点酸奶粉看的份。</p>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="resOneCon">
+                        <img class="pHead" src="__PUBLIC__/page/images/resList/head.png"/>
+                        <div class="resCon others">
+                            <h3 class="pName">58同城</h3>
+                            <div class="editOutter">5月19日 10:13</div>
+                            <p class="resDesc">本人在西直门有家餐厅，主题供货价撒地方带你飞阿萨德飞呢阿萨德能爱点酸奶粉看的份。</p>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- <div class="commentBottom">
+<a class="backBtn" href="{:U('index')}#s2"></a>
+    <div class="inputOutter"><input placeholder="说点什么吧~"/></div>
+</div> -->
+</body>
+</html>

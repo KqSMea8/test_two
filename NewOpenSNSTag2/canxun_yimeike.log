@@ -1,0 +1,11 @@
+易每刻下单请求数据：{"store_code":"JQ-QM","wo_id":"123456789","link_person":"\u5e9e\u5148\u751f","link_phone":"13122222222","equipment_name":"\u7535\u78c1\u7089","malfunction_text":"\u6d4b\u8bd5\u95ee\u9898","urgent_level":"3"}	
+易每刻确认订单请求数据：{"order_code":"1806121009523350","confirm_text":"\u4fee\u7684\u4e0d\u9519"}	
+请求数据：{"wo_id":"123456789","wo_status":8,"wo_external_cost":"0.00","wo_ff_2":"0.00","wo_ff_3":"0.00","wo_ff_4":0}	
+易每刻返回数据：{"error":{"code":400,"message":"no data provided"}}	
+请求数据：{"action":"cancel","description":"\u6d4b\u8bd5\u53d6\u6d88"}---wo_id：00906	
+易每刻返回数据：{"error":{"code":404,"message":"wo_id not found"}}	
+请求数据：{"action":"cancel","description":"\u6d4b\u8bd5\u53d6\u6d88"}---wo_id：00909	
+易每刻返回数据：{"error":{"code":404,"message":"wo_id not found"}}	
+后台订单数据：[{"id":"4","order_code":"1806121524126823","order_state":"4","door_price":"0.00","service_price":"0.00","money_total":"0.00","parts_price":null,"mr_id":"00905"}]获取订单数据sql：SELECT orde.id,orde.order_code,orde.order_state,orde.door_price,orde.service_price,orde.money_total,item.parts_price,item.mr_id FROM jpgk_wechat_order orde INNER JOIN jpgk_wechat_order_item as item on orde.id = item.order_id  WHERE orde.id IN ('4') 	
+请求数据：{"action":"cancel","description":"\u6d4b\u8bd5test"}---wo_id：00905	
+易每刻返回数据：{"error":{"code":404,"message":"wo_id not found"}}	

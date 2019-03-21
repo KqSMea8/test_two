@@ -1,0 +1,389 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>信息完善</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=4D2BZ-MZM3J-JACFM-KU7RM-JHHET-5GFDC"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .weui-cells{font-size:16px;}
+        .weui-label{color:#666;}
+        .weui-select{height:26px;line-height:26px;font-size:16px !important;}
+        .weui-select option{font-size:16px;}
+        .phoneIcon {
+            display: inline-block;
+            width: 0.8rem;
+            height: 0.8rem;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+            background-size: 0.5rem auto;
+            vertical-align: top;
+        }
+        textarea{
+            font-size: inherit;
+        }
+    </style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <div style="height: 1.2rem;line-height:1.2rem;" class="serviceWarp">订单处理时间：8:00-20:00<a class="serviceBtn" onclick="showServiceGuide()">服务须知</a></div>
+    <div class="weui-cells weui-cells_form">
+        <div class="address-div">
+            <div class="address-text">
+                <input type="hidden" value="{$companycode}" id="companycode"/>
+                <input type="hidden" value="{$storecode}" id="storecode"/>
+                <input type="hidden" value="{$companyStoreData[0].storeId}" id="storeId">
+                <input type="hidden" value="{$companyStoreData[0].storename}" id="kastorename">
+                <input type="hidden" value="{$companyStoreData[0].companyname}" id="kacompanyname">
+                <input type="hidden" value="{$companyStoreData[0].stores_address}" id="kaaddress">
+                <input type="hidden" value="{$companyStoreData[0].link_person}" id="linkperson">
+                <input type="hidden" value="{$companyStoreData[0].link_phone}" id="linkphone">
+                <div class="first-p"><b>{$companyStoreData[0].storename}</b><b style="font-size: 0.35rem;">({$companyStoreData[0].companyname})</b></div>
+                <div class="second-p"><b><img class="address-text-img" src="/Public/wechat/add/location.jpg"><span style="margin-left: 0.3rem;">{$companyStoreData[0].stores_address}</span></b></div>
+                <div class="third-p"><b><span>{$companyStoreData[0].link_person}</span><span style="margin-left: 0.6rem;">{$companyStoreData[0].link_phone}</span></b></div>
+            </div>
+            <!--<div class="address-arrow"><img class="arrow-img" src="/Public/wechat/add/arrow.png"></div>-->
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单级别<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cells_checkbox" onchange="isEnergency()">
+                <label class="weui-cell weui-check__label" style="height:26px;">
+                    <div class="weui-cell__hd">
+                        <input type="radio" class="weui-check" name="urgent_level" value="3" id="s11" checked="checked">
+                        <i class="weui-icon-checked"></i>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <p style="font-size: 16px;">普通</p>
+                    </div>
+                </label>
+            </div>
+            <div class="weui-cells_checkbox" onchange="isEnergency()">
+                <label class="weui-cell weui-check__label" style="height:26px;">
+                    <div class="weui-cell__hd">
+                        <input type="radio" class="weui-check" name="urgent_level" value="2" id="s12">
+                        <i class="weui-icon-checked"></i>
+                    </div>
+                    <div class="weui-cell__bd">
+                        <p style="font-size: 16px;">紧急</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">报修设备<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input type="hidden" value="{$equipment_id}" id="equipment_id"/>
+                <input type="hidden" value="{$is_ka}" id="is_ka"/>
+                <input type="hidden" value="{$latng}" id="latng"/>
+                <input class="weui-input" type="text" value="{$deviceName}" id="equipment_name" placeholder="需维修的设备名称"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">设备品牌</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="" type="text" id="brands_text" placeholder="有助于判断设备问题"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">故障现象<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <textarea rows="5" value="" maxlength="200" placeholder="请描述故障表象及何种情况下发生故障等，有助于维修师傅判断设备问题，200字以内" cols="20" id="malfunction_text"></textarea>
+            </div>
+        </div>
+        <div class="weui-cells weui-cells_form" id="uploader">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__hd">
+                            <p class="weui-uploader__title">设备图片<label style="color: #ff3333">*</label></p>
+                            <div class="weui-uploader__info"><span id="uploadCount">0</span>/6</div>
+                        </div>
+                        <div class="weui-uploader__bd">
+                            <ul class="weui-uploader__files" id="uploaderFiles"></ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInput" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="createOrder()" class="centerBtn">预 约</a></div>
+</body>
+</html>
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script type="text/javascript">
+    $(function(){
+        //获取门店用户标识
+        memberId = "{$memberId}";
+        if(memberId == 0){
+            weui.alert('该门店未绑定店长，不可帮助其下单！');
+        }
+
+        //获取巡检设备关联表标识
+        inspectionChildDeviceId = "{$inspectionChildDeviceId}";
+
+        //获取巡检门店关联表标识
+        inspectionStoreChildId = "{$inspectionStoreChildId}";
+
+        //获取设备标识
+        deviceId = "{$deviceId}";
+    });
+    wx.config({
+        debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+        appId: "{$signpackge['appId']}", // 必填，公众号的唯一标识
+        timestamp: "{$signpackge['timestamp']}", // 必填，生成签名的时间戳
+        nonceStr: "{$signpackge['nonceStr']}", // 必填，生成签名的随机串
+        signature: "{$signpackge['signature']}",// 必填，签名，见附录1
+        jsApiList: [
+            'chooseImage',
+            'previewImage',
+            'uploadImage',
+            'downloadImage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+    });
+    // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+    wx.chooseImage({
+        count: 6, // 默认9
+        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+    });
+    var doubleClick = false;
+
+    function isEnergency(){
+        var urgent_level = $("input[name='urgent_level']:checked").val();
+        if(Number(urgent_level) === 2){
+            weui.alert("您已选择紧急订单，此订单会在2小时内上门处理(限六环内)，维修服务费不同于普通订单，收费标准点击右上角“服务须知”查看");
+        }
+    }
+
+    //生成订单方法
+    function createOrder(){
+
+        if(memberId == 0){
+            weui.alert('该门店未绑定店长，不可帮助其下单！');
+        }
+
+        //设备必选
+        var is_ka = $("#is_ka").val();
+        var companyname = "";
+        var storename = "";
+        var address = "";
+        var detail_address = $("#detail_address").val();
+        var latng = $("#latng").val();
+//        if(!Number(is_ka)){
+
+//            console.log(111);
+//            storename = $("#storename").val();
+//            address = $("#location").val();
+//            latng = $("#latng").val();
+//            if(!storename){
+//                weui.alert('请填写预约门店名称');
+//                $("#storename").focus();
+//                return false;
+//            }
+//            if(!address){
+//                weui.alert('请选择门店地址');
+//                return false;
+//            }
+//        }else{
+            companyname = $("#kacompanyname").val();
+            storename = $("#kastorename").val();
+            detail_address = $("#kaaddress").val();
+            address = $("#location").val();
+            var storeId = $("#storeId").val();
+            var province = $("#companycode").val();
+            var city = $("#storecode").val();
+//        }
+
+        if(!$("#equipment_name").val()){
+            weui.alert('请填写报修设备');
+            return false;
+        }
+        if(!$("#malfunction_text").val()){
+            weui.alert('请填写故障现象');
+            return false;
+        }
+        if(uploadCount <= 0 || uploadImageList.length <= 0){
+            uploadImageList = [];
+            weui.alert('请上传故障图片');
+            return false;
+        }
+        var brands_text = $("#brands_text").val();
+        if(!brands_text){
+            brands_text = "未填写";
+        }
+
+        //创建订单时，根据规则生成相应的服务费用，维修和清洗默认0
+        var postData = {
+            inspectionChildDeviceId:inspectionChildDeviceId,
+            inspectionStoreChildId:inspectionStoreChildId,
+            deviceId:deviceId,
+            member_id:memberId,
+            store_name:storename,
+            detailed_address:detail_address,
+            location:address,
+            enterprise_name:companyname,
+            is_ka:is_ka,
+            province:province,
+            city:city,
+            ka_store_id:storeId,
+            latng:latng,
+            link_person:$("#linkperson").val(),
+            link_phone:$("#linkphone").val(),
+            fixed_line:$("#fixedline").val(),
+            equipment_id:$("#equipment_id").val(),
+            equipment_name:$("#equipment_name").val(),
+            brands_text:brands_text,
+            malfunction_text:$("#malfunction_text").val(),
+            imageData:uploadImageList,
+            order_type:1,//1设备维修，2门店消杀，3设备清洗
+            order_state:0,//订单状态: (0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款)
+            urgent_level:$("input[name='urgent_level']:checked").val()//订单级别 2 紧急订单 3 普通订单
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+
+        var loading = weui.loading('正在提交维修订单', {
+            className: 'createOrder'
+        });
+        $.post("{:U('storeMaintain/createOrder')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                weui.toast("提交成功", function() {
+                    doubleClick = false;
+                    var id = res.data.id;
+                    window.location.href="{:U('Wechat/index/showstorerepaireorderforinspection/id/"+id+"')}";
+                },1000);
+            }else{
+                doubleClick = false;
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+
+    //跳转页面
+    function showServiceGuide(){
+
+        window.location.href = "{:U('Wechat/index/showServiceGuide/type/1')}";
+    }
+</script>
+<script type="text/javascript">
+    // 缩略图预览
+    $('#uploaderFiles').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCount;
+                    uploadCountDom.html(uploadCount);
+
+                    for (var i = 0, len = uploadList.length; i < len; ++i) {
+                        var file = uploadList[i];
+                        if(file.id == id){
+                            delete uploadImageList[id];
+                            file.stop();
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCount = 0, uploadList = [],uploadImageList = [];
+    var uploadCountDom = $("#uploadCount");
+
+    try{
+        weui.uploader('#uploader', {
+            url: "{:U('Wechat/index/downLoadImage')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCount + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCount;
+                uploadCountDom.html(uploadCount);
+            },
+            onQueued: function(){
+                uploadList.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+                uploadImageList[this.id] = ret.data;
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>

@@ -1,0 +1,405 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>信息完善</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=4D2BZ-MZM3J-JACFM-KU7RM-JHHET-5GFDC"></script>
+	  <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .weui-cells{font-size:16px;}
+        .weui-label{color:#666;}
+        .weui-select{height:26px;line-height:26px;font-size:16px !important;}
+        .weui-select option{font-size:16px;}
+        .phoneIcon {
+            display: inline-block;
+            width: 0.8rem;
+            height: 0.8rem;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+            background-size: 0.5rem auto;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <div style="height: 1.2rem;line-height:1.2rem;" class="serviceWarp">订单处理时间：8:00-20:00<a class="serviceBtn" onclick="showServiceGuide()">服务须知</a></div>
+    <div class="weui-cells weui-cells_form">
+        <php>if($is_ka){</php>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">企业名称<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input type="hidden" value="{$companycode}" id="companycode"/>
+                <input type="hidden" value="{$storecode}" id="storecode"/>
+                <input class="weui-input" type="text" id="kacompanyname" value="{$companyStoreData[0].companyname}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店名称<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="kastorename" value="{$companyStoreData[0].storename}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店地址<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="kaaddress" value="{$companyStoreData[0].stores_address}" readonly="readonly"/>
+            </div>
+        </div>
+        <php>}else{</php>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预约门店<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="storename" value="{$store_name}" placeholder="门店名称"/>
+            </div>
+        </div>
+        <!--<div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店地址<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="province" onchange="changeCity()" name="province" style="padding-left: 0px">
+                    <notempty name="province">
+                        <volist name="province" id="data">
+                            <option value="{$data.id}">{$data.name}</option>
+                        </volist>
+                    </notempty>
+                </select>
+            </div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="city" name="city">
+                    <notempty name="city">
+                        <volist name="city" id="data">
+                            <option value="{$data.id}">{$data.name}</option>
+                        </volist>
+                    </notempty>
+                </select>
+            </div>
+        </div>-->
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店位置<i onclick="getMyLocation()" class="phoneIcon"></i></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text"  onclick="getMyLocation()" id="location" value="{$location}" readonly="readonly"  placeholder="门店精准位置，必填"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">详细地址</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="detail_address" value="{$address}"  placeholder="如：北清路58号，选填"/>
+            </div>
+        </div>
+        <php>}</php>
+        <!--<div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">位置信息<i onclick="getMyLocation()" class="phoneIcon"></i></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" onclick="getMyLocation()" id="location" value="{$location}" readonly="readonly"  placeholder="仅供师傅导航使用"/>
+            </div>
+        </div>-->
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系人<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$link_person}" type="text" id="linkperson"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$link_phone}" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="linkphone" placeholder="请填写手机号"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">固话(座机)</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="fixedline" placeholder="请填写固话"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店面积(平米)</label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="storearea" style="padding-left: 0px">
+                    <!--1：0-100 2：101-200 3：201-300 4：301-400 5：401-500 6：500以上-->
+                    <option value="0">请如实填写</option>
+                    <option value="1" <?php if($store_area==1){echo "selected";}?> >0-100</option>
+                    <option value="2" <?php if($store_area==2){echo "selected";}?> >101-200</option>
+                    <option value="3" <?php if($store_area==3){echo "selected";}?> >201-300</option>
+                    <option value="4" <?php if($store_area==4){echo "selected";}?> >301-400</option>
+                    <option value="5" <?php if($store_area==5){echo "selected";}?> >401-500</option>
+                    <option value="6" <?php if($store_area==6){echo "selected";}?> >501-600</option>
+                    <option value="7" <?php if($store_area==7){echo "selected";}?> >600以上</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店场景<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="storescene" style="padding-left: 0px">
+                    <!--1：商场 2：写字楼 3：美食城 4：底商 5：其他-->
+                    <option value="0">请选择</option>
+                    <option value="1" <?php if($store_scene==1){echo "selected";}?> >商场</option>
+                    <option value="2" <?php if($store_scene==2){echo "selected";}?> >写字楼</option>
+                    <option value="3" <?php if($store_scene==3){echo "selected";}?> >美食城</option>
+                    <option value="4" <?php if($store_scene==4){echo "selected";}?> >底商</option>
+                    <option value="5" <?php if($store_scene==5){echo "selected";}?> >其他</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">菜系</label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="styleOfCooking" style="padding-left: 0px">
+                    <!--1：中餐 2：西餐 3：韩国料理 4：东南亚菜 5：烧烤 6：火锅 7：小吃快餐  8：其他-->
+                    <option value="0">请选择</option>
+                    <option value="1">中餐</option>
+                    <option value="2">西餐</option>
+                    <option value="3">韩国料理</option>
+                    <option value="4">东南亚菜</option>
+                    <option value="5">烧烤</option>
+                    <option value="6">火锅</option>
+                    <option value="7">小吃快餐</option>
+                    <option value="8">其他</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">清洗类别<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="cleantype" style="padding-left: 0px">
+                    <!--1：烟道系统清洗 2：中央空调清洗-->
+                    <option selected="selected" value="1">烟道系统清洗</option>
+                    <!--<option value="2">中央空调清洗</option>-->
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">烟罩长度(米)<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="petticoatPipeLength"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">上次清洗时间</label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="lastclean" style="padding-left: 0px">
+                    <!--0：未清洗过 1：15天以内  2：15天~30天 3：30天以前 4：60天以前 5：90天以前-->
+                    <option value="-1">请选择</option>
+                    <option value="0">未清洗过</option>
+                    <option value="1">15天以内</option>
+                    <option value="2">15天~30天</option>
+                    <option value="3">30天以前</option>
+                    <option value="4">60天以前</option>
+                    <option value="5">90天以前</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">期望服务时间<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="datetime-local" id="doortime"/>
+                <input type="hidden" value="{$latng}" id="latng"/>
+                <input type="hidden" value="{$is_ka}" id="is_ka"/>
+            </div>
+        </div>
+        </div>
+    </div>
+
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="createOrder()" class="centerBtn">预 约</a></div>
+</body>
+</html>
+<script>
+    $(function(){
+        //如果session存在值就默认上，并把session中的值置空
+        var store_name = $.session.get('store_name');
+        var detail_address = $.session.get('detail_address');
+        var link_person = $.session.get('link_person');
+        var link_phone = $.session.get('link_phone');
+        if(store_name){
+            $("#storename").val(store_name);
+        }
+        if(detail_address){
+            $("#detail_address").val(detail_address);
+        }
+        if(link_person){
+            $("#linkperson").val(link_person);
+        }
+        if(link_phone){
+            $("#linkphone").val(Number(link_phone));
+        }
+
+        $.session.set('store_name',"");
+        $.session.set('detail_address',"");
+        $.session.set('link_person',"");
+        $.session.set('link_phone',"");
+    });
+    var doubleClick = false;
+
+    function changeCity(){
+        var upid = $("#province").val();
+        $.ajax({
+            url: "{:U('Wechat/index/getArea')}",
+            type: 'post',
+            dataType: 'json',
+            data:{upid:upid},
+            success: function (data) {
+                // 先清空第二个
+                $("#city").empty();
+                // 实际的应用中，这里的option一般都是用循环生成多个了
+                var option = "";
+                for(var i in data){
+                    option += "<option value='"+data[i].id+"'>"+data[i].name+"</option>"
+                }
+                $("#city").append(option);
+            }
+        })
+    }
+
+    //跳转页面
+    function showServiceGuide(){
+
+        window.location.href = "{:U('Wechat/index/showServiceGuide/type/3')}";
+    }
+
+    function createOrder(){
+
+        var is_ka = $("#is_ka").val();
+        var companyname = "";
+        var storename = "";
+        var address = "";
+        var detail_address = $("#detail_address").val();
+        var latng = "";
+        if(!Number(is_ka)){
+            storename = $("#storename").val();
+            address = $("#location").val();
+            latng = $("#latng").val();
+            if(!storename){
+                weui.alert('请填写预约门店名称');
+                $("#storename").focus();
+                return false;
+            }
+            if(!address){
+                weui.alert('请选择门店地址');
+                return false;
+            }
+        }else{
+            companyname = $("#kacompanyname").val();
+            storename = $("#kastorename").val();
+            detail_address = $("#kaaddress").val();
+            var province = $("#companycode").val();
+            var city = $("#storecode").val();
+        }
+
+        if(!$("#linkperson").val()){
+            weui.alert('请填写联系人');
+            $("#linkperson").focus();
+            return false;
+        }
+        if(!$("#linkphone").val()){
+            weui.alert('请填写联系方式');
+            $("#linkphone").focus();
+            return false;
+        }
+        var myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+        var linkphone = $("#linkphone").val();
+        if(!myreg.test(linkphone)){
+            weui.alert('请填写正确的联系电话');
+            $("#linkphone").focus();
+            return false;
+        }
+        var fixedline = $("#fixedline").val();
+        if(fixedline.length !=0 && (fixedline.length < 6 || fixedline.length > 12)){
+            weui.alert('请填写正确的固话号码');
+            $("#fixedline").focus();
+            return false;
+        }
+        if($("#storescene").val() == "0"){
+            weui.alert('请选择门店场景');
+            return false;
+        }
+        if($("#cleantype").val() == "0"){
+            weui.alert('请选择清洗类别');
+            return false;
+        }
+        if(!$("#petticoatPipeLength").val()){
+            weui.alert('请填写烟道长度');
+            $("#petticoatPipeLength").focus();
+            return false;
+        }
+        if(!$("#doortime").val()){
+            weui.alert('请填写期望服务时间');
+            return false;
+        }
+        var postData = {
+            store_name:storename,
+            detailed_address:detail_address,
+            location:address,
+            enterprise_name:companyname,
+            is_ka:is_ka,
+            province:province,
+            city:city,
+            latng:latng,
+            link_person:$("#linkperson").val(),
+            link_phone:linkphone,
+            fixed_line:$("#fixedline").val(),
+            store_area:$("#storearea").val(),
+            store_scene:$("#storescene").val(),
+            style_of_cooking:$("#styleOfCooking").val(),
+            clean_type:$("#cleantype").val(),
+            petticoat_pipe_length:$("#petticoatPipeLength").val(),
+            last_clean_time:$("#lastclean").val(),
+            door_time:$("#doortime").val(),
+            order_type:3,//1设备维修，2门店消杀，3设备清洗
+            order_state:0,//0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+
+        var loading = weui.loading('正在提交清洗订单', {
+            className: 'createOrder'
+        });
+        $.post("{:U('Wechat/index/createOrder')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                weui.toast("提交成功", function() {
+                    var id = res.data.id;
+                    window.location.href="{:U('Wechat/index/showcleaningorder/orderId/"+id+"')}";
+                },1000);
+            }else{
+                doubleClick = false;
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+    //腾讯地图定位
+    function getMyLocation() {
+        var backurl = window.location.href;
+        var latng = $("#latng").val();
+        $.session.set('store_name', $("#storename").val());
+        $.session.set('detail_address', $("#detail_address").val());
+        $.session.set('link_person', $("#linkperson").val());
+        $.session.set('link_phone', $("#linkphone").val());
+        if(latng){
+            window.location.href = "https://apis.map.qq.com/tools/locpicker?search=1&policy=1&type=0&coord="+latng+"&backurl="+backurl+"&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp";
+        }else{
+            window.location.href = "https://apis.map.qq.com/tools/locpicker?search=1&policy=1&type=0&backurl="+backurl+"&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&referer=myapp";
+        }
+    }
+</script>

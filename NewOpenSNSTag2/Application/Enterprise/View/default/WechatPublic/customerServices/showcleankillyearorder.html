@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>订单信息</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/Public/wechat/c/canxun_style.css?112">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script>
+        //获取屏幕宽度
+        var htmlWidth=document.documentElement.clientWidth || document.body.clientWidth;
+        //获取html的Dom
+        var htmlDom=document.getElementsByTagName('html')[0];
+        //设置html的fontsize
+        htmlDom.style.fontSize = htmlWidth / 15 +'px';
+        //监听窗口变化
+        window.addEventListener('resize',function(e){
+            var htmlWidth=document.documentElement.clientWidth || document.body.clientWidth;
+            if(htmlWidth>600){
+                htmlWidth=600;
+            }
+            htmlDom.style.fontSize = htmlWidth / 15 +'px';
+        })
+    </script>
+    <style>
+        .edit {
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            margin: -3.8rem 0 0 -35%;
+            width: 70%;
+            height: 10.6rem;
+            background: #fff;
+            -webkit-border-radius: 0.3rem;
+            -moz-border-radius: 0.3rem;
+            border-radius: 0.3rem;
+        }
+        .edit-title1 {
+            text-align: center;
+            padding-top: 1rem;
+            padding-bottom: 0.3rem;
+            color: #000;
+            font-size: 0.7rem;
+            background-color: #fff100;
+            -webkit-border-radius: 0.3rem;
+            -moz-border-radius: 0.3rem;
+            border-radius: 0.3rem;
+        }
+        .edit .btn {
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .edit .btn a {
+            display: inline-block;
+            font-size: 0.5rem;
+            color: #000;
+            text-align: center;
+            -webkit-border-radius: 0.5rem;
+            -moz-border-radius: 0.5rem;
+            border-radius: 0.8rem;
+            border: 1px solid #fff;
+            padding: 0.16rem 1.2rem;
+            margin-top: 0.8rem;
+        }
+        .edit .btn a.hover {
+            background: #c0c4cd;
+            border-color: #c0c4cd;
+            color: #000;
+        }
+        .edit .btn a:last-child {
+            margin-left: 0.4rem;
+        }
+        .surechange{
+            background-color: #fff100;
+            border-color: #c0c4cd;
+        }
+        .reasontext{
+            margin: 0 auto;
+            width: 95%;
+            height: 5rem;
+            background-color: #c0c4cd;
+            border: 1px solid #c9ccd0;
+        }
+    </style>
+</head>
+<body><!--更换服务商-->
+<div id="changeOrderPrice" class="hide">
+    <div class="weui-mask"></div>
+    <div class="edit">
+        <div class="edit-title1">更换原因</div>
+        <div class="import-list">
+            <textarea id="change_reason" class="reasontext" placeholder="请输入更换服务商原因"></textarea>
+        </div>
+        <div class="btn">
+            <a href="javascript:void(0)" onclick="hideTheDialog('changeOrderPrice')" class="hover">取消</a>
+            <a class="surechange" href="javascript:void(0)" onclick="sureChangeFac('{$orderData[\'id\']}','{$orderData[\'order_type\']}','{$orderData[\'facilitator_id\']}','{$orderData[\'facilitator_name\']}',1)">确定</a>
+        </div>
+    </div>
+</div>
+<div class="order">
+    <div class="order-title">订单信息</div>
+    <div class="order-detail">
+        <div class="order-detail-list">订单编号<span>{$orderData.order_code}</span></div>
+        <div class="order-detail-list">订单状态<span class="order-detail-state">{$orderData.order_state_text}</span></div>
+        <div class="order-detail-list">服务类别<span>{$orderData.year_service_type}</span></div>
+        <div class="order-detail-list">服务次数<span>{$orderData.service_num_total}次</span></div>
+        <div class="order-detail-list">剩余服务次数<span>{$orderData.service_num_remain}次</span></div>
+        <div class="order-detail-list">服务起始时间<span>{$orderData.start_time}</span></div>
+        <div class="order-detail-list">服务终止时间<span>{$orderData.end_time}</span></div>
+        <div class="order-detail-line"></div>
+        <php>if($orderData['is_ka']){</php>
+        <if condition="$orderData['enterprise_name']">
+            <div class="order-detail-list">企业名称<span>{$orderData.enterprise_name}</span></div>
+        </if>
+        <div class="order-detail-list">门店名称<span>{$orderData.store_name}</span></div>
+        <div class="order-detail-list">门店地址<span>{$orderData.detailed_address}</span></div>
+        <php>}else{</php>
+        <div class="order-detail-list">预约门店<span>{$orderData.store_name}</span></div>
+        <div class="order-detail-list">门店位置<span>{$orderData.location_name}</span></div>
+        <div class="order-detail-list">详细地址<span>{$orderData.detailed_address}</span></div>
+        <php>}</php>
+        <div class="order-detail-list">联系人<span>{$orderData.link_person}</span></div>
+        <div class="order-detail-list">联系电话<span><a href="tel:{$orderData.link_phone}"><img src="/Public/wechat/i/tel.jpg" alt="">{$orderData.link_phone}</a></span></div>
+    </div>
+</div>
+<div class="order">
+    <div class="order-title">服务记录</div>
+    <div class="order-detail">
+        <php>if(!empty($orderData['year_service_recode'])){
+            $year_service_recode = $orderData['year_service_recode'];
+        </php>
+        <volist name="year_service_recode" id="recode">
+            <div class="order-detail-list">第{$recode.service_num}次服务时间<span>{$recode.service_time}&nbsp;&nbsp;|
+                <php>if($is_enterprise == 1){</php>
+                <a href="JavaScript:void(0)" onclick="showOrderDetail('{$recode[\'order_id\']}',2,'{$orderData[\'facilitator_id\']}',1)">详情</a>
+                <php>}else{</php>
+                <a href="JavaScript:void(0)" onclick="showOrderDetail('{$recode[\'order_id\']}',2,'{$orderData[\'facilitator_id\']}')">详情</a>
+                <php>}</php>
+            </span></div>
+
+        </volist>
+        <php>}else{</php>
+        <div class="order-detail-list">暂无服务记录</div>
+        <php>}</php>
+    </div>
+</div>
+<if condition="!empty($orderData['year_service_plan'])">
+    <div class="order">
+        <div class="order-title">服务计划</div>
+        <div class="order-detail">
+            <php>if(!empty($orderData['year_service_plan'])){
+                $year_service_plan = $orderData['year_service_plan'];
+            </php>
+            <volist name="year_service_plan" id="plan">
+                <div class="order-detail-list">第{$plan.service_num}次服务时间<span>{$plan.service_time}&nbsp;&nbsp;</span></div>
+            </volist>
+            <php>}else{</php>
+            <div class="order-detail-list">服务已全部完成</div>
+            <php>}</php>
+        </div>
+    </div>
+</if>
+<if condition="$showButton eq 1">
+    <div style="height:3.16rem;"></div>
+    <!--<div class="centerBtnWarp"> <a href="{:U('Enterprise/CustomerServices/distributeTask',array('order_id'=>$orderData['id'],'order_type'=>$orderData['order_type'],'is_back'=>1))}" class="centerBtn">更换服务商</a></div>-->
+    <div class="centerBtnWarp"><a href="javascript:void(0);" onclick="showChangeFac()" class="centerBtn">更换服务商</a></div>
+</if>
+</body>
+</html>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+                var order_list_flag = $.session.get("order_list_flag");
+                if(order_list_flag && order_list_flag != 'undefined'){
+                    $.session.set("order_list_flag",'');
+                    //跳转到我的订单
+                    window.location.href="{:U('Enterprise/CustomerServices/yesReceiveOrder')}";
+                }else{
+                    // 关闭微信浏览器
+                    WeixinJSBridge.call('closeWindow');
+                }
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+    var year_order_id = '{$year_order_id}';
+    $(function(){
+        //清除session
+        $.session.set("year_order_id",'');
+    });
+    function hideTheDialog(id){
+        $("#"+id+"").hide()
+    }
+    function showChangeFac(){
+        $("#changeOrderPrice").show()
+    }
+    function sureChangeFac(order_id,order_type,fac_id,fac_name,is_back){
+        var reason = $("#change_reason").val();
+        if(reason.length <= 0){
+            weui.alert('请填写更换原因');
+            return false;
+        }
+        window.location.href="{:U('Enterprise/customer_services/distributeTask/order_id/"+order_id+"/order_type/"+order_type+"/fac_id/"+fac_id+"/fac_name/"+fac_name+"/reason/"+reason+"/is_back/"+is_back+"')}";
+    }
+    //展示订单详情
+    function showOrderDetail(order_id,order_type,fac_id,is_enterprise){
+        //设置session
+        $.session.set("year_order_id",year_order_id);
+        window.location.href="{:U('Enterprise/customer_services/orderDetail/order_id/"+order_id+"/type/"+order_type+"/fid/"+fac_id+"/is_enterprise/"+is_enterprise+"')}";
+    }
+</script>

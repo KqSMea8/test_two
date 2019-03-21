@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单列表</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#f8f5f6;">
+<!--未指派-->
+<div class="kf_orderlistCon">
+    <php>if(!empty($orderData)){</php>
+    <ul>
+        <notempty name="orderData">
+            <volist name="orderData" id="data">
+                <li onclick="jumpToUrl('{$data.url}')">
+                    <div>订单编号：{$data.order_code}</div>
+                    <div style="padding-right:0.32rem;">下单时间：{$data.create_time}<a href="{$data.url}"><i class="moreIcon"></i></a></div>
+                    <div>服务类别：{$data.order_type_text}
+                        <php>if($data['urgent_level'] == 2){</php>
+                        <span class="cor_red">(紧急订单)</span>
+                        <php>}</php>
+                    </div>
+                </li>
+            </volist>
+        </notempty>
+    </ul>
+    <php>}else{</php>
+    <div class="emptyWarp">
+        <i class="emptyIcon"></i>
+        <p class="tip">暂无数据</p>
+    </div>
+    <php>}</php>
+</div>
+</body>
+</html>
+<script>
+    $(function(){
+        $.session.set("no_order_list",'');
+    });
+    function jumpToUrl(url){
+        $.session.set("no_order_list",true);
+        var host = window.location.host;
+        window.location.href = "http://"+host+url;
+    }
+</script>

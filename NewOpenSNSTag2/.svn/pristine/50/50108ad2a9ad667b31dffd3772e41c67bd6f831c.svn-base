@@ -1,0 +1,66 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionModel extends Model
+{
+
+    /**
+     * 获取主订单列表
+     * @param $map
+     * @param string $order
+     * @param $field
+     * @return mixed
+     */
+
+    public function getInspectionList($map, $order = 'i.create_tiem desc', $field, $page, $r){
+
+        $totalCount = M('WechatInspection')->alias("i")
+            ->join("jpgk_wechat_ka_enterprise as e on i.enterprise_id = e.id")
+            ->join("jpgk_wechat_facilitator as f on i.facilitator_id = f.id")
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->count();
+        if ($totalCount) {
+            $list = M('WechatInspection')->alias("i")
+                ->join("jpgk_wechat_ka_enterprise as e on i.enterprise_id = e.id")
+                ->join("jpgk_wechat_facilitator as f on i.facilitator_id = f.id")
+                ->where($map)
+                ->page($page, $r)
+                ->order($order)
+                ->field($field)
+                ->select();
+        }
+        return array($list, $totalCount);
+    }
+
+    public function getInspectionOrderChildrenList($map, $order = 'i.create_tiem desc', $field){
+
+    }
+
+    /**
+     * 获取巡检主订单信息
+     * @param $map
+     * @param $field
+     * @return array
+     */
+    public function getInspectionOrderInfo($map,$field){
+        $data = M('WechatInspection')->alias("wi")
+            ->join("jpgk_wechat_ka_enterprise ent on wi.enterprise_id = ent.id")
+            ->where($map)
+            ->field($field)
+            ->find();
+
+        return empty($data) ? [] : $data;
+    }
+
+}

@@ -1,0 +1,441 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <style>
+        .receiptInfoWarp li{margin-bottom:1rem;}
+    </style>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="receiptInfoWarp" id="cancelOrder" style="display: none;">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog">
+        <div class="weui-dialog__hd"><strong style="color: #9d1e15" class="weui-dialog__title  font_alert"><b>信息确认</b></strong></div>
+        <div class="weui-dialog__bd">
+            <div class="weui-cells">
+                <div style="padding: 0.4rem" class="weui-cells_form">
+                    <div class="fl font_alert">上门检测(元):</div>
+                    <div id="door_check" class="fr font_alert">0</div>
+                </div>
+            </div>
+            <div class="weui-cells">
+                <div style="padding: 0.4rem" class="weui-cells_form">
+                    <div class="fl font_alert">维修费(元):</div>
+                    <div id="door_repaire" class="fr font_alert">0</div>
+                </div>
+            </div>
+            <div class="weui-cells">
+                <div style="padding: 0.4rem" class="weui-cells_form">
+                    <div class="fl font_alert">配件价格(元):</div>
+                    <div id="door_parts" class="fr font_alert">0</div>
+                </div>
+            </div>
+            <div class="weui-cells">
+                <div style="padding: 0.4rem" class="weui-cells_form">
+                    <div class="fl font_alert">合计(元):</div>
+                    <div id="door_sum" class="fr font_alert cor_red">0</div>
+                </div>
+            </div>
+        </div>
+        <div style="height:3.16rem;"></div>
+        <div class="centerBtnWarp twoBtn">
+            <a style="width: 4rem" href="javascript:;" onclick="hideMakesure()" class="centerBtn fl">修 改</a>
+            <a  style="width: 4rem" href="javascript:;" onclick="subData()" class="centerBtn fr">确 认</a>
+        </div>
+    </div>
+</div>
+<div class="receiptInfoWarp" style="padding-top:1rem;">
+    <div class="weui-cells weui-cells_form">
+        <!--<input type="hidden" id="orderId" value="{$order_id}" />-->
+        <!--<input type="hidden" id="is_ka" value="{$is_ka}" />-->
+        <!--<input type="hidden" id="is_change_price" value="{$is_change_price}" />-->
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单编号:</label></div>
+            <div class="weui-cell__bd">
+                {$orderInfo.child_order_code}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡检门店:</label></div>
+            <div class="weui-cell__bd">
+                {$orderInfo.storeName}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">巡检人:</label></div>
+            <div class="weui-cell__bd">
+                {$orderInfo.masterName}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">设备名称:</label></div>
+            <div class="weui-cell__bd">
+                {$deviceInfo.device_name}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">设备编号:</label></div>
+            <div class="weui-cell__bd">
+                {$deviceInfo.device_code}
+            </div>
+        </div>
+
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">故障现象<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <textarea rows="5" value="" maxlength="200" placeholder="故障现象简单描述,必填" cols="20" id="malfunction_text"></textarea>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">是否维修:</label></div>
+            <div onchange="isRepaire()" class="weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>是</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" checked="checked" value="1" class="weui-check" name="isrepaire">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+            <div onchange="isRepaire()" class="weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>否</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" value="2" class="weui-check" name="isrepaire">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">是否更换配件:</label></div>
+            <div class="weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>是</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" checked="checked" value="1" class="weui-check" name="ischange">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+            <div class="weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>否</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" value="2" class="weui-check" name="ischange">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">更换配件名称:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="component" placeholder="更换配件名称"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">配件价格(元):</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="repaire_price" placeholder="配件价格"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">上门检测(元):</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="door_price" value="0" placeholder="上门费"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">维修费(元):</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" oninput="this.value=this.value.replace(/[^0-9.]+/,'');" type="number" id="component_price" value="0" placeholder="维修费"/>
+            </div>
+        </div>
+        <div class="weui-cells weui-cells_form" id="uploader">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__hd">
+                            <p class="weui-uploader__title">维修部位图片</p>
+                            <div class="weui-uploader__info"><span id="uploadCount">0</span>/6</div>
+                        </div>
+                        <div class="weui-uploader__bd">
+                            <ul class="weui-uploader__files" id="uploaderFiles"></ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInput" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="height:3.16rem;"></div>
+    <div class="centerBtnWarp"><a href="javascript:;" onclick="makesure()" class="centerBtn">提 交</a></div>
+</div>
+</body>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+
+    $(function() {
+
+        //获取巡检设备关联表标识
+        inspectionChildDeviceId = "{$inspectionChildDeviceId}";
+        //巡检子订单标识
+        inspectionStoreChildId = "{$inspectionStoreChildId}";
+
+        //KA企业 门店标识
+        companyId = "{$companyId}";
+        storeId = "{$storeId}";
+
+        //设备信息
+        deviceInfo = eval("("+'{$deviceInfoJs}'+")");
+    });
+    
+    var doubleClick = false;
+
+    //提交已修表单
+    function subData(){
+        var component = $("#component").val();
+        if(component==""){
+            component = "无";
+        }
+        if(!$("#malfunction_text").val()){
+            weui.alert('请填写故障现象');
+            return false;
+        }
+        var postData = {
+            inspectionChildDeviceId:inspectionChildDeviceId,
+            inspectionStoreChildId:inspectionStoreChildId,
+            deviceId:deviceInfo['id'],
+            deviceBrand:deviceInfo['brand'],
+            deviceName:deviceInfo['device_name'],
+            is_maintain:$("input[name='isrepaire']:checked").val(),//是否维修 状态 1：是 2：否
+            is_change_parts:$("input[name='ischange']:checked").val(),//是否更换配件 状态 1：是 2：否
+            change_parts_text:component,
+            malfunction_text:$("#malfunction_text").val(),
+            parts_price:$("#repaire_price").val(),
+            door_price:$("#door_price").val(),
+            service_price:$("#component_price").val(),
+            is_change_price:$("#is_change_price").val(),
+            imageData:uploadImageList
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+        var loading = weui.loading('正在更新订单');
+        $.post("{:U('Enterprise/StoreMaintain/updateMaterMaintainOrder')}",postData,function(res){
+            if(res.status == 1){
+                loading.hide();
+                weui.alert('提交成功！');
+                window.location.href="index.php?s=/Enterprise/StoreMaintain/showInspectionOperationDetail/inspection_store_child_id/"+inspectionStoreChildId+"";
+            }else{
+                doubleClick = false;
+                $("#cancelOrder").hide();
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+
+    function isRepaire(){
+        var isrepaire = $("input[name='isrepaire']:checked").val();
+        if(isrepaire == 1){
+            $("#component").removeAttr("disabled");
+            $("#repaire_price").removeAttr("disabled");
+            $("#component_price").removeAttr("disabled");
+        }else{
+            $("#component").val("");
+            $("#repaire_price").val("");
+            $("#component_price").val("");
+            $("#component").attr("disabled","disabled");
+            $("#repaire_price").attr("disabled","disabled");
+            $("#component_price").attr("disabled","disabled");
+        }
+    }
+    function makesure(){
+        var isrepaire = $("input[name='isrepaire']:checked").val();
+        var ischange = $("input[name='ischange']:checked").val();
+        if(Number(isrepaire)==1 && Number(ischange)==1){
+            if(!$("#component").val()){
+                weui.alert('请填写更换配件名称');
+                $("#component").focus();
+                return false;
+            }
+            if(!$("#repaire_price").val()){
+                weui.alert('请填写更换配件价格');
+                $("#repaire_price").focus();
+                return false;
+            }
+        }else{
+            if($("#component").val()){
+                weui.alert('请清空更换配件名称');
+                $("#component").focus();
+                return false;
+            }
+            if(Number($("#repaire_price").val())>0){
+                weui.alert('请清空配件价格或填写0');
+                $("#repaire_price").focus();
+                return false;
+            }
+        }
+
+        if($("#door_price").val()===""){
+            weui.alert('请填写上门检测费用');
+            $("#door_price").focus();
+            return false;
+        }
+        //弹二次确认框
+        var door_check = $("#door_price").val();
+        var component_price = $("#component_price").val();
+        var repaire_price = $("#repaire_price").val();
+
+        if(Number(door_check)>0){
+            $("#door_check").html(door_check);
+        }
+        if(Number(component_price)>0){
+            $("#door_repaire").html(component_price);
+        }
+        if(Number(repaire_price)>0){
+            $("#door_parts").html(repaire_price);
+        }
+        var door_sum = (Number(door_check)+Number(component_price)+Number(repaire_price)).toFixed(2);
+        $("#door_sum").html(door_sum);
+        $("#cancelOrder").show()
+    }
+    function hideMakesure(){
+        $("#cancelOrder").hide()
+    }
+</script>
+<script type="text/javascript">
+    // 缩略图预览
+    $('#uploaderFiles').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCount;
+                    uploadCountDom.html(uploadCount);
+
+                    for (var i = 0, len = uploadList.length; i < len; ++i) {
+                        var file = uploadList[i];
+                        if(file.id == id){
+                            delete uploadImageList[id];
+                            file.stop();
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCount = 0, uploadList = [],uploadImageList = [];
+    var uploadCountDom = $("#uploadCount");
+
+    try{
+        weui.uploader('#uploader', {
+            url: "{:U('Wechat/index/downLoadImage')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+
+            onBeforeQueued: function(files) {
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCount + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCount;
+                uploadCountDom.html(uploadCount);
+            },
+            onQueued: function(){
+                uploadList.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+                uploadImageList[this.id] = ret.data;
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+
+</html>

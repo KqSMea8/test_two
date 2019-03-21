@@ -1,0 +1,42 @@
+<div>
+    <style>
+        .modal-dialog {
+            width: 430px;
+        }
+    </style>
+    <form id="migration" action="{:U('User/updatePass')}" method="post" class="ajax-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="col-xs-4 control-label" style="text-align: right;">
+                设置新密码
+            </label>
+            <div class="col-xs-8">
+                <input type="password" name="newPwd"/>
+            </div>
+            <input type="hidden" name="id" value="{$id}">
+        </div>
+        <div class="form-group">
+            <div style="width: 100%;text-align: center;">
+                <input class="btn btn-primary" type="submit" value="确定"/>
+                <a onclick="$('.close').click();" class="btn btn-default">{:L('_CANCEL_')}</a>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+//    $(function(){
+//        $('[data-role="submit"]').click(function(){
+//            query=$('#migration').serialize();
+//            var url=$('#migration').attr('action');
+//            $.post(url,query,function(msg){
+//                if(msg.status){
+//                    toast.success('{:L("_SUCCESS_TIP_")}！');
+//                    setTimeout(function(){
+//                        window.location.href=msg.url;
+//                    },1500);
+//                }else{
+//                    handleAjax(msg);
+//                }
+//            },'json');
+//        });
+//    });
+</script>

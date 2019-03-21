@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>巡检门店</title>
+	<link href="/Public/wechatInspection/c/polling.css?11" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			// if(hWidth>800){
+			//     hWidth=800;
+			// }
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+
+</head>
+<body style="background-color: #f3f3f3">
+<div class="ins-store-top">
+	<input type="hidden" value="{$insId}" id="insId" />
+	<span class="ins-store-span font-color"><b>共{$storeNum}家</b></span>
+</div>
+<div class="ins-store">
+	<volist id="store" name="storeList">
+		<div onclick="showStoreOrderList('{$store.id}')" class="ins-store-list">
+			<span>{$store.name}</span>
+			<if condition="isset($store['service_num']) && isset($store['service_status'])">
+				<span class="ins-font">第<span class="font-color">{$store.service_num}</span>次巡检<span class="font-color">({$store.service_status})</span></span>
+				<else/>
+				<span class="ins-font"><span class="font-color">暂无巡检数据</span></span>
+			</if>
+		</div>
+	</volist>
+</div>
+</body>
+</html>
+<script>
+	function showStoreOrderList(store_id){
+		var ins_id = $("#insId").val();
+		window.location.href = "{:U('Enterprise/customer_services/showChildOrderList/store_id/"+store_id+"/ins_id/"+ins_id+"')}";
+	}
+</script>

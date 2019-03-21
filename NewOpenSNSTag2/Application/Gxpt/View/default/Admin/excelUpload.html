@@ -1,0 +1,41 @@
+<div>
+    <style>
+        .modal-dialog {
+            width: 430px;
+        }
+    </style>
+    <form id="migration" action="{:U('Gxpt/uploadExcel')}" method="post" class="ajax-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="col-xs-4 control-label" style="text-align: right;">
+                导入excel数据
+            </label>
+            <div class="col-xs-8">
+                <input type="file" name="file"/>
+                <input type="hidden" name="table" value="tablename"/>
+            </div>
+        </div>
+        <div style="width: 100%;text-align: center;">
+            <input class="btn btn-primary" type="submit" value="导入"/>
+            <!--<a class="btn btn-primary" data-role="submit">{:L('_SUBMIT_')}</a>-->
+            <a onclick="$('.close').click();" class="btn btn-default">{:L('_CANCEL_')}</a>
+        </div>
+    </form>
+</div>
+<script>
+//    $(function(){
+//        $('[data-role="submit"]').click(function(){
+//            query=$('#migration').serialize();
+//            var url=$('#migration').attr('action');
+//            $.post(url,query,function(msg){
+//                if(msg.status){
+//                    toast.success('{:L("_SUCCESS_TIP_")}！');
+//                    setTimeout(function(){
+//                        window.location.href=msg.url;
+//                    },1500);
+//                }else{
+//                    handleAjax(msg);
+//                }
+//            },'json');
+//        });
+//    });
+</script>

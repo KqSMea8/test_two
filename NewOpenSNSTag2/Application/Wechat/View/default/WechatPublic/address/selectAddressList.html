@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title>地址管理</title>
+	<link href="/Public/wechat/c/address.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+
+		})()
+	</script>
+</head>
+<body class="body-class">
+<input type="hidden" id="type" value="{$type}">
+<input type="hidden" id="equip_id" value="{$equip_id}">
+<input type="hidden" id="again" value="{$again}">
+<input type="hidden" id="order_id" value="{$order_id}">
+<if condition="!empty($addressList)">
+	<div class="all-content">
+		<volist name="addressList" id="list">
+		<div class="content-div">
+			<div onclick="selectAddressCheck('{$list.add_id}')" class="content-checkbox">
+				<input class="checkbox-class" type="checkbox" name="addressRaio">
+			</div>
+			<div onclick="selectAddress('{$list.add_id}',this)" class="content-text">
+				<div class="store-name">
+					<span>{$list.store_name}</span>
+					<if condition="$list['is_default'] == 1"><span class="store-name-default">默认</span></if>
+				</div>
+				<div class="address"><span>{$list.detail_address}</span></div>
+				<div class="link-type"><span>{$list.link_person}</span><span class="link-type-phone">{$list.link_phone}</span><span class="link-type-phone">{$list.fixed_line}</span></div>
+			</div>
+			<if condition="empty($list['store_id'])">
+				<div class="content-edit">
+					<img onclick="editAddress('{$list.add_id}')" class="content-img" src="/Public/wechat/add/edit_add.png" >
+				</div>
+			</if>
+		</div>
+		</volist>
+	</div>
+<else/>
+	<div class="empty-div hide">
+		<div><img class="empty-img" src="/Public/wechat/add/empty.png"></div>
+		<div><span class="empty-content">暂无门店地址信息</span></div>
+	</div>
+</if>
+	<div class="button">
+		<div onclick="addAddress()" class="button-text">新增地址</div>
+	</div>
+</body>
+</html>
+<script>
+	function addAddress(){
+		var type = $("#type").val();
+		var equip_id = $("#equip_id").val();
+		var again = $("#again").val();
+		var order_id = $("#order_id").val();
+		window.location.href = "{:U('Wechat/index/addAddress/type/"+type+"/equip_id/"+equip_id+"/again/"+again+"/order_id/"+order_id+"')}";
+	}
+	function editAddress(add_id){
+		var type = $("#type").val();
+		var equip_id = $("#equip_id").val();
+		var again = $("#again").val();
+		var order_id = $("#order_id").val();
+		window.location.href = "{:U('Wechat/index/editAddress/type/"+type+"/add_id/"+add_id+"/equip_id/"+equip_id+"/again/"+again+"/order_id/"+order_id+"')}";
+	}
+	function selectAddress(add_id,obj){
+		$(obj).parent().find('input[name="addressRaio"]').attr("checked","checked");
+		var type = $("#type").val();
+		var equip_id = $("#equip_id").val();
+		var again = $("#again").val();
+		var order_id = $("#order_id").val();
+		if(type == 1){
+			if(again == 1){
+				window.location.href = "{:U('Wechat/index/againstorerepaire/equip_id/"+equip_id+"/order_id/"+order_id+"/add_id/"+add_id+"')}";
+				return;
+			}
+			window.location.href = "{:U('Wechat/index/appointmentStoreRepaire/add_id/"+add_id+"/equip_id/"+equip_id+"')}";
+		}else if(type == 2){
+			window.location.href = "{:U('Wechat/index/appointmentCleanKill/add_id/"+add_id+"')}";
+		}else if(type == 3){
+			window.location.href = "{:U('Wechat/index/appointmentCleaning/add_id/"+add_id+"')}";
+		}
+	}
+	function selectAddressCheck(add_id){
+		var type = $("#type").val();
+		var equip_id = $("#equip_id").val();
+		var again = $("#again").val();
+		var order_id = $("#order_id").val();
+		if(type == 1){
+			if(again == 1){
+				window.location.href = "{:U('Wechat/index/againstorerepaire/equip_id/"+equip_id+"/order_id/"+order_id+"/add_id/"+add_id+"')}";
+				return;
+			}
+			window.location.href = "{:U('Wechat/index/appointmentStoreRepaire/add_id/"+add_id+"/equip_id/"+equip_id+"')}";
+		}else if(type == 2){
+			window.location.href = "{:U('Wechat/index/appointmentCleanKill/add_id/"+add_id+"')}";
+		}else if(type == 3){
+			window.location.href = "{:U('Wechat/index/appointmentCleaning/add_id/"+add_id+"')}";
+		}
+	}
+</script>

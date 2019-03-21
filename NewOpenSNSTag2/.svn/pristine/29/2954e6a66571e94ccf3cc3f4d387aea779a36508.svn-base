@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>企业用户</title>
+    <link href="/Public/wechat/c/canxun.css?111" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css?222" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="qiyeVerifyWarp">
+    <h3 class="title">企业用户</h3>
+    <div class="conWarp">
+        <ul>
+            <li><input placeholder="企业编号" id="companycode" type="number"/></li>
+            <li><input placeholder="门店编号" id="storecode" type="number"/></li>
+            <li style="border:0px;padding-top:1.86rem;"><a  onclick="checkCode({$door_type})" href="javascript:;">确定</a></li>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var doubleClick = false;
+    function checkCode(door_type){
+        var companycode = $('#companycode').val();
+        var storecode = $('#storecode').val();
+        if(!companycode){
+            weui.alert('请填写企业编号');
+            $("#companycode").focus();
+            return false;
+        }
+        if(!storecode){
+            weui.alert('请填写门店编号');
+            $("#storecode").focus();
+            return false;
+        }
+//        if(doubleClick){
+//            return;
+//        }else{
+//            doubleClick = true;
+//        }
+        var postData = {
+            store_code:storecode,
+            company_code:companycode
+        };
+        var loading = weui.loading('正在检验，请稍候');
+        $.post("{:U('Wechat/index/checkCompanyAndStoreCode')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+//                weui.toast(res.msg, function() {
+                if(door_type == 1){
+                    window.location.href="{:U('Wechat/index/selectEqipmentType/is_ka/1/companycode/"+companycode+"/storecode/"+storecode+"')}";
+                }else if(door_type == 2){
+                    window.location.href="{:U('Wechat/index/appointmentCleanKill/is_ka/1/companycode/"+companycode+"/storecode/"+storecode+"')}";
+                }else{
+                    window.location.href="{:U('Wechat/index/appointmentCleaning/is_ka/1/companycode/"+companycode+"/storecode/"+storecode+"')}";
+                }
+//                },1000);
+            }else{
+//                doubleClick = false;
+                weui.alert(res.msg);
+            }
+        },'json');
+    }
+</script>

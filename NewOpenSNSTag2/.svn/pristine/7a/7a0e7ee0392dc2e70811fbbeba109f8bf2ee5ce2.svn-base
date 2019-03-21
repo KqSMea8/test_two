@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title>订单详情</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<style>
+		.receiptInfoWarp li{margin-bottom:1rem;}
+		.centerBtnWarp{
+			left: 0.1rem;
+		}
+	</style>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+</head>
+<body>
+
+
+<div class="receiptInfoWarp" style="padding-top:1rem;">
+	<div class="weui-cells weui-cells_form">
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">订单编号:</label></div>
+			<div class="weui-cell__bd">
+				{$childInfo.child_order_code}
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">下单时间:</label></div>
+			<div class="weui-cell__bd">
+				{$childInfo.create_time}
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">工单状态:</label></div>
+			<div class="weui-cell__bd" style="color:red;">
+				{$childInfo.status_text}
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">预约门店:</label></div>
+			<div class="weui-cell__bd">
+				{$childInfo.storeName}
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">详细地址:</label></div>
+			<div class="weui-cell__bd">
+				{$childInfo.stores_address}
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">联&nbsp;&nbsp;系&nbsp;&nbsp;人:</label></div>
+			<div class="weui-cell__bd">
+				{$childInfo.storePerson}
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+			<div class="weui-cell__bd">
+				<a href="tel:{$childInfo.storePhone}">{$childInfo.storePhone}</a>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">服&nbsp;&nbsp;务&nbsp;&nbsp;商:</label></div>
+			<div class="weui-cell__bd">
+				{$childInfo.fName}
+			</div>
+		</div>
+		<if condition="$childInfo['supervisorName'] neq ''">
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">巡检主管:</label></div>
+				<div class="weui-cell__bd">
+					{$childInfo.supervisorName}
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">主管电话:</label></div>
+				<div class="weui-cell__bd">
+					<a href="tel:{$childInfo.supervisorPhone}">{$childInfo.supervisorPhone}</a>
+				</div>
+			</div>
+		</if>
+		<if condition="$childInfo['isNoMaster'] neq 0">
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">巡&nbsp;&nbsp;检&nbsp;&nbsp;员:</label></div>
+				<div class="weui-cell__bd">
+					{$childInfo.mentorName}
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">巡检员电话:</label></div>
+				<div class="weui-cell__bd">
+					<a href="tel:{$childInfo.mentorPhone}">{$childInfo.mentorPhone}</a>
+				</div>
+			</div>
+		</if>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">本次服务:</label></div>
+			<div class="weui-cell__bd" style="color: red">
+				第{$childInfo.service_num}次服务
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+<script>
+	$(document).ready(function(e) {
+
+		var counter = 0;
+		if (window.history && window.history.pushState) {
+			$(window).on('popstate', function () {
+				window.history.pushState('forward', null, '#');
+				window.history.forward(1);
+
+				// 关闭微信浏览器
+				WeixinJSBridge.call('closeWindow');
+			});
+		}
+
+		//在IE中必须得有这两行
+		window.history.pushState('forward', null, '#');
+		window.history.forward(1);
+
+		inspectionChildId = "{$childInfo['inspection_store_child_id']}";
+	});
+</script>
+</html>

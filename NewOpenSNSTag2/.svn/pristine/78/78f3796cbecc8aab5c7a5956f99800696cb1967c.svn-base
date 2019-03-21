@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>我的订单</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .myOrderNav{height:2.2rem;}
+        .myOrderNav a{padding:0.5rem 0.3rem;}
+        .historyWarp li{height:2.8rem;padding:0.3rem 0px;}
+        .historyWarp .time{margin-top:0px;}
+        .historyWarp .status{height:2.8rem;line-height:2.8rem;font-size:0.5rem;}
+        .historyWarp .title{font-size:0.6rem;}
+    </style>
+</head>
+<body>
+<div class="myOrderNav">
+    <div class="weui-tabbar">
+        <a href="javascript:;" data-value="1" class="weui-tabbar__item weui-bar__item_on">
+            <p style="font-size:0.7rem;" class="weui-tabbar__label">全部</p>
+        </a>
+        <a href="javascript:;" data-value="2" class="weui-tabbar__item">
+            <p style="font-size:0.7rem;" class="weui-tabbar__label">服务中</p>
+        </a>
+        <a href="javascript:;" data-value="3" class="weui-tabbar__item">
+            <p style="font-size:0.7rem;" class="weui-tabbar__label">已完成</p>
+        </a>
+        <a href="javascript:;" data-value="4" class="weui-tabbar__item">
+            <p style="font-size: 0.7rem;" class="weui-tabbar__label">已取消</p>
+        </a>
+    </div>
+</div>
+<div style="height:1.96rem;"></div>
+<div id="myOrderList">
+    <php>if(!empty($orderData)){</php>
+    <div class="historyWarp">
+    <ul>
+        <notempty name="orderData">
+            <volist name="orderData" id="data">
+        <li>
+            <a href="javascript:void(0)" onclick="jumpToUrl('{$data.url}')">
+                <!--<div class="imgWarp"><img src="i/machine1.png"/></div>-->
+                <div style="padding-left: 0px;" class="con"><h3 class="title">
+                    {$data.order_type_text}
+                    <php>if($data['is_sh'] == 1){</php>
+                        <span class="cor_red">(售后订单)</span>
+                    <php>}</php>
+                    <php>if($data['urgent_level'] == 2){</php>
+                    <span class="cor_red">(紧急订单)</span>
+                    <php>}</php>
+                </h3><p class="time">{$data.create_time}</p></div>
+                <span class="status cor_red">{$data.order_state_text}</span>
+            </a>
+        </li>
+            </volist>
+        </notempty>
+    </ul>
+    </div>
+    <php>}else{</php>
+<div class="receiptOrderWarp">
+        <div class="emptyWarp">
+            <i class="emptyIcon"></i>
+            <p class="tip">暂无数据</p>
+        </div>
+</div>
+    <php>}</php>
+</div>
+</body>
+</html>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+    $(function(){
+        //设置session
+        $.session.set("order_list_flag",true);
+        var aLi = $('.weui-tabbar__item');
+        aLi.on('click', function () {
+            $(this).addClass('weui-bar__item_on').siblings('.weui-bar__item_on').removeClass('weui-bar__item_on');
+            var status = $(this).attr("data-value");
+            //根据选中状态获取对应订单
+            var loading = weui.loading('加载中');
+            $.post("{:U('Wechat/index/getOrderInfoByStatus')}",{status:status},function(res){
+                loading.hide();
+                if(res.status == 1){
+                    //拼装HTML数据，放入class=“historyWarp”的div中
+                    var html = '<div class="historyWarp">';
+                         html += "<ul>";
+                    for(var i=0;i<res.data.length;i++){
+                        html += "<li>";
+                        html += "<a href ='javascript:void(0)' onclick=jumpToUrl('"+res.data[i].url+"')>";
+                        html += "<div style='padding-left: 0px;' class='con'>";
+                        html += "<h3 class='title'>"+res.data[i].order_type_text;
+                        if(res.data[i].is_sh == 1){
+                            html += "<span class='cor_red'>(售后订单)</span>";
+                        }
+                        if(res.data[i].urgent_level == 2){
+                            html += "<span class='cor_red'>(紧急订单)</span>";
+                        }
+                        html += "</h3><p class='time'>"+res.data[i].create_time+"</p></div>";
+                        html += "<span class='status cor_red'>"+res.data[i].order_state_text+"</span>";
+                        html += "</li>";
+                    }
+                    html += "</ul>";
+                    html +='</div>';
+                    $("#myOrderList").html(html);
+                }else{
+                    var html = '<div class="receiptOrderWarp">';
+                        html += '<div class="emptyWarp">';
+                        html +='<i class="emptyIcon"></i>';
+                        html +='<p class="tip">暂无数据</p>';
+                        html +='</div>';
+                        html +='</div>';
+                    $("#myOrderList").html(html);
+                }
+            },'json');
+        });
+    });
+    $(function(){
+        var selectType = $.session.get("order_list_selected");
+        var scrollHeight = $.session.get("order_list_height");
+        $.session.set("order_list_selected",'');
+        $.session.set("order_list_height",'');
+        if(selectType && selectType != 'undefined'){
+            $('.weui-tabbar__item').removeClass('weui-bar__item_on');
+            $(".weui-tabbar__item[data-value='"+selectType+"']").addClass('weui-bar__item_on');
+            var loading = weui.loading('加载中');
+            $.post("{:U('Wechat/index/getOrderInfoByStatus')}",{status:status},function(res){
+                loading.hide();
+                if(res.status == 1){
+                    //拼装HTML数据，放入class=“historyWarp”的div中
+                    var html = '<div class="historyWarp">';
+                    html += "<ul>";
+                    for(var i=0;i<res.data.length;i++){
+                        html += "<li>";
+                        html += "<a href ='javascript:void(0)' onclick=jumpToUrl('"+res.data[i].url+"')>";
+                        html += "<div style='padding-left: 0px;' class='con'>";
+                        html += "<h3 class='title'>"+res.data[i].order_type_text;
+                        if(res.data[i].is_sh == 1){
+                            html += "<span class='cor_red'>(售后订单)</span>";
+                        }
+                        if(res.data[i].urgent_level == 2){
+                            html += "<span class='cor_red'>(紧急订单)</span>";
+                        }
+                        html += "</h3><p class='time'>"+res.data[i].create_time+"</p></div>";
+                        html += "<span class='status cor_red'>"+res.data[i].order_state_text+"</span>";
+                        html += "</li>";
+                    }
+                    html += "</ul>";
+                    html +='</div>';
+                    $("#myOrderList").html(html);
+                }else{
+                    var html = '<div class="receiptOrderWarp">';
+                    html += '<div class="emptyWarp">';
+                    html +='<i class="emptyIcon"></i>';
+                    html +='<p class="tip">暂无数据</p>';
+                    html +='</div>';
+                    html +='</div>';
+                    $("#myOrderList").html(html);
+                }
+            },'json');
+            if(scrollHeight && scrollHeight != 'undefined'){
+                $("html,body").finish().animate({"scrollTop":scrollHeight},400);
+            }
+        }
+    });
+    function jumpToUrl(url){
+        var selectType = $(".weui-bar__item_on").attr("data-value");
+        $.session.set("order_list_flag",true);
+        $.session.set("order_list_selected",selectType);
+        var scrollHeight = $(document).scrollTop();
+        $.session.set("order_list_height",scrollHeight);
+        var host = window.location.host;
+        window.location.href = "http://"+host+url;
+    }
+</script>

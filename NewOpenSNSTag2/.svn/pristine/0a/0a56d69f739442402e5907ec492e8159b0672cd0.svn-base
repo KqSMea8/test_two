@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>输入订单信息</title>
+    <link href="/Public/wechat/c/canxun_style.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        //获取屏幕宽度
+        var htmlWidth=document.documentElement.clientWidth || document.body.clientWidth;
+        var htmlDom=document.getElementsByTagName('html')[0];
+        htmlDom.style.fontSize = htmlWidth / 15 +'px';
+        //监听窗口变化
+        window.addEventListener('resize',function(e){
+            var htmlWidth=document.documentElement.clientWidth || document.body.clientWidth;
+            if(htmlWidth>600){
+                htmlWidth=600;
+            }
+            htmlDom.style.fontSize = htmlWidth / 15 +'px';
+        })
+    </script>
+    <style>
+        .weui-picker__item{padding: 6px 0 6px;height:34px;font-size:16px;}
+        .weui-picker__action{font-size:16px;}
+        .import-list{color: #4d4d4d;}
+        .import-list-title{text-indent:0;}
+    </style>
+</head>
+<body>
+<div class="import">
+    <div class="import-list">
+        <span class="import-list-title">服务类别<em>|</em></span>
+        <div class="service-type"><span>请选择</span></div>
+        <ul class="service-type-list">
+            <li>单次服务</li>
+            <li>季服务</li>
+            <li>半年服务</li>
+            <li>一年服务</li>
+        </ul>
+        <img src="/Public/wechat/i/arrows.jpg" alt="">
+    </div>
+    <div class="import-list">
+        <span class="import-list-title">服务次数<em>|</em></span>
+        <div class="service-num"><input type="text" id="numText" oninput="textChange()" placeholder="" maxlength="2"></div>
+        <!--<div class="service-num"><span id="num">请选择</span></div>-->
+        <ul class="service-num-list">
+            <!--<li>2</li>-->
+            <!--<li>3</li>-->
+            <!--<li>4</li>-->
+            <!--<li>5</li>-->
+            <!--<li>6</li>-->
+        </ul>
+        <img src="/Public/wechat/i/arrows.jpg" alt="">
+    </div>
+    <div class="import-list"><span class="import-list-title">约定时间<em>|</em></span><div class="placeholder" id="OneTime">请选择</div><img src="/Public/wechat/i/arrows.jpg" alt=""></div>
+    <div class="import-list">
+        <span class="import-list-title">分配任务<em>|</em></span>
+        <div class="service-people"><span id="people" data-value="">请选择</span></div>
+        <ul class="service-people-list">
+            <notempty name="masterData">
+                <volist name="masterData" id="data">
+                    <li data-value="{$data.uid}">{$data.uname}</li>
+                </volist>
+            </notempty>
+        </ul>
+        <img src="/Public/wechat/i/arrows.jpg" alt="">
+    </div>
+    <div class="import-list" style="display:none"><span class="import-list-title">服务起始时间<em>|</em></span><div class="placeholder" id="startTime">请选择</div><img src="/Public/wechat/i/arrows.jpg" alt=""></div>
+    <div class="import-list" style="display:none"><span class="import-list-title">服务终止时间<em>|</em></span><div class="placeholder" id="endTime">请选择</div><img src="/Public/wechat/i/arrows.jpg" alt=""></div>
+</div>
+<div class="import"  id="Service" style="display:none">
+    <div class="import-list"><span class="import-list-title" class="import-list-title">服务周期<em>|</em></span>
+        <input class="import-text " id="Cycle" type="text" placeholder="请填写服务周期"/>
+        <div class="server-period"><i id="selCycle"></i>周期不固定</div>
+    </div>
+    <ul id="ServiceList">
+        <!--<li class="import-list"><span class="import-list-title">第一次服务时间<em>|</em></span><div class="placeholder">请选择</div><img src="img/arrows.jpg" alt=""></li>-->
+    </ul>
+
+</div>
+<div class="import price">
+    <div class="import-list">
+        <span class="import-list-title">服务费用（总价）：</span>
+        <span class="import-price"><i>￥</i><input id="price" style="min-width: 3rem" class="cost-price" type="text" placeholder="请填写"/></span>
+    </div>
+</div>
+
+<input type="hidden" id="renewId">
+<div class="button">
+    <a id="cancel" href="javascript:void(0)">取消</a>
+    <a id="ok" class="ok" href="javascript:void(0)">确定</a>
+</div>
+<!--<div class="warn-body" style="display:none">-->
+<div class="warn-body" style="display:none">
+    <div class="store-warn">
+        <img src="/Public/wechat/i/warn.jpg" alt="">
+        <span>抱歉，目前柜子已满</span>
+        <a href="javascript:void(0);">关闭</a>
+    </div>
+</div>
+<script>
+    $(function(){
+
+        var orderId = "{$orderId}";
+        var fid = "{$fid}";
+        var orderUpdateData = eval("("+'{$orderUpdateData}'+")");
+
+        //续签时间
+        var renewTime = "{$renewTime}";
+        $("#renewId").val(renewTime);
+
+        var TypeText;
+        var TypeNum;
+        //单次选择时间
+        $('#OneTime').click(function(){
+            weui.datePicker({
+                start: 2018,
+                end: 2030,
+                cron: '* * *',  // 每逢周日、周六
+                defaultValue: [new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()],
+                onChange: function(result){
+
+                },
+                onConfirm: function(result){
+                    if(result[1].value<10){
+                        result[1].value = "0"+result[1].value;
+                    }
+                    if(result[2].value<10){
+                        result[2].value = "0"+result[2].value;
+                    }
+                    var dateText=result[0].value+'-'+result[1].value+'-'+result[2].value;
+                    $('#OneTime').html(dateText);
+                    $('#OneTime').css({"color":"#4d4d4d"});
+                },
+                id: 'datePicker'
+            });
+        });
+        //非单次开始日期选择
+        $('#startTime').click(function(){
+            weui.datePicker({
+                start: 2018,
+                end: 2030,
+                cron: '* * *',  // 每逢周日、周六
+                defaultValue: [new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()],
+                onChange: function(result){
+
+                },
+                onConfirm: function(result){
+                    if(result[1].value<10){
+                        result[1].value = "0"+result[1].value;
+                    }
+                    if(result[2].value<10){
+                        result[2].value = "0"+result[2].value;
+                    }
+                    var dateText=result[0].value+'-'+result[1].value+'-'+result[2].value;
+                    $('#startTime').html(dateText);
+                    $('#startTime').css({"color":"#4d4d4d"});
+                },
+                id: 'datePicker'
+            });
+        });
+        //非单次结束日期选择
+        $('#endTime').click(function(){
+            weui.datePicker({
+                start: 2018,
+                end: 2030,
+                cron: '* * *',  // 每逢周日、周六
+                defaultValue: [new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()],
+                onChange: function(result){
+
+                },
+                onConfirm: function(result){
+                    if(result[1].value<10){
+                        result[1].value = "0"+result[1].value;
+                    }
+                    if(result[2].value<10){
+                        result[2].value = "0"+result[2].value;
+                    }
+                    var dateText=result[0].value+'-'+result[1].value+'-'+result[2].value;
+                    $('#endTime').html(dateText);
+                    $('#endTime').css({"color":"#4d4d4d"});
+                },
+                id: 'datePicker'
+            });
+        });
+
+        //选择服务类型
+        $(".service-type").click(function(event){
+            event.stopPropagation();
+            $(".service-type-list").show();
+        });
+        $(".service-type-list li").click(function(){
+            var num=$("#num").html();
+            $(this).addClass("hover").siblings().removeClass("hover");
+            $(".service-type-list li").each(function(){
+                if($(this).hasClass("hover")){
+                    TypeText = $(this).html();
+                    $(".service-type span").html(TypeText);
+                    $(".service-type span").css({"color":"#4d4d4d"});
+                }
+            });
+            $(".service-type-list").hide();
+            if(TypeText=="单次服务"){
+
+                $("#numText").val(1);
+//                $(".service-num span").html("1");
+//                $(".service-num span").css({"color":"#4d4d4d"});
+                $("#Service").hide();
+            }else{
+                if(num=="1"){
+                    $(".service-num span").html("请选择");
+                    $(".service-num span").css({"color":"#999999"});
+
+                }
+            }
+        });
+
+
+        //选择服务次数
+        $(".service-num").click(function(){
+//            event.stopPropagation();
+//            $(".service-num-list").show();
+        });
+        $(".service-num-list li").click(function(){
+            $("#ServiceList").html("");
+            $(this).addClass("hover").siblings().removeClass("hover");
+            $(".service-num-list li").each(function(){
+                if($(this).hasClass("hover")){
+                    TypeNum = $(this).html();
+                    $(".service-num span").html(TypeNum);
+                    $(".service-num span").css({"color":"#4d4d4d"})
+                }
+            });
+            $(".service-num-list").hide();
+            if(TypeNum!="1"){
+                $("#Service").show();
+                if(TypeText=="单次服务"){
+                    $(".service-type span").html("请选择");
+                    $(".service-type span").css({"color":"#999999"});
+                }
+                $("#OneTime").parents(".import-list").hide();
+                $(".service-people").parents(".import-list").hide();
+                $("#startTime").parents(".import-list").show();
+                $("#endTime").parents(".import-list").show();
+                for(var i=1;i<=TypeNum;i++){
+                    $("#ServiceList").append("" +
+                            "<li class=\"import-list\">" +
+                            "<span class=\"import-list-title\">第"+i+"次服务时间<em>|</em></span>" +
+                            "<div class=\"placeholder\" id=\"time"+i+"\">请选择</div>" +
+                            "<img src=\"img/arrows.jpg\" alt=\"\">" +
+                            "")
+                }
+            }
+            if(TypeNum=="1"){
+                if(TypeText!="单次服务" || TypeText!=""){
+                    $(".service-type span").html("单次服务");
+                    $(".service-type span").css({"color":"#4d4d4d"});
+                }
+                $("#Service").hide();
+                $("#OneTime").parents(".import-list").show();
+                $(".service-people").parents(".import-list").show();
+                $("#startTime").parents(".import-list").hide();
+                $("#endTime").parents(".import-list").hide();
+            }
+        });
+
+        //选择师傅
+        $(".service-people").click(function(event){
+            event.stopPropagation();
+            $(".service-people-list").show();
+        });
+        $(".service-people-list li").click(function() {
+            var dataValue=$(this).attr("data-value");
+            $("#ServiceList").html("");
+            $(this).addClass("hover").siblings().removeClass("hover");
+            $(".service-people-list li").each(function () {
+                if ($(this).hasClass("hover")) {
+                    TypeNum = $(this).html();
+                    $(".service-people span").html(TypeNum);
+                    $(".service-people span").attr("data-value",dataValue);//获取师傅ID
+                    $(".service-people span").css({"color": "#4d4d4d"})
+                }
+            });
+            $(".service-people-list").hide();
+
+        });
+
+      //点击其他区域隐藏下拉框
+        $(document).click(function(e){
+            var target = $(e.target);
+            if(target.closest(".service-type,service-num,.service-people").length != 0) return;
+            $(".service-type-list").hide();
+            $(".service-num-list").hide();
+            $(".service-people-list").hide();
+
+        });
+
+
+        //选择周期
+        $("#selCycle").click(function(){
+            $(this).toggleClass("hover");
+            if($(this).hasClass("hover")){
+                $(".import-text").val("");
+                $(".import-text").attr("type","hidden");
+            }else{
+                $(".import-text").val("请输入服务周期");
+                $(".import-text").attr("type","text");
+                $(".import-text").css({"color": "#999999"})
+            }
+        });
+
+        function addDate(date,days){
+            var d=new Date(date);
+            d.setDate(d.getDate()+days);
+            var month=d.getMonth()+1;
+            var day = d.getDate();
+            if(month<10){
+                month = "0"+month;
+            }
+            if(day<10){
+                day = "0"+day;
+            }
+            var val = d.getFullYear()+"-"+month+"-"+day;
+            return val;
+        }
+        //选择服务时间
+        $("#ServiceList").on("click",".placeholder",function(){
+            var dataId=$(this).attr("id");
+            var _cycle=$("#Cycle").val();
+            weui.datePicker({
+                start: 2018,
+                end: 2030,
+                cron: '* * *',  // 每逢周日、周六
+                defaultValue: [new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate()],
+                onChange: function(result){
+
+                },
+                onConfirm: function(result){
+                    if(result[1].value<10){
+                        result[1].value = "0"+result[1].value;
+                    }
+                    if(result[2].value<10){
+                        result[2].value = "0"+result[2].value;
+                    }
+                    var dateText=result[0].value+'-'+result[1].value+'-'+result[2].value;
+                    $("#"+dataId+"").html(dateText);
+                    $("#"+dataId+"").css({"color":"#4d4d4d"});
+                    if(dataId=="time1" && _cycle!="" && _cycle!="请填写服务周期" && renewTime == ""){
+                        var firstTime=$("#time1").html();
+                        for(var i=1 ; i<=$("#ServiceList li").length ; i++){
+                            // $("#ServiceList li:eq("+i+") div").removeClass("placeholder");
+                            var num=i*_cycle;
+                            addDate(firstTime,num);
+                            $("#ServiceList li:eq("+i+") div").html(addDate(firstTime,num));
+                            $("#ServiceList li:eq("+i+") div").css({"color":"#4d4d4d"});
+
+                        }
+                    }else if(dataId=="time2" && _cycle!="" && _cycle!="请填写服务周期" && renewTime != ""){
+                        var firstTime=$("#time2").html();
+                        for(var i=2 ; i<=$("#ServiceList li").length ; i++){
+                            // $("#ServiceList li:eq("+i+") div").removeClass("placeholder");
+                            var num=(i-1)*_cycle;
+                            addDate(firstTime,num);
+                            $("#ServiceList li:eq("+i+") div").html(addDate(firstTime,num));
+                            $("#ServiceList li:eq("+i+") div").css({"color":"#4d4d4d"});
+
+                        }
+                    }
+                },
+                id: 'datePicker'
+            });
+        });
+
+
+        //输入服务费用
+        $(".cost-price").click(function(){
+            var $this = $(this);
+            $(this).attr("placeholder","");
+            $(this).css({"color":"red","font-size":"20px","height":"auto","width":"0"})
+            $(this).siblings("i").css({"color":"red","font-size":"20px"});
+            $this.get(0).addEventListener("input",function(o){
+                var text_length = $this.val().length;//获取当前文本框的长度
+                var current_width = parseInt(text_length) *12;//该16是改变前的宽度除以当前字符串的长度,算出每个字符的长度
+                $this.css("width",current_width+"px");
+            })
+        });
+
+        //取消确定切换
+        $(".button a").click(function(){
+            $(this).addClass("hover").siblings().removeClass("hover");
+
+        });
+
+
+        //取消
+        $("#cancel").click(function(){
+            location.reload();
+        });
+
+
+        //确定
+        $("#ok").click(function(){
+            var type=$(".service-type span").html();//服务类型
+            var num=$(".service-num span").html();//服务次数
+            var start_time= $('#startTime').html();//单次服务起始时间
+            var end_time= $('#endTime').html();//单次服务结束时间
+            var one_time= $('#OneTime').html();//非单次服务时间
+//            var people= $('#people').html();//非单次服务人员
+            var people= $('#people').attr("data-value");//非单次服务人员
+            var cycle=$("#Cycle").val();//周期
+            var numText=$("#numText").val();//周期
+            var price=$("#price").val();//服务费用
+            var time=new Array();//非单次服务时间
+            var index=$("#ServiceList li").length;
+            var _cycle=$("#selCycle").hasClass("hover");
+            var _start_time = new Date(start_time.replace("-", "/").replace("-", "/"));
+            var _end_time = new Date(end_time.replace("-", "/").replace("-", "/"));
+            if(type=='' || type=="请选择"){
+                $(".service-type span").css({"color":"red"});
+                return false;
+            }
+
+
+            if(num=='' || num=="请选择"){
+                $(".service-num span").css({"color":"red"});
+                return false;
+            }
+
+
+            if(type=="单次服务"){
+                if(one_time=='' || one_time=="请选择"){
+                    $("#OneTime").css({"color":"red"});
+                    return false;
+                }
+                if(people=='' || people=="请选择"){
+                    $('#people').css({"color":"red"});
+                    return false;
+                }
+            }else{
+                if(start_time=='' || start_time=="请选择"){
+                    $("#startTime").css({"color":"red"});
+                    return false;
+                }
+                if(end_time=='' || end_time=="请选择"){
+                    $("#endTime").css({"color":"red"});
+                    return false;
+                }
+                if(!_cycle){
+                    if(cycle=='' || cycle=="填写服务周期"){
+                        $("#Cycle").parents(".import-list").addClass("price-warn");
+                        return false;
+                    }
+                }
+                if (_start_time > _end_time) {
+                    // alert("服务终止时间不能小于起始时间");
+                    $(".warn-body").show();
+                    $("body").css({"overflow":"hidden"});
+                    $(".warn-body span").html("服务终止时间不能小于起始时间");
+                    return false;
+                }
+
+//                console.log(index);
+                for(var i=0;i<index-1;i++) {
+                    var j = i + 1;
+                    var val = $("#ServiceList li:eq(" + i + ")").find("div").html();
+                    var preTime = $("#ServiceList li:eq(" + i + ")").find("div").html();
+                    var nextTime = $("#ServiceList li:eq(" + j + ")").find("div").html();
+                    var lastTime = $("#ServiceList li:eq(" + (index - 1) + ")").find("div").html();
+                    var FirstTime = $("#ServiceList li:eq(0)").find("div").html();
+                    var _preTime = new Date(preTime.replace("-", "/").replace("-", "/"));
+                    var _nextTime = new Date(nextTime.replace("-", "/").replace("-", "/"));
+                    var _lastTime = new Date(lastTime.replace("-", "/").replace("-", "/"));
+                    var _FirstTime = new Date(FirstTime.replace("-", "/").replace("-", "/"));
+                    time[i] = val;
+
+                    if (val == "" || val == "请选择") {
+                        $("#ServiceList li:eq(" + i + ")").find("div").css({"color": "red"});
+                        return false;
+                    }
+                    if (_nextTime < _preTime) {
+                        $(".warn-body").show();
+                        $("body").css({"overflow": "hidden"});
+                        $(".warn-body span").html("第" + (j + 1) + "次服务时间不能小于第" + (i + 1) + "次");
+                        // alert("第"+(j+1)+"次服务时间不能小于第"+(i+1)+"次");
+                        return false;
+                    }
+                }
+                time[index-1] = lastTime;
+//
+                if(_FirstTime < _start_time){
+                    $(".warn-body").show();
+                    $(".warn-body span").html("第一次服务时间不能小于服务起始时间");
+                    $("body").css({"overflow":"hidden"});
+                    // alert("第一次服务时间不能小于服务起始时间");
+                    return false;
+                }
+                if(_lastTime > _end_time){
+                    $(".warn-body").show();
+                    $(".warn-body span").html("服务周期超出服务终止时间");
+                    $("body").css({"overflow":"hidden"});
+                    // alert("服务周期超出服务终止时间");
+                    return false;
+
+                }
+            }
+
+            if(price=='' || price=="请选择"){
+                $('.import-price').addClass("price-warn");
+                return false;
+            }
+
+            var loading = weui.loading('正在更新订单信息');
+            $.post("{:U('Enterprise/DistributionSupervisor/orderSetSuccess')}",{id:orderId,type:type,num:num,start_time:start_time,end_time:end_time,one_time:one_time,people:people,cycle:cycle,price:price,service_num:numText,time:time},function(res){
+
+                if(res.status == 1){
+                    loading.hide();
+
+                        window.location.href="/index.php?s=/Enterprise/DistributionSupervisor/orderDetail/order_id/"+res.data+"/type/2/fid/"+fid+"";
+//                        window.location.href="{:U('Enterprise/distribution_supervisor/showCleanKillYearOrder/order_id/"+res.data+"')}";
+                }else{
+                    loading.hide();
+                    if(res.msg){
+                        weui.alert(res.msg);
+                    }
+                    weui.alert('接单失败，请刷新再试！');
+                }
+            },'json');
+
+        });
+
+
+        //编辑时将数据展示页面
+        if(orderUpdateData){
+
+            //1-季服务，2-半年服务，3-一年服务
+            if(orderUpdateData.type){
+
+                if(orderUpdateData.type==1){
+                    $(".service-type span").html('季服务');
+                    $(".service-type span").css({"color":"#4d4d4d"});
+                }else if(orderUpdateData.type==2){
+                    $(".service-type span").html('半年服务');
+                    $(".service-type span").css({"color":"#4d4d4d"});
+                }else if(orderUpdateData.type==3){
+                    $(".service-type span").html('一年服务');
+                    $(".service-type span").css({"color":"#4d4d4d"});
+                }
+            }
+
+            //起始时间 结束时间
+            if(orderUpdateData.start_time && orderUpdateData.end_time){
+                $("#startTime").html(orderUpdateData.start_time);
+                $('#startTime').css({"color":"#4d4d4d"});
+                $("#endTime").html(orderUpdateData.end_time);
+                $('#endTime').css({"color":"#4d4d4d"});
+            }
+
+            //服务周期
+            if(orderUpdateData.cycle && orderUpdateData.cycle != 0){
+                $("#Cycle").val(orderUpdateData.cycle);
+            }else{
+                $("#selCycle").toggleClass("hover");
+            }
+
+            //服务次数
+            if(orderUpdateData.service_num_total){
+                $("#numText").val(orderUpdateData.service_num_total);
+                textChange(orderUpdateData.serviceTime);
+            }
+
+            //服务费用价格
+            if(orderUpdateData.money_total){
+                $("#price").val(orderUpdateData.money_total);
+//                $(".cost-price").attr("placeholder","");
+//                $(".cost-price").css({"color":"red","font-size":"20px","height":"auto","width":"0"})
+//                $(".cost-price").siblings("i").css({"color":"red","font-size":"20px"});
+//                $(".cost-price").get(0).addEventListener("input",function(o) {
+//                    var text_length = $(".cost-price").val().length;//获取当前文本框的长度
+//                    var current_width = parseInt(text_length) * 12;//该16是改变前的宽度除以当前字符串的长度,算出每个字符的长度
+//                    $(".cost-price").css("width", current_width + "px");
+//                });
+            }
+
+        }
+    });
+
+    $(".warn-body a").click(function(){
+        $(".warn-body").hide();
+        $("body").css({"overflow":"auto"});
+    })
+</script>
+<script>
+
+    //updateData修改时 显示页面使用
+    function textChange(updateData){
+
+        var renewTime = $('#renewId').val();
+
+        $("#ServiceList").html("");
+        $(this).addClass("hover").siblings().removeClass("hover");
+
+        var numVal = $("#numText").val();
+        var type = $(".service-type span").html();
+        $(".service-num span").html(numVal);
+        $(".service-num span").css({"color":"#4d4d4d"});
+        $(".service-num-list").hide();
+
+        if(numVal!="1"){
+
+            if(type=="单次服务"){
+                $("#numText").val(1);
+                $(".service-num span").val(1);
+
+                return;
+//                $(".service-type span").html("请选择");
+//                $(".service-type span").css({"color":"#999999"});
+            }
+
+            $("#Service").show();
+            $("#OneTime").parents(".import-list").hide();
+            $(".service-people").parents(".import-list").hide();
+            $("#startTime").parents(".import-list").show();
+            $("#endTime").parents(".import-list").show();
+
+            //编辑时使用
+            if(updateData){
+                console.log(updateData);
+
+                for(var temp=0;temp<=(updateData.length)-1;temp++){
+
+                    if(renewTime && temp==0){
+                        $("#ServiceList").append("" +
+                                "<li class=\"import-list\">" +
+                                "<span class=\"import-list-title\">第"+updateData[temp].service_num+"次服务时间<em>|</em></span>" +
+                                "<div class=\"placeholder\" id=\"time"+updateData[temp].service_num+"\">"+updateData[temp].service_time+"</div>" +
+                                "<img src=\"/Public/wechat/i/arrows.jpg\" alt=\"\">" +
+                                "");
+                        $('#time1').html(renewTime);
+                        document.getElementById('time1').disabled=true;
+                    }else{
+                        $("#ServiceList").append("" +
+                                "<li class=\"import-list\">" +
+                                "<span class=\"import-list-title\">第"+updateData[temp].service_num+"次服务时间<em>|</em></span>" +
+                                "<div class=\"placeholder\" id=\"time"+updateData[temp].service_num+"\">"+updateData[temp].service_time+"</div>" +
+                                "<img src=\"/Public/wechat/i/arrows.jpg\" alt=\"\">" +
+                                "");
+                        $("#time"+updateData[temp].service_num).css({"color":"#4d4d4d"});
+                    }
+                }
+            }else{
+                for(var i=1;i<=numVal;i++){
+
+                    if(renewTime && i==1){
+                        $("#ServiceList").append("" +
+                                "<li class=\"import-list\">" +
+                                "<span class=\"import-list-title\">第"+i+"次服务时间<em>|</em></span>" +
+                                "<div class=\"placeholder\" id=\"time"+i+"\">请选择</div>" +
+                                "<img src=\"/Public/wechat/i/arrows.jpg\" alt=\"\">" +
+                                "");
+
+                        $('#time1').html(renewTime);
+                        document.getElementById('time1').disabled=true;
+                    }else{
+                        $("#ServiceList").append("" +
+                                "<li class=\"import-list\">" +
+                                "<span class=\"import-list-title\">第"+i+"次服务时间<em>|</em></span>" +
+                                "<div class=\"placeholder\" id=\"time"+i+"\">请选择</div>" +
+                                "<img src=\"/Public/wechat/i/arrows.jpg\" alt=\"\">" +
+                                "");
+                    }
+                }
+            }
+
+        }
+        if(numVal=="1"){
+            $("#Service").hide();
+            $("#OneTime").parents(".import-list").show();
+            $(".service-people").parents(".import-list").show();
+            $("#startTime").parents(".import-list").hide();
+            $("#endTime").parents(".import-list").hide();
+        }
+    }
+</script>
+</body>
+</html>

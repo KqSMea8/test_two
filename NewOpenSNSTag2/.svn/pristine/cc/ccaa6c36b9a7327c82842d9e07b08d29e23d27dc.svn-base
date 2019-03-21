@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.qrcode.min.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script>
+        (function(){
+            orderId = null;
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .cancelOrderClass{padding: 0.8rem 0.5rem .1rem;line-height:0.1rem;font-weight: bold;}
+        .weui-cells{text-align: left;}
+        .weui-dialog{width:65%;}
+    </style>
+</head>
+<body>
+<div id="server" style="display: none;">
+    <div class="kefuLayer">
+        <div style="top: 30%;height: 19rem;" class="kefuWarp">
+            <h3 class="title">客服中心</h3>
+            <p class="tip">客服电话：<img style="width: 0.6rem;height: 0.6rem;" src="/Public/images/bphoneIcon.png" /><a href="tel:18810250371">18810250371</a></p>
+            <p class="tip" style="height: 10.2rem;">在线客服：<img style="width: 100%;" src="/Public/images/service.png" /><p style="text-align: center;font-size: 0.68rem;color: #666666;">长按添加客服微信</p></p>
+            <a href="javascript:;" onclick="hideTheDialog('server')" style="margin-top: 1rem;" class="btn">关闭</a>
+        </div>
+    </div>
+</div>
+<div class="orderDetail" style="padding-top:0.7rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">订单编号：</span><div class="con">{$orderData.order_code}</div></li>
+        <li><span class="title">订单状态：</span> <div class="con cor_red" style="font-weight:bold;">{$orderData.order_state_text}</div></li>
+        <li><span class="title">下单时间：</span><div class="con">{$orderData.create_time}</div></li>
+    </ul>
+</div>
+<php>if($orderData['order_state_text']!="派单中" && $orderData['order_state_text']!="已取消" && !empty($orderData['name'])){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">师傅名称：</span><div class="con">{$orderData.name}</div></li>
+        <li><span class="title">师傅编号：</span><div class="con">{$orderData.uid}</div></li>
+        <php>if($orderData['order_state_text']!="已完成"){</php>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.phone}<a href="tel:{$orderData.phone}"><i class="phoneIcon"></i></a></div></li>
+        <php>}</php>
+    </ul>
+</div>
+<php>}</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if($orderData['is_ka']){</php>
+            <li><span class="title">企业名称：</span><div class="con">{$orderData.enterprise_name}</div></li>
+            <li><span class="title">门店名称：</span><div class="con">{$orderData.store_name}</div></li>
+            <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}else{</php>
+            <li><span class="title">预约门店：</span><div class="con">{$orderData.store_name}</div></li>
+            <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}</php>
+        <li><span class="title">联&nbsp;系&nbsp;人&nbsp;：</span><div class="con">{$orderData.link_person}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.link_phone}</div></li>
+        <php>if($orderData['fixed_line']!=""){</php>
+            <li><span class="title">固&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</span><div class="con">{$orderData.fixed_line}</div></li>
+        <php>}</php>
+        <li><span class="title">设备名称：</span><div class="con">{$orderData.equipment_name}</div></li>
+        <li><span class="title">设备品牌：</span><div class="con">{$orderData.brands_text}</div></li>
+        <li><span class="title">故障现象：</span><div class="con">{$orderData.malfunction_text}</div></li>
+        <li><span class="title">订单级别：</span><div class="con">{$orderData.urgent_level_text}</div></li>
+        <php>if($orderData['order_state_text']=="已取消"){</php>
+        <li><span class="title">取消原因：</span><div class="con">{$orderData.cancel_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['is_sh']==1){</php>
+        <li><span class="title">售后原因：</span><div class="con">{$orderData.after_sale_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['is_sh']!=1){</php>
+        <li class="weui-uploader__files">
+            <span class="title">设备图片：</span>
+            <div class="machineImgWarp">
+                <notempty name="imgData">
+                    <volist name="imgData" id="data">
+                        <div class="oneImg">
+                            <php>$data['path'] = ltrim($data['path'],'.');</php>
+                            <img class="weui-uploader__file" src="{$data.path}"/>
+                        </div>
+                    </volist>
+                </notempty>
+            </div>
+        </li>
+        <php>}</php>
+    </ul>
+</div>
+<php>if($orderData['order_state']!=5 && ($orderData['order_state_text']=="待支付" || $orderData['order_state_text']=="已完成" || $orderData['order_state_text']=="待验收")){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if(empty($orderData['change_parts_text'])){</php>
+        <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">未更换</div></li>
+        <php>}else{</php>
+        <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">{$orderData.change_parts_text}</div></li>
+        <php>}</php>
+        <li><span class="title"><b>配件费用：</b></span><div class="con cor_red">{$orderData.parts_price}元</div></li>
+        <li><span class="title"><b>检&nbsp;&nbsp;测&nbsp;&nbsp;费：</b></span><div class="con cor_red">{$orderData.door_price}元</div></li>
+        <li><span class="title"><b>维&nbsp;&nbsp;修&nbsp;&nbsp;费：</b></span><div class="con cor_red">{$orderData.service_price}元</div></li>
+        <li><span class="title"><b>总&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;计：</b></span><div class="con cor_red">{$orderData.money_total}元</div></li>
+    </ul>
+</div>
+<php>}</php>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp twoBtn">
+        <a href="javascript:;" onclick="connectServer()" class="centerBtn">联系客服</a>
+</div>
+
+</body>
+</html>
+<script>
+
+    function connectServer(){
+        $("#server").show()
+    }
+    function hideTheDialog(id){
+        $("#"+id+"").hide()
+    }
+
+    //验收完毕
+</script>
+<script type="text/javascript">
+
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+       weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+</script>

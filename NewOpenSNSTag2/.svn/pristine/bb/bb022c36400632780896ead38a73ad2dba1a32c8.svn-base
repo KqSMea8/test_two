@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>{$info.typeNewName}</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+	  <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<style>
+    img{
+        width: 100%;
+        height: 100%;
+    }
+</style>
+<body>
+<div class="questionWarp" style="padding: 0px">
+    <div class="questionWarpCon">
+        <div class="questionOne">
+            <div class="questionCon">{$info.content}</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

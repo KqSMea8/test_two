@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <style>
+        .receiptInfoWarp li{margin-bottom:1rem;}
+        .centerBtnWarp{
+            left: 0.1rem;
+        }
+        .weui-uploader__file{
+            width: 3rem;
+            height: 3rem;
+        }
+        .weui-media-box__desc{
+             -webkit-line-clamp: 3;
+        }
+    </style>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+
+<div class="receiptInfoWarp" style="padding-top:1rem;margin-bottom: 3.3rem">
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单编号:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.child_order_code}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">下单时间:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.create_time}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">工单状态:</label></div>
+            <div class="weui-cell__bd" style="color:red;">
+                {$childInfo.status_text}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预约门店:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.storeName}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">详细地址:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.stores_address}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系人:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.storePerson}
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+            <div class="weui-cell__bd">
+                <a href="tel:{$childInfo.storePhone}">{$childInfo.storePhone}</a>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">服务商:</label></div>
+            <div class="weui-cell__bd">
+                {$childInfo.fName}
+            </div>
+        </div>
+        <if condition="$isSource eq 'master'">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">巡检主管:</label></div>
+                <div class="weui-cell__bd">
+                    {$childInfo.supervisorName}
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+                <div class="weui-cell__bd">
+                    <a href="tel:{$childInfo.supervisorPhone}">{$childInfo.supervisorPhone}</a>
+                </div>
+            </div>
+        </if>
+        <if condition="$childInfo['isNoMaster'] neq 0">
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">巡检员:</label></div>
+                <div class="weui-cell__bd">
+                    {$childInfo.mentorName}
+                </div>
+            </div>
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+                <div class="weui-cell__bd">
+                    <a href="tel:{$childInfo.mentorPhone}">{$childInfo.mentorPhone}</a>
+                </div>
+            </div>
+        </if>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">本次服务:</label></div>
+            <div class="weui-cell__bd" style="color: red;">
+                第{$childInfo.service_num}次服务
+            </div>
+        </div>
+
+        <if condition="$requirementsStatus eq 1">
+            <if condition="$picNum lt 1">
+                <div style="background-color: #f8f8f8;width: 100%;height: 4rem;border-radius: 0.8rem;border: 1px solid #ffea10;">
+            <elseif condition="$picNum lt 4"/>
+                <div style="background-color: #f8f8f8;width: 100%;height: 8rem;border-radius: 0.8rem;border: 1px solid #ffea10;">
+            <else />
+                <div style="background-color: #f8f8f8;width: 100%;height: 12rem;border-radius: 0.8rem;border: 1px solid #ffea10;">
+            </if>
+            <div class="weui-panel__bd" >
+                <div class="weui-media-box weui-media-box_text">
+                    <h4 class="weui-media-box__title" style="color: #333333;">巡检需求:</h4>
+                    <p class="weui-media-box__desc" style="color: #333333;font-size: 0.55rem;">{$childInfo.requirements_text}</p>
+                </div>
+            </div>
+            <li class="weui-uploader__files picData" style="padding-top: 0.3rem;padding-left: 0.6rem;">
+                <div class="machineImgWarp">
+                    <notempty name="pic">
+                        <volist name="pic" id="data" key="k">
+                            <div class="oneImg">
+                                <if condition="$k eq 3 OR $k eq 6">
+                                    <img class="weui-uploader__file" src="{$data.path}"/>
+                                <else />
+                                    <img class="weui-uploader__file" style="margin-right: 30px;" src="{$data.path}"/>
+                                </if>
+                            </div>
+                        </volist>
+                    </notempty>
+                </div>
+            </li>
+        </if>
+    </div>
+    <!--订单状态开始巡检后，就不展示按钮。目前展示页面，直接展示即可-->
+    <if condition="$childInfo['status'] lt 5">
+        <div class="centerBtnWarp">
+            <a href="javascript:;" onclick="skipInspectionRequirements()" class="centerBtn">提巡检需求</a>
+        </div>
+    </if>
+ <!--   <if condition="$childInfo['status'] eq 1">
+        <div class="centerBtnWarp">
+            <a href="javascript:;" onclick="disributeInspectionOrder()" class="centerBtn">分配任务</a>
+        </div>
+    </if>
+    <if condition="($childInfo['status'] eq 2) or ($childInfo['status'] eq 3)">
+        <div class="centerBtnWarp">
+            <a href="javascript:;" onclick="disributeInspectionOrder()" class="centerBtn">重新分配</a>
+        </div>
+    </if>
+-->
+</div>
+</body>
+<script>
+    $(function(){
+        inspectionChildId = "{$childInfo['inspection_store_child_id']}";
+    });
+
+//    分配任务
+    function disributeInspectionOrder(){
+
+        var url = "/index.php?s=/enterprise/distribution_supervisor/distributeInspectionOrder/inspection_store_child_id/"+inspectionChildId;
+        window.location.href = url;
+    }
+
+    //跳转巡检需求页面
+    function skipInspectionRequirements(){
+        var url = "/index.php?s=/wechat/index/storeInspectionRequirements/inspectionChildId/"+inspectionChildId;
+        window.location.href = url;
+    }
+</script>
+<script type="text/javascript">
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+        var url = target.getAttribute('src') || '';
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+</script>
+
+</html>

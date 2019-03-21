@@ -1,0 +1,280 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 15-4-28
+ * Time: 上午11:30
+ * @author 郑钟良<zzl@ourstu.com>
+ */
+
+namespace Wechat\Controller;
+use Think\Controller;
+use Think\Log;
+use Wechat\Model\WechatAddressModel;
+use Wechat\Model\WechatKaStoresModel;
+use Wechat\Model\WechatMemberModel;
+use Wechat\Service\WechatService;
+
+class BindstoreController extends Controller{
+
+    private $appId;
+    private $appSecret;
+    private $token;
+    private $WechatService;
+    private $WechatMemberModel;
+    private $WechatKaStoresModel;
+    private $WechatAddressModel;
+
+
+    function _initialize()
+    {
+        $this->appId = WECHAT_APPID;
+        $this->appSecret = WECHAT_APPSECRET;
+        $this->token = WECHAT_TOKEN;
+
+        $this->WechatService = new WechatService();
+        $this->WechatMemberModel = new WechatMemberModel();
+        $this->WechatKaStoresModel = new WechatKaStoresModel();
+        $this->WechatAddressModel = new WechatAddressModel();
+
+    }
+    /**
+     * 使用openId作为用户登录的标记
+     */
+    private function isSubscribe(){
+
+        $wechatService = new WechatService();
+        if (empty($_REQUEST['code']))
+        {
+            $url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+            $url = $wechatService->getSNSOauthUrl($url);
+            header("Location:" . $url);
+            die;
+        }
+
+        $accessTokenData = $wechatService->getSNSAccessToken($_GET["code"]);
+        $accessTokenData = json_decode($accessTokenData, true);
+
+        $openId = $accessTokenData['openid'];
+//        $openId = 'o3-pW0223YEu_MA0pt6agnqgzn2g';
+        if($accessTokenData['errcode'] && session("openId")){
+            $openId = session("openId");
+        }
+        //通过openId获取用户信息，如果subscribe为0，则让用户先关注
+        $userInfo = $wechatService->getUserInfo($openId);
+        if($userInfo['subscribe'] == 0){
+            $this->redirect('subscribe');
+        }
+        //1.通过openId查询是否已存在该用户
+        $mem = (new WechatMemberModel())->where(['open_id'=>$openId])->find();
+
+        //验证用户是否已注册 如果没有跳转关注页面
+        if(empty($mem)){
+            $this->redirect('subscribe');
+        }else{
+            session("memberInfo",$mem);
+        }
+    }
+
+    public function subscribe(){
+
+        //判断是否为真实环境
+        $this->assign('type',ENVIRONMENTSTATUS == 'Ceshi' ? 1 : 2);
+        $this->display("Bindstore/subscribe");
+    }
+    /**
+     * 扫码首页
+     * @return mixed
+     */
+    public function index(){
+        //是否关注
+        $memberInfo = session("memberInfo");
+        if(empty($memberInfo)){
+
+            $this->isSubscribe();
+            $memberInfo = session("memberInfo");
+        }
+        //获取请求的门店id
+        $store_id = I("store_id");
+        $where['store.id'] = $store_id;
+        $field = "store.*,popedom.popedom_name,street.street_name,tenement.tenement_name";
+        $storeInfo = $this->WechatKaStoresModel->getStoreInfo($where,$field);
+        @file_put_contents("huangqing.log","用户信息：".json_encode($memberInfo)."\r\n",FILE_APPEND);
+        $storeInfo['is_bind'] = 0;
+        $storeInfo['member_id'] = $memberInfo['uid'];
+        $storeInfo['store_id'] = $store_id;
+        //验证用户是否已绑定该门店--获取地址信息
+        $addWhere['status'] = 1;
+        $addWhere['member_id'] = $memberInfo['uid'];
+        $addWhere['store_id'] = $store_id;
+        $addInfo = $this->WechatAddressModel->where($addWhere)->find();
+        $loadtionAdd = $loadtionLatng = "";
+        if(!empty($addInfo)){
+            //地址信息不为空说明已绑定门店
+            $loadtionAdd = $addInfo['location_address'];
+            $loadtionLatng = $addInfo['latng'];
+            $storeInfo['is_bind'] = 1;
+        }
+        //接收地址定位信息
+        $storeInfo['location_address'] = I("addr") ? I("addr") : $loadtionAdd;
+        $storeInfo['latng'] = I("latng") ? I("latng") : $loadtionLatng;
+        $this->assign('storeInfo',$storeInfo);
+        $this->display("Bindstore/index");
+    }
+
+    /**
+     * 绑定门店
+     */
+    public function bindStore(){
+        //获取用户信息
+        $memberInfo = session("memberInfo");
+        //验证该门店是否已被他人绑定
+        $store_id = I('store_id');
+        $store_name = I('store_name');
+        $memWhere['status'] = 1;
+        $memWhere['store_id'] = $store_id;
+        $memberStore = $this->WechatAddressModel->where($memWhere)->find();
+        if(empty($memberStore)){
+            //获取参数
+            $addressModel = new WechatAddressModel();
+            $addressData['store_name'] = $store_name;
+            $addressData['latng'] = I('latng');
+            $addressData['location_address'] = I('location_address');
+            $addressData['province_id'] = I('province');
+            $addressData['city_id'] = I('city');
+            $addressData['detail_address'] = I('detail_address');
+            $addressData['link_person'] = I('link_person');
+            $addressData['link_phone'] = I('link_phone');
+            $addressData['member_id'] = $memberInfo['uid'];
+            $addressData['store_id'] = $store_id;
+            $addressData['create_time'] = $addressData['update_time'] = date("Y-m-d H:i:s");
+            $addressModel->add($addressData);
+            //给用户发送绑定成功提醒
+            $openId = $memberInfo['open_id'];
+            $first = "您好，您扫码绑定的门店【".$store_name."】已绑定成功，请知悉。";
+            $url = host_url."/Wechat/Index/addressList";
+            (new WechatService())->sendBindStoreMsg($openId,$first,"门店绑定成功","点击查看门店信息",$url);
+            $msg = "门店绑定成功，可在我的【门店管理】中查看已绑定门店信息";
+        }else{
+
+            $memOldWhere['uid'] = $memberStore['member_id'];
+            $oldMemberInfo = $this->WechatMemberModel->where($memOldWhere)->find();
+            //获取参数，如果已经申请过则不添加地址信息
+            $newMemWhere['store_id'] = $store_id;
+            $newMemWhere['member_id'] = $memberInfo['uid'];
+            $newMemWhere['status'] = 2;
+            $newMemData = $this->WechatAddressModel->where($newMemWhere)->find();
+            if(empty($newMemData)){
+                $addressData['store_name'] = $store_name;
+                $addressData['latng'] = I('latng');
+                $addressData['location_address'] = I('location_address');
+                $addressData['province_id'] = I('province');
+                $addressData['city_id'] = I('city');
+                $addressData['detail_address'] = I('detail_address');
+                $addressData['link_person'] = I('link_person');
+                $addressData['link_phone'] = I('link_phone');
+                $addressData['member_id'] = $memberInfo['uid'];
+                $addressData['store_id'] = $store_id;
+                $addressData['status'] = 2;//添加一个禁用的门店
+                $addressData['create_time'] = $addressData['update_time'] = date("Y-m-d H:i:s");
+                $this->WechatAddressModel->add($addressData);
+            }
+            //给已绑定的用户发送同意提醒
+            $openId = $oldMemberInfo['open_id'];
+            $first = "您好，您已绑定的门店【".$store_name."】，被另一位用户申请绑定，由于每个门店只能绑定一人，如您同意，对方绑定成功，您与门店将自动解绑，请知悉。";
+            $url = host_url."/Wechat/bindstore/changeBind/store_id/".$store_id."/member_id/".$memberInfo['uid'];
+            (new WechatService())->sendBindStoreMsg($openId,$first,"门店绑定提醒","点击查看门店信息",$url);
+            $msg = "您好，该门店已被绑定，本次绑定需要原绑定人同意，请等待原绑定人操作结果";
+        }
+        $this->ajaxReturn(['status'=>1,'msg'=>$msg]);
+    }
+
+    /**
+     * 同意换绑
+     */
+    public function changeBind(){
+        //是否关注
+        $memberInfo = session("memberInfo");
+        if(empty($memberInfo)){
+
+            $this->isSubscribe();
+            $memberInfo = session("memberInfo");
+        }
+        //获取请求的门店id
+        $store_id = I("store_id");
+        //验证改用户是否绑定该门店
+        $addWhere['status'] = 1;
+        $addWhere['store_id'] = $store_id;
+        $addWhere['member_id'] = $memberInfo['uid'];
+        $bindAddData = $this->WechatAddressModel->where($addWhere)->find();
+        if(empty($bindAddData)){
+            $this->assign('storeInfo',[]);
+        }else{
+            //获取绑定门店信息
+            $where['store.id'] = $store_id;
+            $field = "store.*,popedom.popedom_name,street.street_name,tenement.tenement_name";
+            $storeInfo = $this->WechatKaStoresModel->getStoreInfo($where,$field);
+            $storeInfo['member_id'] = $memberInfo['uid'];
+            $storeInfo['store_id'] = $store_id;
+            $storeInfo['new_member_id'] = I('member_id');
+            //获取新用户绑定的门店信息
+            $addressWhere['store_id'] = $store_id;
+            $addressWhere['member_id'] = I('member_id');
+            $addressWhere['status'] = 2;
+            $addressInfo = $this->WechatAddressModel->where($addressWhere)->find();
+            $storeInfo['location_address'] = $addressInfo['location_address'];
+            $this->assign('storeInfo',$storeInfo);
+        }
+        $this->display("Bindstore/changeBind");
+    }
+
+    /**
+     * 换绑门店
+     */
+    public function isAgreeBindStore(){
+        $is_agree = I("is_agree");
+        $store_id = I("store_id");
+        $member_id = I("member_id");
+        $new_member_id = I("new_member_id");
+        $storeWhere['id'] = $store_id;
+        $storeInfo = $this->WechatKaStoresModel->where($storeWhere)->find();
+        $memWhere['uid'] = $new_member_id;
+        $newMemberInfo = $this->WechatMemberModel->where($memWhere)->find();
+        if($is_agree == 1){
+            //同意，则禁用旧用户绑定的门店，启用新用户绑定的门店
+            $addData['store_id'] = $store_id;
+            $addData['member_id'] = $member_id;
+            $addData['status'] = 2;
+            $addWhere['store_id'] = $store_id;
+            $addWhere['member_id'] = $member_id;
+            $addWhere['status'] = 1;
+            $this->WechatAddressModel->where($addWhere)->save($addData);
+            $addNewData['store_id'] = $store_id;
+            $addNewData['member_id'] = $new_member_id;
+            $addNewData['status'] = 1;
+            $addNewWhere['store_id'] = $store_id;
+            $addNewWhere['member_id'] = $new_member_id;
+            $addNewWhere['status'] = 2;
+            $this->WechatAddressModel->where($addNewWhere)->save($addNewData);
+            //给用户发送绑定成功提醒
+            $openId = $newMemberInfo['open_id'];
+            $first = "您好，您扫码绑定的门店【".$storeInfo['name']."】已绑定成功，请知悉。";
+            $url = host_url."/Wechat/Index/addressList";
+            (new WechatService())->sendBindStoreMsg($openId,$first,"门店绑定成功","点击查看门店信息",$url);
+            $msg = "您好，您已解绑成功";
+        }else{
+            //不同意，则通知新用户绑定失败
+            $addNewWhere['store_id'] = $store_id;
+            $addNewWhere['member_id'] = $new_member_id;
+            $addNewWhere['status'] = 2;
+            $this->WechatAddressModel->where($addNewWhere)->delete();
+            //给用户发送绑定失败提醒
+            $openId = $newMemberInfo['open_id'];
+            $first = "您好，您扫码绑定的门店【".$storeInfo['name']."】，由于原绑定人不同意，导致绑定失败，请知悉。";
+            $url = "";
+            (new WechatService())->sendBindStoreMsg($openId,$first,"门店绑定失败","",$url);
+            $msg = "您好，已通知对方您不同意解绑门店";
+        }
+        $this->ajaxReturn(['status'=>1,'msg'=>$msg]);
+    }
+}

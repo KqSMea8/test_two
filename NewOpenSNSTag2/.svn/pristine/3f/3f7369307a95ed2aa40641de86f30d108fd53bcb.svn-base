@@ -1,0 +1,82 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 15-4-28
+ * Time: 上午11:30
+ * @author 郑钟良<zzl@ourstu.com>
+ */
+
+namespace Enterprise\Controller;
+use Enterprise\Service\EnterpriseService;
+use Enterprise\Service\InspectionService;
+use Think\Controller;
+use think\Cache;
+use Wechat\Model\WechatFacilitatorModel;
+use Wechat\Model\WechatInspectionModel;
+use Wechat\Model\WechatInspectionStoreChildModel;
+use Wechat\Model\WechatInspectionStoreModel;
+use Wechat\Model\WechatKaEnterpriseModel;
+use Wechat\Model\WechatKaStoresModel;
+use Wechat\Model\WechatMemberModel;
+use Wechat\Model\WechatMemberStoreModel;
+use Wechat\Model\WechatOrderItemModel;
+use Wechat\Model\WechatOrderModel;
+use Wechat\Model\WechatServiceGuidelinesModel;
+use Think\Log;
+use Wechat\Service\WechatPublicOrderService;
+use Wechat\Service\WechatService;
+
+class BusinessExecutiveController extends Controller{
+
+    private $corpID;
+    private $appSecret;
+    private $token;
+    private $encodingAesKey;
+    private $svr;
+    private $WechatServiceGuidelinesModel;
+    private $WechatOrderModel;
+    private $WechatOrderItemModel;
+    private $WechatPublicOrderService;
+    private $WechatService;
+    private $WechatMemberModel;
+    private $WechatFacilitatorModel;
+    private $WechatKaEnterpriseModel;
+    private $WechatKaStoresModel;
+    private $WechatInspectionModel;
+    private $WechatInspectionStoreModel;
+    private $WechatMemberStoreModel;
+    private $inspectionService;
+    private $WechatInspectionStoreChildModel;
+
+
+    function _initialize()
+    {
+        $this->corpID = COMPANY_CORPID;
+        $this->appSecret = COMPANY_CUSTOMER_APPSECRET;
+        $this->token = COMPANY_TOKEN;
+        $this->encodingAesKey = COMPANY_EMCODINGASEKEY; //暂未设置 TODO
+        $this->svr = (new EnterpriseService($this->encodingAesKey,$this->token,$this->corpID,$this->appSecret));
+        $this->inspectionService = (new InspectionService($this->encodingAesKey,$this->token,$this->corpID,$this->appSecret));
+
+//        parent::__construct();
+
+        $this->WechatServiceGuidelinesModel = new WechatServiceGuidelinesModel();
+        $this->WechatOrderModel = new WechatOrderModel();
+        $this->WechatOrderItemModel = new WechatOrderItemModel();
+        $this->WechatPublicOrderService = new WechatPublicOrderService();
+        $this->WechatService = new WechatService();
+        $this->WechatMemberModel = new WechatMemberModel();
+        $this->WechatFacilitatorModel = new WechatFacilitatorModel();
+        $this->WechatKaEnterpriseModel = new WechatKaEnterpriseModel();
+        $this->WechatKaStoresModel = new WechatKaStoresModel();
+        $this->WechatInspectionModel = new WechatInspectionModel();
+        $this->WechatInspectionStoreModel = new WechatInspectionStoreModel();
+        $this->WechatMemberStoreModel = new WechatMemberStoreModel();
+        $this->WechatInspectionStoreChildModel = new WechatInspectionStoreChildModel();
+    }
+
+
+
+
+}

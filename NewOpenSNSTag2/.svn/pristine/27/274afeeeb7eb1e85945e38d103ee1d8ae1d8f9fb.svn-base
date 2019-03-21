@@ -1,0 +1,597 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.qrcode.min.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .locationIcon {
+            display: inline-block;
+            width: 0.8rem;
+            height: 0.8rem;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+            background-size: 0.5rem auto;
+            vertical-align: top;
+        }
+        *{font-family: "Microsoft YaHei"}
+    </style>
+</head>
+<body>
+<div class="orderDetail" style="padding-top:0.7rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">订单编号：</span><div class="con">{$orderData.order_code}</div></li>
+        <li><span class="title">订单状态：</span>
+            <div class="con cor_red" style="font-weight:bold;">
+                <php>if($orderData['order_state']==10){</php>
+                未接单
+                <php>}else{</php>
+                {$orderData.order_state_text}
+                <php>}</php>
+            </div></li>
+        <li><span class="title">下单时间：</span><div class="con">{$orderData.create_time}</div></li>
+        <php>if($orderData['order_state_text']=="已完成"){</php>
+        <li><span class="title">完成时间：</span><div class="con">{$orderData.update_time}</div></li>
+        <php>}</php>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">师傅名称：</span><div class="con">{$orderData.name}</div></li>
+        <li><span class="title">师傅编号：</span><div class="con">{$orderData.uid}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.phone}</div></li>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if($orderData['is_ka']){</php>
+        <li><span class="title">企业名称：</span><div class="con">{$orderData.enterprise_name}</div></li>
+        <li><span class="title">门店名称：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}else{</php>
+        <li><span class="title">预约门店：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.location_name}
+            <php>if(!empty($orderData['latng'])){</php>
+            <i onclick="getNavigation('{$orderData.location_name}','{$orderData.latng}')" class="locationIcon"></i>
+            <php>}</php>
+        </div></li>
+        <li><span class="title">详细地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}</php>
+        <li><span class="title">联系人：</span><div class="con">{$orderData.link_person}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.link_phone}<a href="tel:{$orderData.link_phone}"><i class="phoneIcon"></i></a></div></li>
+        <php>if($orderData['fixed_line']!=""){</php>
+            <li><span class="title">固&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</span><div class="con">{$orderData.fixed_line}<a href="tel:{$orderData.fixed_line}"><i class="phoneIcon"></i></a></div></li>
+        <php>}</php>
+
+        <php>if($orderData['is_year'] == 1 && $orderData['is_main'] == 1){</php>
+        <li><span class="title">服务类别：</span><div class="con">{$orderData.year_service_type}</div></li>
+        <li><span class="title">服务次数：</span><div class="con">{$orderData.service_num_total}</div></li>
+        <li><span class="title">服务起始时间：</span><div class="con">{$orderData.start_time}</div></li>
+        <li><span class="title">服务终止时间：</span><div class="con">{$orderData.end_time}</div></li>
+        <li><span class="title">服务费用(总价)：</span><div class="con">{$orderData.money_total}元</div></li>
+        <php>}elseif($orderData['is_year'] == 1 && $orderData['is_main'] == 0){</php>
+        <li><span class="title">服务类别：</span><div class="con">{$orderData.year_service_type}</div></li>
+        <li><span class="title">服务次数：</span><div class="con">{$orderData.service_num_total}</div></li>
+        <li><span class="title">服务起始时间：</span><div class="con">{$orderData.start_time}</div></li>
+        <li><span class="title">服务终止时间：</span><div class="con">{$orderData.end_time}</div></li>
+        <li><span class="title">本次服务：</span><div class="con">第{$orderData.service_num}次服务</div></li>
+        <li><span class="title">计划服务时间：</span><div class="con">{$orderData.service_time}</div></li>
+        <php>}elseif($orderData['is_year'] == 0 && $orderData['is_main'] == 1 && !empty($orderData['uid'])){</php>
+            <php>if($orderData['is_sh']!=1){</php>
+                <li><span class="title">门店面积：</span><div class="con">{$orderData.store_area}<span class="cell">(单位:平米)</span></div></li>
+                <li><span class="title">门店场景：</span><div class="con">{$orderData.store_scene}</div></li>
+                <li><span class="title">虫害类别：</span><div class="con">{$orderData.insect_species}</div></li>
+                <li><span class="title">发现虫害时间：</span><div class="con">{$orderData.insect_time}</div></li>
+                <li><span class="title">期望服务时间：</span><div class="con">{$orderData.door_time}</div></li>
+                <li><span class="title">约定服务时间：</span><div class="con">{$orderData.appointed_service_time}</div></li>
+                <li><span class="title">服务类别：</span><div class="con">单次</div></li>
+            <php>}</php>
+        <php>}</php>
+        <php>if($orderData['order_state_text']=="已取消"){</php>
+        <li><span class="title">取消原因：</span><div class="con">{$orderData.cancel_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['is_sh']==1){</php>
+        <li><span class="title">售后原因：</span><div class="con">{$orderData.after_sale_text}</div></li>
+        <php>}</php>
+        <li><span class="title">服务费用(总价)：</span><div style="color: #bd362f" class="con">{$orderData.money_total}元</div></li>
+    </ul>
+</div>
+<php>if($orderData['order_state']==8 || ($orderData['order_state']==1 && !empty($orderData['equipment_id']))){</php>
+<div style="margin: 0 0.1rem 0 0.1rem;background-color: #f8f8f8;border: 1px solid #C0C0C0;padding:0.5rem 0 0 0.5rem;">
+    <div class="weui-cell__hd"><label style="float: left;font-size: 0.72rem;color: #999999;">消杀防止建议(选填):</label></div>
+    <div class="weui-cells_form">
+        <textarea style="width: 95%;background-color: #ffffff;margin-top: 0.5rem;padding-right: 0.5rem;border: 1px solid #C0C0C0;" rows="10" maxlength="200" placeholder="请消杀防止建议200字以内" id="malfunction_text"></textarea>
+    </div>
+    <div class="weui-cells_form" id="uploaderBefore">
+        <div style="padding: 0" class="weui-cell">
+            <div class="weui-cell__bd">
+                <div class="weui-uploader">
+                    <div class="weui-uploader__bd">
+                        <ul class="weui-uploader__files" id="uploaderFiles"></ul>
+                        <div class="weui-uploader__input-box" style="background-color: #ffffff">
+                            <input id="uploaderInputBefore" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                        </div>
+                    </div>
+                </div>
+                <div class="weui-uploader__hd">
+                    <p class="weui-uploader__title">(添加图片，最多6张)</p>
+                    <div class="weui-uploader__info"><span id="uploadCountBefore">0</span>/6</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="weui-cells weui-cells_form" id="uploaderAfter">
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <div class="weui-uploader">
+                <div class="weui-uploader__hd">
+                    <p style="float: left;font-size: 0.72rem;color: #999999;">消杀报告<span style="color: #FF0000">(必填)</span>:</p>
+                    <div style="padding-left: 0.5rem;color: #FF0000" class="weui-uploader__info"><span id="uploadCountAfter">0</span>/6</div>
+                </div>
+                <div class="weui-uploader__bd">
+                    <ul class="weui-uploader__files" id="uploaderFilesAfter"></ul>
+                    <div class="weui-uploader__input-box">
+                        <input id="uploaderInputAfter" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<php>}</php>
+<php>if($orderData['order_state']!=1 && $orderData['order_state']!=0 && $orderData['order_state']!=4 && $orderData['order_state']!=10 && $orderData['order_state']!=11 && $orderData['order_state']!=8){</php>
+<php>if(!empty($orderData['malfunction_text']) || !empty($beforeImgData)){</php>
+<div class="weui-uploader__files picData" style="margin: 0 0.2rem 0 0.2rem;background-color: #f8f8f8;border: 1px solid #C0C0C0;padding:0.5rem 0 0 0.5rem;">
+    <div class="weui-cell__hd"><label style="float: left;font-size: 0.72rem;color: #999999;">消杀防止建议:</label></div>
+    <div class="weui-cells_form">
+        <p style="width: 100%;padding: 0.5rem 0 0.5rem 0;height: auto;display: inline-flex;">{$orderData.malfunction_text}</p>
+    </div>
+    <div class="weui-cells_form">
+        <div style="padding: 0 0 0.5rem 0;" class="weui-cell">
+            <div class="weui-cell__bd">
+                <notempty name="beforeImgData">
+                    <volist name="beforeImgData" id="data">
+                        <div class="oneImg">
+                            <php>$data['path'] = ltrim($data['path'],'.');</php>
+                            <img style="border: 2px solid #C0C0C0" class="weui-uploader__file" src="{$data.path}"/>
+                        </div>
+                    </volist>
+                </notempty>
+            </div>
+        </div>
+    </div>
+</div>
+<php>}</php>
+<php>if(!empty($afterImgData)){</php>
+    <div style="padding: 0px 0.25rem 0 0.6rem;" class="weui-uploader__files picData">
+    <div class="weui-cell__hd"><span style="float: left;font-size: 0.72rem;color: #999999;">消杀报告:</span></div>
+    <div class="machineImgWarp">
+        <notempty name="afterImgData">
+            <volist name="afterImgData" id="data">
+                <div class="oneImg">
+                    <php>$data['path'] = ltrim($data['path'],'.');</php>
+                    <img style="border: 2px solid #C0C0C0" class="weui-uploader__file" src="{$data.path}"/>
+                </div>
+            </volist>
+        </notempty>
+    </div>
+</div>
+<php>}</php>
+<php>}</php>
+<div style="height:3.16rem;"></div>
+<php>if($is_enterprise == 1){</php>
+
+<php>}else{</php>
+<php>if($orderData['order_state'] == 10){</php>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="acceptOrder({$orderData.id})" class="centerBtn">接 单</a></div>
+<php>}elseif($orderData['order_state'] == 1){</php>
+    <php>if($orderData['order_state'] == 1 && !empty($orderData['equipment_id'])){</php>
+        <div class="centerBtnWarp"><a href="javascript:;" onclick="cleanKillSuccess('{$orderData.id}')" class="centerBtn">消杀完成</a></div>
+    <php>}else{</php>
+        <div class="centerBtnWarp"><a href="javascript:;" onclick="beginCleanKill('{$orderData.id}','{$orderData.is_ka}','{$orderData.is_year}','{$orderData.is_sh}')" class="centerBtn">开始消杀</a></div>
+    <php>}</php>
+<php>}elseif($orderData['order_state'] == 8){</php>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="cleanKillSuccess('{$orderData.id}')" class="centerBtn">消杀完成</a></div>
+<php>}elseif($orderData['order_state'] == 2 && !$orderData['is_ka']){</php>
+<div class="centerBtnWarp twoBtn">
+    <!--<a href="javascript:;" class="centerBtn fl" onclick=" customerOrder('{$orderData.id}','{$orderData.member_id}')">生成支付二维码</a>-->
+    <a href="javascript:;" class="centerBtn" id="getPaid">生成支付二维码</a>
+</div>
+
+<!--找人代付弹出框-->
+<div class="popPayLayer hide">
+    <div class="codeWarp">
+        <h3>代付人微信扫码支付</h3>
+        <div class="codeImg" id="codeImgId"></div>
+        <img id='imgOne' style="width: 6.0rem;height: 6.0rem;margin-left: 2rem;margin-top: 1rem;"/>
+    </div>
+</div>
+<php>}</php>
+<php>}</php>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                //跳转到我的订单
+                window.location.href="{:U('Enterprise/StoreCleanKill/orderShowList')}";
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+
+    function acceptOrder(id){
+        var loading = weui.loading('正在更新订单');
+        $.ajax({
+            url: "{:U('Wechat/index/updateOrder')}",
+            type: 'post',
+            dataType: 'json',
+            data:{
+                id:id,
+                order_state:1, //0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+                order_type:2 //1设备维修，2门店消杀，3设备清洗
+            },
+            success: function (data) {
+                loading.hide();
+                if(data.status == 1){
+                    window.location.href="{:U('/Enterprise/store_clean_kill/orderDetail/order_id/"+data.data.id+"')}";
+                }else{
+                    weui.alert('接单失败，请刷新再试！');
+                }
+            }
+        },'json');
+    }
+    function beginCleanKill(id,is_ka,is_year,is_sh){
+        var loading = weui.loading('正在更新订单');
+        $.ajax({
+            url: "{:U('Wechat/index/updateOrder')}",
+            type: 'post',
+            dataType: 'json',
+            data:{
+                id:id,
+                is_ka:is_ka,
+                is_sh:is_sh,
+                is_year:is_year,
+                order_type:2,
+                order_state:2 //;4:已取消;5:已电话解决;6:已退款;7:已评价8:已支付;9:待验收;10:未接单
+            },
+            success: function (data) {
+                loading.hide();
+                if(data.status == 1){
+                    window.location.href="{:U('/Enterprise/store_clean_kill/orderDetail/order_id/"+data.data.id+"')}";
+                }else{
+                    if(data.msg){
+                        weui.alert(data.msg);
+                    }
+                    weui.alert('更新失败，请刷新再试！');
+                }
+            }
+        },'json');
+    }
+    function cleanKillSuccess(id){
+
+        if(uploadCountAfter <= 0 || uploadImageListAfter.length <= 0){
+            uploadImageListAfter = [];
+            weui.alert('请上传消杀报告！');
+            var h = $(document).height()-$(window).height();
+            $(document).scrollTop(h);
+            return false;
+        }
+        var malfunction_text = $('#malfunction_text').val();
+        var loading = weui.loading('正在更新订单');
+        $.ajax({
+            url: "{:U('Wechat/index/updateOrder')}",
+            type: 'post',
+            dataType: 'json',
+            data:{
+                id:id,
+                order_type:2,
+                order_state:9, //;4:已取消;5:已电话解决;6:已退款;7:已评价8:已支付;9:待验收;10:未接单
+                beforeimgdata:uploadImageListBefore,
+                afterimgdata:uploadImageListAfter,
+                malfunction_text:malfunction_text
+            },
+            success: function (data) {
+                loading.hide();
+                if(data.status == 1){
+                    window.location.href="{:U('/Enterprise/store_clean_kill/orderDetail/order_id/"+data.data.id+"')}";
+                }else{
+                    if(data.msg){
+                        weui.alert(data.msg);
+                    }
+                    weui.alert('更新失败，请刷新再试！');
+                }
+            }
+        },'json');
+    }
+    //腾讯地图定位
+    function getNavigation(address,latng) {
+        var strs=latng.split(","); //字符分割
+        window.location.href = "https://apis.map.qq.com/tools/routeplan/eword="+address+"&epointx="+strs[1]+"&epointy="+strs[0]+"?referer=myapp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77";
+    }
+</script>
+<script>
+
+    $(function(){
+
+        //默认使用Canvas生成，并显示到图片 生成支付二维码图片
+        var qrcode= $('#codeImgId').qrcode('{$payUrl}').hide();
+        var canvas=qrcode.find('canvas').get(0);
+        $('#imgOne').attr('src',canvas.toDataURL('image/jpg'));
+    });
+
+    var orderId = "{$orderData['id']}";
+    var orderCode = "{$orderData['order_code']}";
+
+    //点击显示扫码页面
+    $('#getPaid').click(function(){
+        $('.popPayLayer').removeClass('hide');
+    });
+
+    //隐藏显示扫码页面
+    $('.popPayLayer').click(function(){
+        $('.popPayLayer').addClass('hide');
+    });
+
+    $(document).ready(function () {
+
+        //待支付的订单增加检查订单状态的方法
+        if(orderState == 2){
+            setInterval("ajaxstatus()", 3000);
+        }
+    });
+
+    function ajaxstatus() {
+        var orderCodeNew = orderCode;
+        if (orderCodeNew != 0) {
+
+            $.ajax({
+                url: "{:U('Wechat/index/checkOrderStatus')}",type: 'post',dataType: 'json',
+                data:{orderCode:orderCodeNew},
+                success: function (data) {
+                    if(data.status == 1){
+                        weui.alert('支付成功！');
+                        location.href = "/index.php?s=/Enterprise/StoreCleanKill/orderDetail/order_id/"+orderId+"";
+                    }
+
+                    //查询订单是否已经变更
+                    if(data.status == 2){
+                        weui.toast(data.msg, function() {
+                            location.href = "/index.php?s=/Enterprise/StoreCleanKill/orderDetail/order_id/"+orderId+"";
+                        },1000);
+                    }
+                }
+            },'json');
+        }
+    }
+</script>
+</body>
+</html>
+<script>
+    // 缩略图预览
+    $('#uploaderFiles').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCountBefore;
+                    uploadCountBeforeDom.html(uploadCountBefore);
+
+                    for (var i = 0, len = uploadListBefore.length; i < len; ++i) {
+                        var file = uploadListBefore[i];
+                        if(file.id == id){
+                            delete uploadImageListBefore[id];
+                            file.stop();
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCountBefore = 0, uploadListBefore = [],uploadImageListBefore = [];
+    var uploadCountBeforeDom = $("#uploadCountBefore");
+
+    try{
+        weui.uploader('#uploaderBefore', {
+            url: "{:U('Wechat/index/downLoadImageForCleanKill')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCountBefore + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCountBefore;
+                uploadCountBeforeDom.html(uploadCountBefore);
+            },
+            onQueued: function(){
+                uploadListBefore.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+            },
+            onSuccess: function (ret) {
+                uploadImageListBefore[this.id] = ret.data;
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+<script>
+    // 缩略图预览
+    $('#uploaderFilesAfter').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCountAfter;
+                    uploadCountAfterDom.html(uploadCountAfter);
+
+                    for (var i = 0, len = uploadListAfter.length; i < len; ++i) {
+                        var file = uploadListAfter[i];
+
+                        if(file.id == id){
+                            delete uploadImageListAfter[id];
+                            file.stop();
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCountAfter = 0, uploadListAfter = [],uploadImageListAfter = [];
+    var uploadCountAfterDom = $("#uploadCountAfter");
+
+    try{
+        weui.uploader('#uploaderAfter', {
+            url: "{:U('Wechat/index/downLoadImageForCleanKill')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCountAfter + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCountAfter;
+                uploadCountAfterDom.html(uploadCountAfter);
+            },
+            onQueued: function(){
+                uploadListAfter.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+                uploadImageListAfter[this.id] = ret.data;
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+    // 缩略图预览
+    $('.picData').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+</script>

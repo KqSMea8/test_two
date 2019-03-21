@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单列表</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#f8f5f6;">
+<div class="orderlistNav"><ul><li value="10" class="selected"><a href="javascript:;">未接单</a></li><li value="1"><a href="javascript:;">已接单</a></li><li value="2"><a href="javascript:;">服务中</a></li><li value="3"><a href="javascript:;">已完成</a></li></ul></div>
+<div style="height:2.48rem;"></div>
+<!--未接单-->
+<div class="kf_orderlistCon">
+    <php>if(!empty($orderData)){</php>
+    <ul>
+        <notempty name="orderData">
+            <volist name="orderData" id="data">
+                <li onclick="jumpToUrl('{$data.url}')">
+                    <div>订单编号：{$data.order_code}</div>
+                    <div style="padding-right:0.32rem;">下单时间：{$data.create_time}<b class="cor_red">({$data.order_state_text})</b></div>
+                    <div>服务类别：{$data.order_type_text}
+                        <php>if($data['urgent_level'] == 2){</php>
+                        <span class="cor_red">(紧急订单)</span>
+                        <php>}</php>
+                        <a href="{$data.url}"><i class="moreIcon"></i></a>
+                    </div>
+                    <div>门店名称：{$data.store_name}</div>
+                    <div>任务指派：{$data.uname}&nbsp;&nbsp;&nbsp;ID:{$data.fid}</div>
+                </li>
+            </volist>
+        </notempty>
+    </ul>
+    <php>}else{</php>
+        <div class="emptyWarp">
+            <i class="emptyIcon"></i>
+            <p class="tip">暂无数据</p>
+        </div>
+    <php>}</php>
+</div>
+<script>
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+    $(function(){
+		//设置session
+//        $.session.set("order_list_flag",false);
+        //导航切换
+        $('.orderlistNav ul li').click(function(){
+            $('.orderlistNav ul li').removeClass('selected');
+            $(this).addClass('selected');
+            var status = $(this).val();
+            var loading = weui.loading('加载中');
+            $.post("{:U('Enterprise/customerServices/getOrderDataByStatus')}",{status:status},function(res){
+                loading.hide();
+                if(res.status == 1){
+                    var html = "<ul>";
+                    for(var i=0;i<res.data.length;i++){
+                        html += "<li onclick=jumpToUrl('"+res.data[i].url+"')>";
+                        html += "<div>订单编号："+res.data[i].order_code+"</div>";
+                        html += "<div style='padding-right:0.32rem;'>下单时间："+res.data[i].create_time+"<b class='cor_red'>("+res.data[i].order_state_text+")</b></div>";
+                        html += "<div>服务类别："+res.data[i].order_type_text;
+                        if(res.data[i].urgent_level == 2){
+                            html += "<span class='cor_red'>(紧急订单)</span>";
+                        }
+                        html+="<a href='"+res.data[i].url+"'><i class='moreIcon'></i></a></div>";
+                        html += "<div>门店名称："+res.data[i].store_name+"</div>";
+                        html += "<div>任务指派："+res.data[i].uname+"&nbsp;&nbsp;&nbsp;ID:"+res.data[i].fid+"</div>";
+                        html += "</li>";
+                    }
+                    html += "</ul>";
+                    $(".kf_orderlistCon").html(html);
+                }else{
+                    var html = '<div class="emptyWarp">';
+                    html +='<i class="emptyIcon"></i>';
+                    html +='<p class="tip">暂无数据</p>';
+                    html +='</div>';
+                    $(".kf_orderlistCon").html(html);
+                }
+            },'json');
+        });
+    });
+    $(function(){
+        var selectType = $.session.get("order_list_selected");
+        var scrollHeight = $.session.get("order_list_height");
+        $.session.set("order_list_selected",'');
+        $.session.set("order_list_height",'');
+        console.log(selectType,scrollHeight)
+        if(selectType && selectType != 'undefined'){
+            $('.orderlistNav ul li').removeClass('selected');
+            $("li[value='"+selectType+"']").addClass('selected');
+            var loading = weui.loading('加载中');
+            $.post("{:U('Enterprise/customerServices/getOrderDataByStatus')}",{status:selectType},function(res){
+                loading.hide();
+                if(res.status == 1){
+                    var html = "<ul>";
+                    for(var i=0;i<res.data.length;i++){
+                        html += "<li onclick=jumpToUrl('"+res.data[i].url+"')>";
+                        html += "<div>订单编号："+res.data[i].order_code+"</div>";
+                        html += "<div style='padding-right:0.32rem;'>下单时间："+res.data[i].create_time+"<b class='cor_red'>("+res.data[i].order_state_text+")</b></div>";
+                        html += "<div>服务类别："+res.data[i].order_type_text;
+                        if(res.data[i].urgent_level == 2){
+                            html += "<span class='cor_red'>(紧急订单)</span>";
+                        }
+                        html+="<a href='"+res.data[i].url+"'><i class='moreIcon'></i></a></div>";
+                        html += "<div>门店名称："+res.data[i].store_name+"</div>";
+                        html += "<div>任务指派："+res.data[i].uname+"&nbsp;&nbsp;&nbsp;ID:"+res.data[i].fid+"</div>";
+                        html += "</li>";
+                    }
+                    html += "</ul>";
+                    $(".kf_orderlistCon").html(html);
+                }else{
+                    var html = '<div class="emptyWarp">';
+                    html +='<i class="emptyIcon"></i>';
+                    html +='<p class="tip">暂无数据</p>';
+                    html +='</div>';
+                    $(".kf_orderlistCon").html(html);
+                }
+            },'json');
+            if(scrollHeight && scrollHeight != 'undefined'){
+                $("html,body").finish().animate({"scrollTop":scrollHeight},400);
+            }
+        }
+    });
+    function jumpToUrl(url){
+        var selectType = $(".selected").val();
+        $.session.set("order_list_flag",true);
+        $.session.set("order_list_selected",selectType);
+        var scrollHeight = $(document).scrollTop();
+        $.session.set("order_list_height",scrollHeight);
+        var host = window.location.host;
+        window.location.href = "http://"+host+url;
+    }
+</script>
+</body>
+</html>

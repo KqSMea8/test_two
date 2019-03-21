@@ -1,0 +1,312 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>信息完善</title>
+    <link href="/Public/wechat/c/canxun.css?11" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        *{
+            box-sizing:content-box;
+        }
+        .weui-cells{font-size:16px;}
+        .weui-label{color:#666;}
+        .weui-select{height:26px;line-height:26px;font-size:16px !important;}
+        .weui-select option{font-size:16px;}
+        .phoneIcon {
+            display: inline-block;
+            width: 0.8rem;
+            height: 0.8rem;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            border-radius: 50%;
+            background: url('/Public/wechat/i/location.jpg') no-repeat center center;
+            background-size: 0.5rem auto;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <div style="height: 1.2rem;line-height:1.2rem;" class="serviceWarp">订单处理时间：8:00-20:00<a class="serviceBtn" onclick="showServiceGuide()">服务须知</a></div>
+
+    <div class="weui-cells weui-cells_form">
+        <php>if($is_ka){</php>
+        <div class="address-div">
+            <div class="address-text">
+                <input type="hidden" value="{$companycode}" id="companycode"/>
+                <input type="hidden" value="{$storecode}" id="storecode"/>
+                <input type="hidden" value="{$companyStoreData[0].storeId}" id="storeId">
+                <input type="hidden" value="{$companyStoreData[0].storename}" id="kastorename">
+                <input type="hidden" value="{$companyStoreData[0].companyname}" id="kacompanyname">
+                <input type="hidden" value="{$companyStoreData[0].stores_address}" id="kaaddress">
+                <input type="hidden" value="{$companyStoreData[0].link_person}" id="linkperson">
+                <input type="hidden" value="{$companyStoreData[0].link_phone}" id="linkphone">
+                <div class="first-p"><b>{$companyStoreData[0].storename}</b><b style="font-size: 0.35rem;">({$companyStoreData[0].companyname})</b></div>
+                <div class="second-p"><b><img class="address-text-img" src="/Public/wechat/add/location.jpg"><span style="margin-left: 0.3rem;">{$companyStoreData[0].stores_address}</span></b></div>
+                <div class="third-p"><b><span>{$companyStoreData[0].link_person}</span><span style="margin-left: 0.6rem;">{$companyStoreData[0].link_phone}</span></b></div>
+            </div>
+            <!--<div class="address-arrow"><img class="arrow-img" src="/Public/wechat/add/arrow.png"></div>-->
+        </div>
+        <php>}elseif(!empty($memberInfo)){</php>
+        <div class="address-div">
+            <div onclick="showAddressList()" class="address-text">
+                <input type="hidden" value="{$memberInfo.store_id}" id="storeId">
+                <input type="hidden" value="{$memberInfo.store_name}" id="storename"/>
+                <input type="hidden" value="{$memberInfo.detail_address}" id="detail_address"/>
+                <input type="hidden" value="{$memberInfo.location_address}" id="location"/>
+                <input type="hidden" value="{$memberInfo.link_person}" id="linkperson"/>
+                <input type="hidden" value="{$memberInfo.link_phone}" id="linkphone"/>
+                <input type="hidden" value="{$memberInfo.fixed_line}" id="fixedline"/>
+                <div class="first-p"><b>{$memberInfo.store_name}</b></div>
+                <div class="second-p"><b><img class="address-text-img" src="/Public/wechat/add/location.jpg"><span style="margin-left: 0.3rem;">{$memberInfo.detail_address}</span></b></div>
+                <div class="third-p"><b><span>{$memberInfo.link_person}</span><span style="margin-left: 0.6rem;">{$memberInfo.link_phone}</span><span style="margin-left: 0.6rem;">{$memberInfo.fixed_line}</span></b></div>
+            </div>
+            <div onclick="showAddressList()" class="address-arrow"><img class="arrow-img" src="/Public/wechat/add/arrow.png"></div>
+        </div>
+        <php>}else{</php>
+        <div class="address-div">
+            <div onclick="showAddressList()" class="empty-address">请选择门店信息</div>
+            <div onclick="showAddressList()" class="address-arrow"><img class="arrow-img" src="/Public/wechat/add/arrow.png"></div>
+        </div>
+        <php>}</php>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店面积(平米)<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="storearea" style="padding-left: 0px">
+                    <!--1：0-100 2：101-200 3：201-300 4：301-400 5：401-500 6：500以上-->
+                    <option value="0">请如实填写</option>
+                    <option value="1" <?php if($store_area==1){echo "selected";}?> >0-100</option>
+                    <option value="2" <?php if($store_area==2){echo "selected";}?> >101-200</option>
+                    <option value="3" <?php if($store_area==3){echo "selected";}?> >201-300</option>
+                    <option value="4" <?php if($store_area==4){echo "selected";}?> >301-400</option>
+                    <option value="5" <?php if($store_area==5){echo "selected";}?> >401-500</option>
+                    <option value="6" <?php if($store_area==6){echo "selected";}?> >501-600</option>
+                    <option value="7" <?php if($store_area==7){echo "selected";}?> >600以上</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店场景<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="storescene" style="padding-left: 0px">
+                    <!--1：商场 2：写字楼 3：美食城 4：底商 5：其他-->
+                    <option value="0">请选择</option>
+                    <option value="1" <?php if($store_scene==1){echo "selected";}?> >商场</option>
+                    <option value="2" <?php if($store_scene==2){echo "selected";}?> >写字楼</option>
+                    <option value="3" <?php if($store_scene==3){echo "selected";}?> >美食城</option>
+                    <option value="4" <?php if($store_scene==4){echo "selected";}?> >底商</option>
+                    <option value="5" <?php if($store_scene==5){echo "selected";}?> >其他</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">虫害类别<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cells_radio">
+                <label class="weui-cell weui-check__label" style="height:26px;">
+                    <div class="weui-cell__bd">
+                        <p style="font-size:16px;">老鼠</p>
+                        <div class="weui-cell__ft">
+                            <input type="checkbox" value="1" class="weui-check" name="species">
+                            <span class="weui-icon-checked"></span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            <div class="weui-cells_radio">
+                <label class="weui-cell weui-check__label" style="height:26px;">
+                    <div class="weui-cell__bd">
+                        <p style="font-size:16px;">蟑螂</p>
+                        <div class="weui-cell__ft">
+                            <input type="checkbox" value="2" class="weui-check" name="species">
+                            <span class="weui-icon-checked"></span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+            <div class="weui-cells_radio">
+                <label class="weui-cell weui-check__label" style="height:26px;">
+                    <div class="weui-cell__bd">
+                        <p style="font-size:16px;">蚊蝇</p>
+                        <div class="weui-cell__ft">
+                            <input type="checkbox" value="3" class="weui-check" name="species">
+                            <span class="weui-icon-checked"></span>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">发现虫害时长</label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select" id="findtime" style="padding-left: 0px">
+                    <!--1：一周 2：二周 3：三周 4：一个月之上-->
+                    <option value="0">请选择</option>
+                    <option value="1">一周</option>
+                    <option value="2">二周</option>
+                    <option value="3">三周</option>
+                    <option value="4">一个月之上</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">期望服务时间<label style="color: #ff3333">*</label></label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="datetime-local" id="doortime" placeholder="期望师傅服务时间"/>
+                <input type="hidden" value="{$memberInfo.latng}" id="latng"/>
+                <input type="hidden" value="{$is_ka}" id="is_ka"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="createOrder()" class="centerBtn">预 约</a></div>
+</body>
+</html>
+<script>
+    $(function(){
+
+    });
+    var doubleClick = false;
+
+    //跳转页面
+    function showServiceGuide(){
+
+        window.location.href = "{:U('Wechat/index/showServiceGuide/type/2')}";
+    }
+
+    function createOrder(){
+        var is_ka = $("#is_ka").val();
+        var companyname = "";
+        var storename = "";
+        var address = "";
+        var detail_address = $("#detail_address").val();
+        var latng = "";
+        var storeId = 0;
+        if(!Number(is_ka)){
+            storename = $("#storename").val();
+            address = $("#location").val();
+            latng = $("#latng").val();
+            storeId = $("#storeId").val();
+            if(!storename || !address){
+                weui.alert('请选择门店地址');
+                return false;
+            }
+        }else{
+            companyname = $("#kacompanyname").val();
+            storename = $("#kastorename").val();
+            detail_address = $("#kaaddress").val();
+            storeId = $("#storeId").val();
+            var province = $("#companycode").val();
+            var city = $("#storecode").val();
+        }
+//        if(!$("#linkperson").val()){
+//            weui.alert('请填写联系人');
+//            $("#linkperson").focus();
+//            return false;
+//        }
+//        if(!$("#linkphone").val()){
+//            weui.alert('请填写联系方式');
+//            $("#linkphone").focus();
+//            return false;
+//        }
+//        var myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+//        var linkphone = $("#linkphone").val();
+//        if(!myreg.test(linkphone)){
+//            weui.alert('请填写正确的联系电话');
+//            $("#linkphone").focus();
+//            return false;
+//        }
+//        var fixedline = $("#fixedline").val();
+//        if(fixedline.length !=0 && (fixedline.length < 6 || fixedline.length > 12)){
+//            weui.alert('请填写正确的固话号码');
+//            $("#fixedline").focus();
+//            return false;
+//        }
+        var store_area = $("#storearea").val()
+        if( store_area == "0"){
+            weui.alert('请选择门店面积');
+            return false;
+        }
+        if($("#storescene").val() == "0"){
+            weui.alert('请选择门店场景');
+            return false;
+        }
+
+        var species = [];
+        $('input[name="species"]:checked').each(function(){
+            species.push($(this).val());
+        });
+        if(species.length == 0){
+            weui.alert('请选择虫害类别');
+            return false;
+        }
+        if(!$("#doortime").val()){
+            weui.alert('请填写期望服务时间');
+            return false;
+        }
+
+        //创建订单时，根据规则生成相应的服务费用
+            species = species.join(",");
+        var postData = {
+            store_name:storename,
+            detailed_address:detail_address,
+            location:address,
+            enterprise_name:companyname,
+            is_ka:is_ka,
+            province:province,
+            city:city,
+            latng:latng,
+            ka_store_id:storeId,
+            link_person:$("#linkperson").val(),
+            link_phone:$("#linkphone").val(),
+            fixed_line:$("#fixedline").val(),
+            store_area:store_area,
+            store_scene:$("#storescene").val(),
+            insect_species:species,
+            insect_time:$("#findtime").val(),
+            door_time:$("#doortime").val(),
+            order_type:2,//1设备维修，2门店消杀，3设备清洗
+            order_state:0//订单状态: (0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款)
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+
+        var loading = weui.loading('正在提交消杀订单', {
+            className: 'createOrder'
+        });
+        $.post("{:U('Wechat/index/createOrder')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                weui.toast("提交成功", function() {
+                    var id = res.data.id;
+                    window.location.href="{:U('Wechat/index/showcleankillorder/orderId/"+id+"')}";
+                },1000);
+            }else{
+                doubleClick = false;
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+    function showAddressList(){
+        window.location.href = "{:U('Wechat/index/selectAddressList/type/2')}";
+    }
+</script>

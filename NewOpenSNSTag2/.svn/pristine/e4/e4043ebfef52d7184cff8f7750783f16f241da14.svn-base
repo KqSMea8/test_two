@@ -1,0 +1,891 @@
+@charset "utf-8";
+.clearfix {
+  zoom: 1;
+}
+.clearfix:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.hide {
+  display: none;
+}
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.font_arial {
+  font-family: 'Arial';
+}
+.hsBody {
+  max-width: 800px;
+}
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #aaaaaa;
+}
+input:-moz-placeholder,
+textarea:-moz-placeholder {
+  color: #aaaaaa;
+}
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #aaaaaa;
+}
+.weui-picker__item {
+  padding: 7px 0 7px;
+  height: 34px;
+  font-size: 16px;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  /* For some Androids */
+}
+body {
+  font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #333333;
+  background-color: #ffffff;
+}
+li {
+  list-style: none;
+}
+img {
+  border: none;
+}
+input,
+select,
+textarea {
+  outline: none;
+  border: none;
+  background: none;
+  -webkit-appearance: none;
+}
+textarea {
+  resize: none;
+}
+a {
+  outline: none;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: 12px;
+  font-weight: normal;
+}
+i,em {
+  font-style: normal;
+}
+.receiptInfoWarp {
+  background: #fff;
+  padding: 0px 0.6rem;
+}
+.centerBtnWarp {
+  position: fixed;
+  bottom: 0px;
+  height: 3.16rem;
+  width: 100%;
+  background: #fff;
+  z-index: 10;
+  padding-top: 0.4rem;
+}
+.centerBtnWarp .centerBtn {
+  width: 12rem;
+  height: 1.7rem;
+  line-height: 1.7rem;
+  text-align: center;
+  background: #ffea10;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+  display: block;
+  margin: 0 auto;
+  font-size: 0.68rem;
+  color: #333333;
+}
+.showMoney{
+  margin-left: 2rem;
+  margin-bottom: 0.2rem;
+}
+
+.centerBtnWarp .showDetail{
+  border: 1px solid #9b9b9b;
+  width: 3.5rem;
+  display: inline-block;
+  height: 1rem;
+  text-align: center;
+  border-radius: 0.4rem;
+  margin-left: 1rem;
+  margin-bottom: 0.2rem;
+  margin-top: 0.2rem;
+}
+
+.twoBtn {
+  padding: 0px 1.1rem;
+  padding-top: 0.8rem;
+}
+.twoBtn a.centerBtn {
+  width: 6rem;
+}
+.twoBtn a:nth-child(2) {
+  background: #494172;
+  color: #ffffff;
+}
+
+.appointment-polling-index-color{
+  /*background-color: #F0F0F0;*/
+}
+.appointment-polling-index-color .addButton{
+  margin-left: 0.5rem;
+  margin-top: 0.2rem;
+}
+.appointment-polling-index-color .delButton{
+  margin-left: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.polling-list{
+  margin-top: 0.2rem;
+  background-color: darkgrey;
+  border-radius: 0.5rem;
+}
+
+.selall {
+  position: fixed;
+  left: 1.5rem;
+  top: 6.48rem;
+  width: 12rem;
+  font-size: 0.6rem;
+  color: #4e4d4d;
+  padding: 0.96rem 0 0.3rem 0;
+  border-bottom: 1px solid #b5b5b5;
+  background: #f3f3f3;
+}
+.selall span {
+  float: left;
+  display: block;
+  width: 0.46rem;
+  height: 0.46rem;
+  border: 1px solid #aaaaaa;
+  margin-top: 0.24rem;
+  margin-right: 0.6rem;
+}
+.selall span.hover {
+  background: #000000 url(../i/img_checked.jpg) center no-repeat;
+  background-size: 0.4rem 0.4rem;
+  border: none;
+}
+.selall em {
+  padding-left: 1.1rem;
+}
+
+.store-list {
+  bottom: 2.9rem;
+  width: 9.3rem;
+  margin: 8.2rem auto 2.6rem auto;
+  height: auto;
+  padding-top: 0.4rem;
+}
+.store-list li {
+  display: block;
+  height: 1.4rem;
+  line-height: 1.4rem;
+  font-size: 0.6rem;
+  color: #1d1d1d;
+  overflow: hidden;
+}
+.store-list li span {
+  float: left;
+  display: block;
+  width: 0.46rem;
+  height: 0.46rem;
+  border: 1px solid #aaaaaa;
+  margin-top: 0.46rem;
+  margin-right: 1.76rem;
+}
+.store-list li.hover span {
+  background: #000000 url(../i/img_checked.jpg) center no-repeat;
+  background-size: 0.4rem 0.4rem;
+  border: none;
+}
+
+.selected-list {
+  margin-top: 0;
+  width: 11.4rem;
+}
+
+.selected-list li{
+  background: url(../i/moreIcon.png) 6.5rem center no-repeat;
+  background-size: 0.3rem 0.5rem;
+  border: none;
+}
+
+
+.selected-store {
+  position: static;
+  width: 11.4rem;
+  margin: 1.16rem auto 0 auto;
+  font-size: 0.72rem;
+  color: #1d1d1d;
+}
+
+
+
+/*-----------------------------------------------------------巡检员操作详情-------------------------------------------------------------------------------------------------*/
+.store-top {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 6.5rem;
+  background: url(../i/img_store.jpg) center top no-repeat;
+  background-size: 15rem 6.5rem;
+  margin: 0 auto;
+  z-index: 1000;
+}
+.store-top .sel {
+  width: 12rem;
+  height: 1.5rem;
+  margin: 2.54rem auto 0 auto;
+  border: 1px solid #ffe512;
+  overflow: hidden;
+}
+.store-top .sel input {
+  display: block;
+  float: left;
+  width: 8.6rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  padding-left: 0.3rem;
+  color: #ffe512;
+}
+.store-top .sel a {
+  display: block;
+  float: right;
+  width: 2.8rem;
+  height: 1.46rem;
+  background: #000000 url(../i/img_sel.jpg) center no-repeat;
+  background-size: 1.02rem 1.02rem;
+  border-left: 1px solid #ffe512;
+}
+
+.wxbb-top {
+  background: url(../i/bg_top_bblist.jpg) center top no-repeat;
+  background-size: 15rem 5.3rem;
+}
+.wxbb-top .sel {
+  margin-top: 1.04rem;
+}
+
+.sqsb-top-content {
+  /*width: 10.8rem;*/
+  width: 10rem;
+  height: auto;
+  margin: 0.8rem auto;
+  padding: 0;
+}
+.sqsb-top-content li {
+  color: #fff;
+  height: 1.16rem;
+  line-height: 1.16rem;
+  font-size: 0.52rem;
+  margin-top: 0.4rem;
+  overflow: hidden;
+}
+.sqsb-top-content li span {
+  display: block;
+  float: left;
+  width: 3rem;
+  color: #9d9b9b;
+}
+.sqsb-top-content li em {
+  display: block;
+  float: left;
+  width: 6.6rem;
+  height: 1.16rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #ffe512;
+  font-style: normal;
+}
+
+.sqsb-top-input .result {
+  display: none;
+  position: absolute;
+  left: 2.9rem;
+  top: 1.1rem;
+  width: 5.6rem;
+  height: 2.4rem;
+  background: #fff;
+  padding: 0.3rem 0;
+  z-index: 100;
+  box-shadow: 0 0 0.2rem #c0c0c0;
+  overflow-x: scroll;
+}
+.sqsb-top-input .result span {
+  display: block;
+  height: 0.9rem;
+  line-height: 0.9rem;
+  width: 100%;
+  font-size: 0.44rem;
+  color: #000;
+  padding: 0 0.3rem;
+  -webkit-border-radius: 0.1rem;
+  -moz-border-radius: 0.1rem;
+  border-radius: 0.1rem;
+}
+.sqsb-top-input .result span:hover {
+  background: #faf7df;
+}
+
+.sqsb-top-input a {
+  display: block;
+  width: 3rem;
+  height: 1rem;
+  line-height: 1rem;
+  text-align: center;
+  margin-left: 5.5rem;
+  border: 1px solid #ffe512;
+  font-size: 0.48rem;
+  color: #ffffff;
+}
+
+.sqsb-index-text {
+  width: 15rem;
+  height: 1.5rem;
+  position: fixed;
+  padding: 0.6rem;
+  top: 4.56rem;
+  background: #ffea10;
+  z-index: 1000;
+  overflow: hidden;
+  font-size: 0.8rem;
+  line-height: 0.5rem;
+  font-weight:600;
+}
+
+.sqsb-index-search {
+  width: 14rem;
+  height: 1.5rem;
+  position: fixed;
+  padding: 0.6rem;
+  left: 0.5rem;
+  top: 4.56rem;
+  background: #ffe512;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.sqsb-index-search .text{
+  width: 11.6rem;
+}
+
+.sqsb-index-search .search-logo{
+  width: 2.49rem;
+  background: url(../i/gdzc-search-logo.png) center no-repeat;
+  background-size: 2.88rem 1.5rem;
+  position: fixed;
+  left: 12rem;
+}
+
+.sheet-list-title {
+  position: fixed;
+  left: 0.5rem;
+  top: 6rem;
+  width: 14rem;
+  height: 2.3rem;
+  background: #f3f3f3;
+}
+.sheet-list-title li {
+  font-size: 0.56rem;
+  color: #000;
+  background: #cdcdcd;
+  overflow: hidden;
+  height: 1.9rem;
+  line-height: 1.9rem;
+  margin-top: 0.4rem;
+}
+.sheet-list-title div {
+  float: left;
+  width: 33%;
+  text-align: center;
+}
+.sheet-list-li {
+  width: 14rem;
+  margin: 8.6rem auto 2.8rem auto;
+  height: auto;
+  font-size: 0.56rem;
+  color: #000;
+}
+.sheet-list-li li {
+  background: #fff;
+  height: 1.8rem;
+  line-height: 1.8rem;
+  overflow: hidden;
+  margin-top: 0.2rem;
+}
+.sheet-list-li div {
+  float: left;
+  width: 33%;
+  text-align: center;
+  height: 1.8rem;
+  line-height: 1.8rem;
+}
+.sheet-list-li a {
+  display: inline-block;
+  width: 1.4rem;
+  height: 0.84rem;
+  line-height: 0.84rem;
+  text-align: center;
+  margin: 0.48rem auto;
+  border: 1px solid #ffe512;
+  font-size: 0.48rem;
+  color: #000;
+}
+
+/*弹出框*/
+.popLayer {
+  width: 100%;
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
+  /*电话沟通结果*/
+}
+.popLayer .phonePop {
+  width: 10.8rem;
+  background: #fff;
+  overflow: hidden;
+  -webkit-border-radius: 0.3rem;
+  -moz-border-radius: 0.3rem;
+  border-radius: 0.3rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -5.4rem;
+  margin-top: -7.6rem;
+  padding: 0px 0.9rem;
+}
+.popLayer .phonePop .title {
+  height: 2.2rem;
+  line-height: 2.2rem;
+  font-size: 0.6rem;
+  color: #333333;
+  font-weight: bold;
+}
+.popLayer .phonePop .con p {
+  text-align: center;
+}
+.popLayer .phonePop .con li {
+  margin-bottom: 0.3rem;
+  clear: both;
+}
+.popLayer .phonePop .con i {
+  display: block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border: 1px solid #a9a9a9;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  float: left;
+  margin-top: -0.1rem;
+}
+.popLayer .phonePop .con i.selected {
+  background: #ffea10 url('../i/okIcon.png') no-repeat center center;
+  background-size: 0.56rem auto;
+  border: 1px solid #ffea10;
+}
+.popLayer .phonePop .con div {
+  font-size: 0.5rem;
+  color: #666666;
+  line-height: 0.6rem;
+  padding-left: 1.2rem;
+}
+.popLayer .phonePop .tip {
+  font-size: 0.56rem;
+  color: #ff0000;
+  line-height: 0.68rem;
+}
+.popLayer .phonePop .xjbtn {
+  display: block;
+  width: 8rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  background: #ffea10;
+  text-align: center;
+  font-size: 0.6rem;
+  color: #333333;
+  margin: 0 auto;
+  -webkit-border-radius: 0.16rem;
+  -moz-border-radius: 0.16rem;
+  border-radius: 0.16rem;
+  margin-top: 0.86rem;
+  margin-bottom: 0.76rem;
+}
+.popLayer .phonePop .textRemark{
+  border: 1px solid #cccccc;
+  height: 4rem;
+  width: 9rem;
+  padding-left: 0.1rem;
+  color: #9b9b9b;
+  font-size: 0.6rem;
+}
+
+/*-----------------------------------------------------------巡检员为门店预约维修工单-------------------------------------------------------------------------------------------------*/
+
+/*添加服务时间和须知按钮*/
+.serviceWarp {
+  height: 1.94rem;
+  width: 13.7rem;
+  background: #ffffff;
+  line-height: 1.94rem;
+  margin: 0.4rem auto;
+  font-size: 0.56rem;
+  color: #ff3333;
+  padding-left: 0.48rem;
+  position: relative;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+}
+.serviceWarp .serviceBtn {
+  display: block;
+  width: 2.72rem;
+  height: 1.1rem;
+  line-height: 0.92rem;
+  background: url('../i/serviceBtn.gif') no-repeat center center;
+  background-size: 100% 100%;
+  font-size: 0.48rem;
+  color: #333333;
+  position: absolute;
+  top: 50%;
+  margin-top: -0.5rem;
+  right: 0.48rem;
+  text-align: center;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+}
+
+
+/*-----------------------------------------------------------维修主管 企业主管 门店 订单列表页面-------------------------------------------------------------------------------------------------*/
+
+.time {
+  margin-top: 1.3rem;
+  height: 3.6rem;
+  overflow: hidden;
+}
+
+.excel-time {
+  position: fixed;
+  left: 0;
+  top: 5.2rem;
+  width: 100%;
+  height: 2rem;
+  background: #f3f3f3;
+  padding: 0.6rem 0;
+}
+.excel-time .time-left {
+  margin-left: 1.2rem;
+}
+.excel-time .time-left,
+.excel-time .time-right {
+  width: 5.8rem;
+}
+.excel-time .time-mid {
+  height: 0.92rem;
+  line-height: 0.92rem;
+}
+.excel-time input {
+  width: 100%;
+  height: 0.92rem;
+  line-height: 0.92rem;
+  background-position: 5rem center;
+}
+
+.record-time {
+  position: fixed;
+  top: 1.4rem;
+  margin: 0;
+  left: 0;
+  padding-top: 1.4rem;
+  width: 100%;
+  height: 3.6rem;
+  background: url(../i/bg_top_record.jpg) center top no-repeat;
+  background-size: 15rem 3.6rem;
+}
+.record-time input {
+  background: url(../i/img_jt_bottom_h.png) 5rem center no-repeat;
+  background-size: 0.44rem 0.26rem;
+  border-color: #ffe512;
+}
+.record-time .time-left {
+  margin-left: 1.2rem;
+}
+
+.staff-time {
+  top: 0;
+}
+.record-list {
+  margin: 5.24rem auto 2.8rem auto;
+}
+.record-list li {
+  width: 100%;
+  height: 2.9rem;
+  background: #fff;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  padding: 0.2rem 0;
+}
+.record-list .left {
+  float: left;
+  width: 10rem;
+  color: #9d9b9b;
+  font-size: 0.56rem;
+  margin-left: 1.2rem;
+}
+.record-list .left div {
+  line-height: 1.2rem;
+}
+.record-list .left span {
+  color: #000000;
+}
+.record-list .right {
+  height: 2.9rem;
+  line-height: 2.9rem;
+  float: left;
+  font-size: 0.64rem;
+  width: 2.5rem;
+  background: url(../i/img_jt_right_h.png) right center no-repeat;
+  background-size: 0.26rem 0.44rem;
+}
+.record-list .approve {
+  color: #838383;
+}
+.record-list .refuse {
+  color: #ff0000;
+}
+.record-list .handle {
+  color: #ff0000;
+}
+
+.time-left,
+.time-right {
+  float: left;
+  width: 6.5rem;
+  overflow: hidden;
+}
+.input-value {
+  display: block;
+  width: 100%;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  font-size: 0.52rem;
+  color: snow;
+  padding: 0 0.8rem 0 0.3rem;
+  border: 1px solid #aaaaaa;
+  background: url(../i/img_jt.jpg) 13.2rem center no-repeat;
+  background-size: 0.44rem 0.26rem;
+}
+.time-mid {
+  float: left;
+  font-size: 0.52rem;
+  color: #969696;
+  width: 0.9rem;
+  height: 3.6rem;
+  line-height: 3.6rem;
+  text-align: center;
+}
+
+.distribute-list {
+  margin-top: 1.6rem;
+}
+.distribute-list li {
+  height: 4.2rem;
+}
+.distribute-list .right {
+  height: 4.2rem;
+  line-height: 4.2rem;
+}
+.staff-list {
+  margin-top: 3.84rem;
+}
+
+/*-----------------------------------------------------------企业主管订单列表页面-------------------------------------------------------------------------------------------------*/
+.orderlistNav {
+  height: 2.48rem;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  z-index: 10;
+  background: #ffffff;
+}
+.orderlistNav ul {
+  display: flex;
+}
+.orderlistNav li {
+  flex: 1;
+  height: 2.48rem;
+  line-height: 2.48rem;
+  text-align: center;
+}
+.orderlistNav li a {
+  font-size: 0.68rem;
+  color: #333333;
+  padding: 0.3rem 0px;
+}
+.orderlistNav li.selected a {
+  color: #494172;
+  font-weight: bold;
+  border-bottom: 0.1rem solid #ffea10;
+}
+
+.orderlistCon {
+  padding: 0.4rem;
+}
+.orderlistCon ul {
+  width: 100%;
+}
+.orderlistCon li {
+  position: relative;
+  background: #ffffff;
+  -webkit-border-radius: 0.2rem;
+  -moz-border-radius: 0.2rem;
+  border-radius: 0.2rem;
+  padding: 0.4rem 0.56rem;
+  padding-right: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+.orderlistCon li .title {
+  font-size: 0.62rem;
+  color: #333333;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.orderlistCon li .name {
+  font-size: 0.58rem;
+  color: #666666;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.orderlistCon li .time {
+  font-size: 0.56rem;
+  color: #666666;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.orderlistCon li .arrow {
+  display: block;
+  height: 100%;
+  width: 0.76rem;
+  background: url('../i/moreIcon.png') no-repeat left center;
+  background-size: 0.32rem auto;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+.orderlistCon .twoLine .title {
+  height: 1.2rem;
+  line-height: 1.2rem;
+  margin-bottom: 0.1rem;
+}
+.orderlistCon .twoLine .time {
+  height: 0.8rem;
+  line-height: 0.8rem;
+}
+.orderlistCon .threeLine .title {
+  height: 1.08rem;
+  line-height: 1.08rem;
+  margin-bottom: 0.14rem;
+}
+.orderlistCon .threeLine .name {
+  height: 1rem;
+  line-height: 1rem;
+}
+.orderlistCon .threeLine .time {
+  height: 0.92rem;
+  line-height: 0.92rem;
+}
+
+/*-----------------------------------------------------------客服巡检选择门店页面-------------------------------------------------------------------------------------------------*/
+
+.btn {
+  position: fixed;
+  width: 100%;
+  height: 2.5rem;
+  bottom: 0;
+  left: 0;
+  background: #fff;
+}
+.btn .sub-inspect,
+.btn .sub-addstore,
+.btn .sub-task {
+  display: block;
+  width: 14rem;
+  height: 1.64rem;
+  line-height: 1.64rem;
+  text-align: center;
+  color: #ffe512;
+  font-size: 0.68rem;
+  background: #000;
+  margin: 0 auto;
+}
+/*-----------------------------------------------------------无数据展示的页面-------------------------------------------------------------------------------------------------*/
+
+.emptyWarp {
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  margin-top: -3.6rem;
+}
+.emptyWarp .emptyIcon {
+  display: block;
+  width: 6.5rem;
+  height: 5.14rem;
+  background: url('../i/emptyIcon.png') no-repeat center center;
+  background-size: 100% 100%;
+  margin: 0 auto;
+}
+.emptyWarp .tip {
+  height: 1.88rem;
+  line-height: 1.88rem;
+  text-align: center;
+  font-size: 0.72rem;
+  color: #333333;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

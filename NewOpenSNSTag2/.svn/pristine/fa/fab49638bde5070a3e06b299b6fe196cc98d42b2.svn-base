@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>订单详情</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            orderId = null;
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<div id="cancelOrder" style="display: none;">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog">
+        <div class="weui-dialog__hd"><strong style="color: #9d1e15" class="weui-dialog__title">取消订单</strong></div>
+        <div class="weui-dialog__hd">
+            <div class="weui-cells weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">门店要求取消维修</div>
+                    <div class="weui-cell__ft">
+                        <input required="" type="radio" class="weui-check" name="reason" value="门店要求取消维修">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">价格无法达成一致</div>
+                    <div class="weui-cell__ft">
+                        <input required="" type="radio" class="weui-check" name="reason" value="价格无法达成一致">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">设备类型餐讯无法维修</div>
+                    <div class="weui-cell__ft">
+                        <input required="" type="radio" class="weui-check" name="reason" value="设备类型餐讯无法维修">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+                <label class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">其他原因</div>
+                    <div class="weui-cell__ft">
+                        <input required="" type="radio" class="weui-check" name="reason" value="其他原因">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-dialog__ft">
+            <a href="javascript:;" onclick="hideTheDialog('cancelOrder')" class="weui-dialog__btn weui-dialog__btn_primary">再想想</a>
+            <a href="javascript:;" onclick="sureCancelOrder()" class="weui-dialog__btn weui-dialog__btn_primary">确定</a>
+        </div>
+    </div>
+</div>
+<body>
+<div class="orderDetail" style="padding-top:0.7rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">订单编号：</span><div class="con">{$orderData.order_code}</div></li>
+        <li><span class="title">订单状态：</span>
+            <div class="con cor_red" style="font-weight:bold;">
+                <php>if($orderData['order_state']==10){</php>
+                未接单
+                <php>}else{</php>
+                {$orderData.order_state_text}
+                <php>}</php>
+            </div></li>
+        <li><span class="title">下单时间：</span><div class="con">{$orderData.create_time}</div></li>
+        <php>if($orderData['order_state_text']=="已完成"){</php>
+        <li><span class="title">完成时间：</span><div class="con">{$orderData.update_time}</div></li>
+        <php>}</php>
+    </ul>
+</div>
+<php>if($orderData['facilitator_id']!=0){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">服务商：</span><div class="con">{$orderData.fname}</div></li>
+        <li><span class="title">服务商编号：</span><div class="con">{$orderData.fid}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.fphone}</div></li>
+    </ul>
+</div>
+<php>}</php>
+<php>if($orderData['order_state_text']!="派单中" && $orderData['order_state_text']!="已取消" && !empty($orderData['name'])){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">师傅名称：</span><div class="con">{$orderData.name}</div></li>
+        <li><span class="title">师傅编号：</span><div class="con">{$orderData.uid}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.phone}</div></li>
+    </ul>
+</div>
+<php>}</php>
+
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if($orderData['is_ka']){</php>
+        <li><span class="title">企业名称：</span><div class="con">{$orderData.enterprise_name}</div></li>
+        <li><span class="title">门店名称：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}else{</php>
+        <li><span class="title">预约门店：</span><div class="con">{$orderData.store_name}</div></li>
+        <li><span class="title">门店地址：</span><div class="con">{$orderData.detailed_address}</div></li>
+        <php>}</php>
+        <li><span class="title">联系人：</span><div class="con">{$orderData.link_person}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$orderData.link_phone}</div></li>
+        <php>if($orderData['fixed_line']!=""){</php>
+            <li><span class="title">固&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</span><div class="con">{$orderData.fixed_line}</div></li>
+        <php>}</php>
+        <li><span class="title">设备名称：</span><div class="con">{$orderData.equipment_name}</div></li>
+        <li><span class="title">设备品牌：</span><div class="con">{$orderData.brands_text}</div></li>
+        <li><span class="title">故障现象：</span><div class="con">{$orderData.malfunction_text}</div></li>
+        <li><span class="title">订单级别：</span><div class="con">{$orderData.urgent_level_text}</div></li>
+        <php>if($orderData['order_state']==5){</php>
+        <li><span class="title">电话沟通结果：</span><div class="con">{$orderData.phone_solve_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['order_state_text']=="已取消"){</php>
+        <li><span class="title">取消原因：</span><div class="con">{$orderData.cancel_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['is_sh']==1){</php>
+        <li><span class="title">售后原因：</span><div class="con">{$orderData.after_sale_text}</div></li>
+        <php>}</php>
+        <php>if($orderData['is_sh']!=1){</php>
+        <li class="weui-uploader__files">
+            <span class="title">设备图片：</span>
+            <div class="machineImgWarp">
+                <notempty name="imgData">
+                    <volist name="imgData" id="data">
+                        <div class="oneImg">
+                            <php>$data['path'] = ltrim($data['path'],'.');</php>
+                            <img class="weui-uploader__file" src="{$data.path}"/>
+                        </div>
+                    </volist>
+                </notempty>
+            </div>
+        </li>
+        <php>}</php>
+    </ul>
+</div>
+<php>if($orderData['order_state_text']=="待支付" || $orderData['order_state_text']=="已完成"){</php>
+<div class="spaceLine"></div>
+<div class="orderDetail" style="padding-top:0.54rem;padding-bottom:0.5rem;">
+    <ul>
+        <php>if(empty($orderData['change_parts_text'])){</php>
+            <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">未更换</div></li>
+        <php>}else{</php>
+            <li><span class="title"><b>更换配件：</b></span><div class="con cor_red">{$orderData.change_parts_text}</div></li>
+        <php>}</php>
+        <li><span class="title"><b>配件费用：</b></span><div class="con cor_red">{$orderData.parts_price}元</div></li>
+        <li><span class="title"><b>上门检测费：</b></span><div class="con cor_red">{$orderData.door_price}元</div></li>
+        <li><span class="title"><b>维修费：</b></span><div class="con cor_red">{$orderData.service_price}元</div></li>
+        <li><span class="title"><b>总 计：</b></span><div class="con cor_red">{$orderData.money_total}元</div></li>
+    </ul>
+</div>
+<php>}</php>
+
+<php>if($orderData['order_state']==0 && $orderData['facilitator_id'] == 0){</php>
+    <div style="height:3.16rem;"></div>
+<div class="centerBtnWarp twoBtn">
+    <a href="javaScript:;" onclick="cancelOrder({$orderData.id})" class="centerBtn fl" >取消订单</a>
+    <a href="{:U('Enterprise/CustomerServices/distributeTask',array('order_id'=>$orderData['id'],'order_type'=>$orderData['order_type']))}" class="centerBtn fr" >分配任务</a>
+    </div>
+<php>}elseif($orderData['order_state'] == 10 || ($orderData['facilitator_id'] != 0 && $orderData['order_state'] == 0)){</php>
+    <div style="height:3.16rem;"></div>
+<div class="centerBtnWarp twoBtn">
+    <a href="javaScript:;" onclick="cancelOrder({$orderData.id})" class="centerBtn fl" >取消订单</a>
+    <a href="{:U('Enterprise/CustomerServices/distributeTask',array('order_id'=>$orderData['id'],'order_type'=>$orderData['order_type']))}" class="centerBtn fr" >重新分配</a>
+    </div>
+<php>}</php>
+</body>
+</html>
+<script type="text/javascript">
+
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+    //取消订单
+    function sureCancelOrder(){
+        var text = $("input[name='reason']:checked").val();
+        if(!text){
+            weui.alert('请选择取消原因');
+            return false;
+        }
+        var loading = weui.loading('正在取消订单');
+        $.ajax({
+            url: "{:U('Enterprise/CustomerServices/cancelOrder')}",
+            type: 'post',
+            dataType: 'json',
+            data:{
+                id:orderId,
+                order_state:4, //0:派单中;1:已接单;2:待支付;3:已支付;4:已取消;5:已电话解决;6:已退款
+                order_type:2,  //1设备维修，2门店消杀，3设备清洗
+                cancel_text:text,
+            },
+            success: function (data) {
+                loading.hide();
+                if(data.status == 1){
+                    window.location.href="{:U('Enterprise/CustomerServices/yesReceiveOrder')}";
+                }else{
+                    weui.alert('提交失败，请刷新再试！');
+                }
+            }
+        },'json');
+    }
+    function cancelOrder(id){
+        orderId = id;
+        $("#cancelOrder").show()
+    }
+    function hideTheDialog(id){
+        $("#"+id+"").hide()
+    }
+</script>

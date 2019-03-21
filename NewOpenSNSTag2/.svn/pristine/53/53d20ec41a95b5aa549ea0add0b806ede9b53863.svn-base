@@ -1,0 +1,17 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2017/12/7
+ * Time: 15:05
+ */
+
+namespace Wechat\Model;
+
+
+use Think\Model;
+
+class WechatMemberStoreModel extends Model
+{
+
+}

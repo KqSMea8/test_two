@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,user-scalable=no" name="viewport">
+    <title>{$liveData.title}</title>
+    <link href="/Public/css/zixun3.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="/Public/js/jquery.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            if(hWidth>600){
+                hWidth=600;
+            }
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="zbTop">
+    <img src="__PUBLIC__/images/swiperlogo.png"/>
+    <div class="zbTop_con">
+        <h3>餐讯网</h3>
+        <p>餐饮人的掌上顾问</p>
+    </div>
+    <a  class="zbTopBtn" href="http://opensns.lz517.com/index.php?s=/home/AppDownload/index">打开</a>
+</div>
+<div class="zbVideoWarp">
+    <div class="playContent">
+        <img class="videoImg" src="{$liveData.cover_url}"/>
+        <a class="playTip" href="http://opensns.lz517.com/index.php?s=/home/AppDownload/index"></a>
+    </div>
+
+</div>
+<div class="zbCenter">
+    <div class="zbCenterCon zbCenterConDetail">
+        <div class="top">
+            <h3>{$liveData.title}</h3>
+            <!--<div>-->
+                <!--<span class="span1"><img src="__PUBLIC__/images/playIcon_s.png"/>观看 0</span>-->
+                <!--<span class="span2"><img src="__PUBLIC__/images/chatIcon_s.png"/>评论 0</span>-->
+            <!--</div>-->
+        </div>
+        <div class="con">
+            <ul>
+                <li><span>时间：</span>{$liveData.start_time}</li>
+                <li><span>播主：</span>{$liveData.speaker}</li>
+                <li><span>观看：</span>公开</li>
+                <li><span>节目介绍：</span><p class="desc">{$liveData.description}</p></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    //获取视频Dom元素
+    var video=$('#playVideo')[0];
+    video.oncanplay=function(){
+        //显示视频
+        $('.playContent').css('display','block');
+    }
+    //播放和暂停
+//    $('.playTip').click(function(){
+//        window.location.href="http://opensns.lz517.com/index.php?s=/home/AppDownload/index";
+//        video.play();
+//        $(this).css('display','none');
+//    });
+    $('#playVideo').click(function(){
+        video.pause();
+        $('.playTip').css('display','block');
+    });
+    //全屏播放
+    $('.fullscreenIcon').click(function(){
+        video.webkitRequestFullScreen();
+    });
+</script>
+</body>
+</html>

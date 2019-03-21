@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>巡检详情页面</title>
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            // if(hWidth>800){
+            //     hWidth=800;
+            // }
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .placeholder{
+            display: inline-block;
+            width: 1.4rem;
+        }
+
+    </style>
+</head>
+<body style="background: #f3f3f3;">
+ <input type="hidden" id="enterpriseId" value="{$inspectionChildData.enterprise_id}">
+ <input type="hidden" id="storeId" value="{$inspectionChildData.store_id}">
+ <div class="store-top wxbb-top">
+     <ul class="sqsb-top-content">
+         <li>
+             <span>门&emsp;&emsp;店：</span>
+             <em id="result">{$storeName}</em>
+         </li>
+         <li>
+             <span>到店时间：</span>
+             <input class="weui-input" style="color: #ffe512;width: 4rem;border: 1px solid #ffe512;" onchange="changeArriveTime()" value="{$inspectionChildData.arrive_time}" id="arriveTime" type="date">
+             <input type="hidden" id="arriveTimeVal" value="{$inspectionChildData.arrive_time}">
+         </li>
+     </ul>
+ </div>
+
+ <!-------------------------------------------------------------巡检员第一次开始------------------------------------------------------------->
+
+ <if condition="$isDevice eq 1">
+     <div class="sqsb-index-text">巡检结果</div>
+     <div class="weui-cells weui-cells_form" id="uploader" style="position: fixed;top: 6rem;background-color: transparent;">
+         <div class="weui-cell">
+             <div class="weui-cell__bd">
+                 <div class="weui-uploader">
+                     <div class="weui-uploader__hd">
+                         <p class="weui-uploader__title">巡检报告<label style="color: #ff3333">*</label></p>
+                         <div class="weui-uploader__info"><span id="uploadCount">0</span>/6</div>
+                     </div>
+                     <div class="weui-uploader__bd">
+                         <ul class="weui-uploader__files" id="uploaderFiles"></ul>
+                         <div class="weui-uploader__input-box">
+                             <input id="uploaderInput" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <div class="centerBtnWarp centerBtn" style="height: 2rem;padding-top: 0.2rem;">
+         <a href="javascript:;" onclick='overOrder()' class="centerBtn">完成工单</a>
+     </div>
+ </if>
+
+ <!-------------------------------------------------------------巡检员第一次结束------------------------------------------------------------->
+
+
+ <!-------------------------------------------------------------巡检员第二次开始------------------------------------------------------------->
+
+ <if condition="$isDevice eq 2">
+     <div class="sqsb-index-search">
+        <input class="sqsb-index-search text" placeholder="输入设备名称搜索" type="text" id="searchText">
+        <a class="sqsb-index-search search-logo" onclick="showDeviceList()"></a>
+    </div>
+     <ul class="sheet-list-title">
+         <li>
+             <div>设备编号</div>
+             <div>设备名称</div>
+             <div>巡检结果</div>
+         </li>
+     </ul>
+     <ul class="sheet-list-li" id="deviceListId">
+     </ul>
+     <div class="centerBtnWarp twoBtn">
+         <a href="javascript:;" onclick="showInspectionAddDevicePage()" class="centerBtn fl">添加新设备</a>
+         <a href="javascript:;" onclick="finishOrder()" class="centerBtn fr">完成工单</a>
+     </div>
+ </if>
+ <!-------------------------------------------------------------巡检员第二次结束------------------------------------------------------------->
+
+ <!--巡检操作-->
+ <div class="popLayer hide">
+     <input type="hidden" id="id">
+     <div class="phonePop">
+         <h3 class="title">巡检操作</h3>
+         <div class="con">
+             <ul id="populId">
+                 <li id="operation1" value="1"><i id="tipId1" data-value="1"></i><div>进行了除霜</div></li>
+                 <li id="operation2" value="2"><i id="tipId2" data-value="2"></i><div>疏通了出风口</div></li>
+                 <li id="operation3" value="3"><i id="tipId3" data-value="3"></i><div>进行了内部清洗</div></li>
+                 <li id="operation4" value="4"><i id="tipId4" data-value="4"></i><div>查看了整个运行流程</div></li>
+             </ul>
+         </div>
+         <textarea class="textRemark" id="textRemarkId">备注</textarea>
+         <a style="width: 4rem;background: #C0C0C0;" class="xjbtn fl cancelBTN" href="javascript:;">取消</a>
+         <a style="width: 4rem" class="xjbtn fr sureBTN" onclick="confirmOperation()" href="javascript:;">确定</a>
+     </div>
+ </div>
+</body>
+<script src="/Public/wechat/j/jquery.js"></script>
+<script>
+    $(function() {
+
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+
+        //提示框页面关闭
+        $('.popLayer .cancelBTN').click(function () {
+            $('.popLayer').addClass('hide');
+        });
+
+        //巡检操作选项选择
+        $('.phonePop .con li').click(function () {
+//            $('.phonePop .con li i').removeClass('selected');
+//            $(this).children('i').addClass('selected');
+            $(this).children('i').toggleClass('selected');
+        });
+
+        //巡检子订单标识
+        inspectionStoreChildId = "{$inspectionStoreChildId}";
+
+        //判断isDevice = 2 展示设备
+        isDevice = "{$isDevice}";
+        if(isDevice == 2){
+            showDeviceList();
+        }
+
+    });
+
+    function searchList(){
+
+    }
+
+    //获取设备列表
+    function showDeviceList(){
+        var searchText = $('#searchText').val();
+
+        $.post("{:U('storeMaintain/getDeviceList')}", {inspectionStoreChildId:inspectionStoreChildId,searchText:searchText}, function(result){
+
+            if(result.status == 1){
+
+                for(var i=0;i<result.data.length;i++){
+
+                    if(!html){
+                        var html = "<li>";
+                    }else{
+                        html += "<li>";
+                    }
+                    html += "<div>"+result.data[i].device_code+"</div>";
+                    html += "<div>"+result.data[i].device_name+"</div>";
+                    html += "<input type='hidden' id=\"deviceId"+result.data[i].id+"\" value="+result.data[i].id+">";
+                    html += "<input type='hidden' id=\"iscId"+result.data[i].id+"\" value="+result.data[i].inspection_store_child_id+">";
+                    html += "<input type='hidden' id=\"icdId"+result.data[i].id+"\" value="+result.data[i].inspection_child_device_id+">";
+                    html += "<div class='divMain'>";
+
+                    if((result.data[i].is_operate == 1) && (result.data[i].inspection_operate == null)){
+
+                        html += "<a class='operation' value='1' onclick=\"showTip("+result.data[i].id+")\">操作</a> ";
+                    }else if(result.data[i].is_operate != 1){
+                        html += "<em class='placeholder'></em> ";
+                    }
+
+                    if((result.data[i].is_operate == 1) && (result.data[i].inspection_operate != null)){
+                        html += "<input type='hidden' id=\"oper"+result.data[i].id+"\" value="+result.data[i].inspection_operate+">";
+                        html += "<input type='hidden' id=\"operRemark"+result.data[i].id+"\" value="+result.data[i].remark+">";
+                        html += "<a onclick=\"showTip("+result.data[i].id+")\" style='background-color: #00FF66'>操作</a> ";
+                    }
+
+                    if(result.data[i].repairs_id == null && result.data[i].yet_repairs_id == null){
+                        html += "<input type='hidden' id=\"repairsIdVal"+result.data[i].id+"\" value="+result.data[i].repairs_id+">";
+                        html += "<a onclick=\"showRepairPage("+result.data[i].id+")\">报修</a> ";
+                        html += "<a onclick=\"showYetRepairPage("+result.data[i].id+")\">已修</a>";
+                    }
+
+                    if(result.data[i].repairs_id != null && result.data[i].yet_repairs_id == null){
+                        html += "<input type='hidden' id=\"repairsIdVal"+result.data[i].id+"\" value="+result.data[i].repairs_id+">";
+                        html += "<a onclick=\"showRepairPage("+result.data[i].id+")\" style='background-color: #00FF66'>报修</a> ";
+                        html += "<em class='placeholder'></em>";
+                    }
+
+                    if(result.data[i].repairs_id == null && result.data[i].yet_repairs_id != null){
+                        html += "<em class='placeholder'></em>";
+                        html += "<a onclick=\"showYetRepairPage("+result.data[i].yet_repairs_id+")\" style='background-color: #00FF66'>已修</a>";
+                    }
+
+                    html += "</div>";
+                    html += "</li>";
+                }
+
+                $("#deviceListId").html(html);
+            }else{
+                $("#deviceListId").html('');
+            }
+        });
+    }
+
+
+    //点击“操作”，确认按钮
+    function confirmOperation(){
+        //获取备注内容
+        var textRemark = $("#textRemarkId").val();
+
+        //获取选中的selected 值
+        var result='';
+        $(".selected").each(function(){
+            result=result+ $(this).data("value")+',';
+        });
+
+        //判断是否有选中的值，有的话去除末尾的字符
+        if(result){
+            result = removeLastOne(result);
+        }else{
+            weui.alert('请选择至少一条操作');
+            return;
+        }
+
+        var loading = weui.loading('正在更新');
+        $.post("{:U('storeMaintain/changeChildOrderOperate')}", {inspectionStoreChildId:inspectionStoreChildId,inspectionChildDeviceId:inspectionChildDeviceId,deviceId:deviceId,inspectionOperate:result,remark:textRemark}, function(result){
+            loading.hide();
+            if(result.status == 1){
+                //刷新列表数据
+                showDeviceList();
+
+            }else{
+                weui.alert(result.msg);
+            }
+
+            //隐藏提示框
+            $('.popLayer').addClass('hide');
+        });
+    }
+
+    //去除最后一位的值
+    function removeLastOne(str){
+        return str.substring(0,str.length - 1);
+    }
+
+    //显示巡检操作问题选择
+    function showTip(val){
+        //判断当前选中的数据 操作中是否有值
+        var operVal = $("#oper"+val+"").val();
+
+        //获取子订单的标识
+        inspectionStoreChildId = $("#iscId"+val+"").val();
+
+        //获取子订单设备的标识
+        inspectionChildDeviceId = $("#icdId"+val+"").val();
+
+        //获取设备的标识
+        deviceId = $("#deviceId"+val+"").val();
+
+        //不为空
+        if(operVal){
+            var operArr = operVal.split(',');
+            for(var i in operArr){
+                if($('#operation'+operArr[i]+'').val()){
+                    $('#tipId'+operArr[i]+'').addClass('selected');
+                }
+            }
+            //取出备注中显示的值
+            var operRemark = $("#operRemark"+val+"").val();
+            $("#textRemarkId").val(operRemark);
+
+        }else{
+            $("#textRemarkId").val('备注');
+            $('.phonePop .con li i').removeClass('selected');
+        }
+
+        $('.popLayer').removeClass('hide');
+    }
+
+    //完成工单功能(师傅上传图片第一次使用)
+    function overOrder(){
+
+        var arriveTimeVal = $('#arriveTimeVal').val();
+
+        if(!arriveTimeVal){
+            weui.alert('请选择到店时间');
+            return false;
+        }
+        if(uploadCount <= 0 || uploadImageList.length <= 0){
+            uploadImageList = [];
+            weui.alert('请上传设备图片');
+            return false;
+        }
+
+        var loading = weui.loading('正在更新订单信息');
+        $.post("{:U('storeMaintain/finishChildOrderForImg')}", {inspectionStoreChildId:inspectionStoreChildId,uploadImageList: uploadImageList}, function(result){
+            loading.hide();
+
+            if(result.status == 1){
+
+                weui.toast(result.msg, function() {
+                    location.href = "index.php?s=/Enterprise/StoreMaintain/inspectionOrderDetail/inspectionStoreChildId/"+inspectionStoreChildId+"";
+                },1000);
+            }
+        });
+    }
+
+    //更换到店时间
+    function changeArriveTime(){
+
+        var arriveTime = $('#arriveTime').val();
+
+        //TODO 增加到店时间判断，不可选择今天之前的时间
+
+
+        if(arriveTime){
+
+            $.post("{:U('storeMaintain/changeArriveTimeForId')}", {inspectionStoreChildId:inspectionStoreChildId,arriveTime: arriveTime}, function(result){
+
+                if(result.status == 1){
+                    $('#arriveTimeVal').val(result.arriveTime);
+                }
+            });
+        }
+    }
+
+    //判断数值是否为空
+    function isUndefined(value){
+        return value==undefined || $.trim(value).length==0;
+    }
+
+    //跳转报修页面
+    function showRepairPage(val){
+        //获取子订单设备的标识
+        inspectionchilddeviceid = $("#icdId"+val+"").val();
+        repairsid = $("#repairsIdVal"+val+"").val();
+        var enterpriseId = $("#enterpriseId").val();
+        var storeId = $("#storeId").val();
+        var deviceId = $("#deviceId"+val+"").val();
+
+        var childid= inspectionStoreChildId;
+
+        //如果报修的订单标识已经生成，就跳转到维修详情页面
+        if(repairsid != 'null'){
+
+            window.location.href="{:U('Wechat/Index/showStoreRepaireOrderForInspection/id/"+repairsid+"')}";
+        }else{
+
+            window.location.href="index.php?s=/Enterprise/StoreMaintain/showInspectionRepairCreate/inspectionChildDeviceId/"+inspectionchilddeviceid+"/inspectionStoreChildId/"+childid+"/companyId/"+enterpriseId+"/storeId/"+storeId+"/deviceId/"+deviceId+"";
+        }
+    }
+
+    //跳转已修订单页面
+    function showYetRepairPage(val){
+        //获取子订单设备的标识
+        inspectionchilddeviceid = $("#icdId"+val+"").val();
+        repairsid = $("#repairsIdVal"+val+"").val();
+        var enterpriseId = $("#enterpriseId").val();
+        var storeId = $("#storeId").val();
+        var deviceId = $("#deviceId"+val+"").val();
+
+        var childid= inspectionStoreChildId;
+
+        //如果报修的订单标识已经生成，就跳转到维修详情页面
+        if(repairsid != 'null'){
+
+            window.location.href="{:U('Wechat/Index/showStoreRepaireOrderForInspection/id/"+val+"')}";
+        }else{
+
+            window.location.href="index.php?s=/Enterprise/StoreMaintain/showInspectionYetRepairPage/inspectionChildDeviceId/"+inspectionchilddeviceid+"/inspectionStoreChildId/"+childid+"/companyId/"+enterpriseId+"/storeId/"+storeId+"/deviceId/"+deviceId+"";
+        }
+    }
+
+    //跳转添加新设备页面
+    function showInspectionAddDevicePage(){
+
+        window.location.href="index.php?s=/Enterprise/StoreMaintain/showInspectionAddDevicePage/inspectionStoreChildId/"+inspectionStoreChildId+"";
+    }
+
+    //完成工单功能
+    function finishOrder(){
+
+        var arriveTimeVal = $('#arriveTimeVal').val();
+
+        if(!arriveTimeVal){
+            weui.alert('请选择到店时间');
+            return false;
+        }
+        var errorMsg = '';
+        $(".sheet-list-li li").each(function() {
+            var index = $(this).index();
+            var level = index + 1;
+
+            if($(this).html().indexOf("operation") != -1 ){
+                errorMsg += "【请进行第"+level+"设备的操作】<br/>";
+            }
+
+        });
+
+        if(errorMsg){
+            weui.alert(errorMsg);
+            return false;
+        }
+
+        var loading = weui.loading('正在更新订单信息');
+        $.post("{:U('storeMaintain/masterFinishChildOrder')}", {inspectionStoreChildId:inspectionStoreChildId}, function(result){
+            loading.hide();
+
+            if(result.status == 1){
+
+                weui.toast(result.msg, function() {
+                    location.href = "index.php?s=/Enterprise/StoreMaintain/inspectionOrderDetail/inspectionStoreChildId/"+inspectionStoreChildId+"";
+                },1000);
+            }
+        });
+    }
+
+</script>
+
+<script>
+    // 缩略图预览
+    $('#uploaderFiles').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCount;
+                    uploadCountDom.html(uploadCount);
+
+                    for (var i = 0, len = uploadList.length; i < len; ++i) {
+                        var file = uploadList[i];
+                        if(file.id == id){
+                            delete uploadImageList[id];
+                            file.stop();
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCount = 0, uploadList = [],uploadImageList = [];
+    var uploadCountDom = $("#uploadCount");
+
+    try{
+        weui.uploader('#uploader', {
+            url: "{:U('Enterprise/storeMaintain/downLoadImageForInspection')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCount + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCount;
+                uploadCountDom.html(uploadCount);
+            },
+            onQueued: function(){
+                uploadList.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+                uploadImageList[this.id] = ret.data;
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>开票信息</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="orderDetail">
+    <p style="padding-left: 0.1rem" class="con">订单明细</p>
+    <ul>
+        <notempty name="orderData">
+            <volist name="orderData" id="data">
+                <li>
+                    <a href="{$data.url}">
+                        <span style="font-size: 0.72rem;width: 20%;overflow: hidden;text-overflow: ellipsis;">{$data.order_code}</span>
+                        <span style="font-size: 0.72rem;padding-left: 0.5rem">{$data.order_type_text}</span>
+                        <span style="font-size: 0.72rem;color: #970114;padding-left: 3.0rem">{$data.money_total}元</span>
+                    </a>
+                </li>
+            </volist>
+        </notempty>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="orderDetail">
+    <p style="padding-left: 0.1rem" class="con">发票详情</p>
+    <ul>
+        <li><span class="title">抬头类型：</span><div class="con">{$ticketData.head_type}</div></li>
+        <li><span class="title">发票抬头：</span><div class="con">{$ticketData.head_ticket}</div></li>
+        <li><span class="title">税&nbsp;&nbsp;号：</span><div class="con">{$ticketData.tax_number}</div></li>
+        <li><span class="title">发票类型：</span><div class="con">{$ticketData.tax_ticket_type_text}</div></li>
+        <php>if($ticketData['tax_ticket_type'] == 2){</php>
+            <li><span class="title">账&nbsp;&nbsp;号：</span><div class="con">{$ticketData.account_number}</div></li>
+            <li><span class="title">开&nbsp;户&nbsp;行：</span><div class="con">{$ticketData.open_bank}元</div></li>
+            <li><span class="title">企业注册电话：</span><div class="con">{$ticketData.ticket_phone}</div></li>
+            <li><span class="title">企业注册地址：</span><div class="con">{$ticketData.ticket_address}</div></li>
+        <php>}</php>
+        <li><span class="title">发票内容：</span><div class="con">{$ticketData.ticket_type}</div></li>
+        <li><span class="title">发票金额：</span><div class="con">{$ticketData.money}元</div></li>
+        <li><span class="title">发票状态：</span><div class="con">{$ticketData.status}</div></li>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="orderDetail">
+    <p style="padding-left: 0.1rem" class="con">收件信息</p>
+    <ul>
+        <li><span class="title">收&nbsp;件&nbsp;人：</span><div class="con">{$ticketData.receive_person}</div></li>
+        <li><span class="title">联系电话：</span><div class="con">{$ticketData.receive_phone}</div></li>
+        <li><span class="title">收件地址：</span><div class="con">{$ticketData.receive_address}</div></li>
+    </ul>
+</div>
+</body>
+</html>

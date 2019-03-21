@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>开票信息</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<i class="receiptSuccIcon"></i>
+<p class="receiptSuccTip">提交成功</p>
+<div class="receiptSuccCon">
+    您的开票信息已提交成功，我们会在3-5个工作日内开出发票并以快递的形式发送给您，预计七个工作日能送达，请注意查收，谢谢！
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="{:U('Wechat/index/myInvoice')}" class="centerBtn">返 回</a></div>
+</body>
+</html>

@@ -1,0 +1,7 @@
+.tool .entry {
+  background-image: url(entry.png);
+  background-position: 0 0px;
+}
+.tool .entry:hover {
+  background-position: 0 -46px;
+}

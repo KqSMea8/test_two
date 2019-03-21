@@ -1,0 +1,76 @@
+<div>
+    <form >
+        <div class="form-group">
+
+            <div id="uploadfiles_Excel"></div>
+            <input type="hidden" id="exc" name="exc" style="width: 260px;"/>
+
+            <div style="margin-top: 15px; padding-left: 0px;" id="plcontainer_Excel">
+                <button id="pickfiles_Excel">选择Excel文件</button>
+                <span id="path"></span>
+                <div style="color: red">(只能上传xls,csv格式的文件)</div>
+            </div>
+
+            <div>
+                <a class="btn btn-primary" onclick="doUpload()">确定</a>
+                <a onclick="$('.close').click();" class="btn btn-default">{:L('_CANCEL_')}</a>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script type="text/javascript" src="/Public/js/plupload-2.0.0/js/plupload.full.min.js"></script>
+<script type="text/javascript" src="__ZUI__/lib/datetimepicker/datetimepicker.min.js"></script>
+
+<script>
+
+    var uploaderExcel = new plupload.Uploader({
+        runtimes: 'html5, html4',
+        browse_button: 'pickfiles_Excel',
+        container: document.getElementById('plcontainer_Excel'),
+        url: "{:U('uploadExcel')}",
+        filters: {
+            max_file_size: '1mb',
+            mime_types: [{
+                title: 'Excel files',
+                extensions: 'xls, xlsx, csv',
+                prevent_duplicates: true
+            }]
+        },
+        init: {
+            PostInit: function () {
+            },
+            FilesAdded: function (up, files) {
+                uploaderExcel.start();
+            },
+            UploadProgress: function (up, file) {
+                // 文件上传过程中不断触发，可以用此事件来显示上传进度
+            },
+            FileUploaded: function (up, file, res) {
+                // 队列中的某一个文件上传完成后触发
+                var finfo = JSON.parse(res.response);
+                $('#exc').val(finfo.picpath + finfo.picname);
+                $('#path').html(finfo.picpath + finfo.picname);
+            },
+            Error: function (up, err) {
+                alert(err.code, err.message);
+            }
+        }
+    });
+    uploaderExcel.init();
+
+    //上传按钮操作
+    function doUpload() {
+        var url = "{:U('submitStoreExcel')}"; //保存excel的数据
+        var data = {exc: $('#exc').val()};
+        $.post(url, data, function (res) {
+            if(res.status == 1){
+                location.reload();
+            }else{
+                alert(res.msg);
+            }
+        });
+    }
+
+</script>

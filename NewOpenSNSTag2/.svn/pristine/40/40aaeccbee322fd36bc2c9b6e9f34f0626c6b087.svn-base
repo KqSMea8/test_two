@@ -1,0 +1,1168 @@
+<?php
+
+namespace Enterprise\Service;
+
+//use Wechat\Model\PrinterFaultRecordModel;
+//use Wechat\Model\StoreManagerBindStoreModel;
+//use Wechat\Model\MessageReminderModel;
+use Think\Log;
+use Wechat\Model\WechatMemberModel;
+use Wechat\Model\WechatOrderModel;
+
+/**
+ * 微信企业号
+ *
+ * @author songbin
+ *
+ */
+include_once "php/WXBizMsgCrypt.php";
+
+class EnterpriseService
+{
+    private $encodingAesKey;
+    private $token;
+    private $corpId;
+    private $corpsecret;
+    private $_accessToken = null;
+    private $_jsapiTicket = null;
+    const GET_ACCESS_TOKEN_URL = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?";
+    const GET_USER_INFO_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?";
+    const GET_USER_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/get?";
+    const GET_MEDIA_URL = "https://qyapi.weixin.qq.com/cgi-bin/media/get?";
+    const GET_DEPARTMENT_LIST = "https://qyapi.weixin.qq.com/cgi-bin/department/list?";
+    const GET_DEPARTMENT_USER_SIMPLE_LIST = "https://qyapi.weixin.qq.com/cgi-bin/user/simplelist?";
+    const GET_DEPARTMENT_USER_LIST = "https://qyapi.weixin.qq.com/cgi-bin/user/list?";
+    const MEDIA_UPLOAD = "https://qyapi.weixin.qq.com/cgi-bin/media/upload?";
+    const SEND_MESSAGE = "https://qyapi.weixin.qq.com/cgi-bin/message/send?";
+    const GET_JS_API_TICKET_URL = "https://qyapi.weixin.qq.com/cgi-bin/get_jsapi_ticket?";
+    const GET_CODE = "https://open.weixin.qq.com/connect/oauth2/authorize?";
+    const USER_CREATE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/create?";
+    const USER_UPDATE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/update?";
+    const USER_DELETE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/delete?";
+    const USER_BATCHDELETE_URL = "https://qyapi.weixin.qq.com/cgi-bin/user/batchdelete?";
+    const INVITE_SEND_URL = "https://qyapi.weixin.qq.com/cgi-bin/invite/send?";
+
+    const CUSTOMER_SERVICE = COMPANY_CUSTOMER_SERVICE;
+    const REPAIRE_MASTER = COMPANY_REPAIRE_MASTER;
+    const CLEANING_MASTER = COMPANY_CLEANING_MASTER;
+    const CLEANKILL_MASTER = COMPANY_CLEANKILL_MASTER;
+    const DISTRIBUTE_MANAGER = COMPANY_DISTRIBUTE_MANAGER;
+
+    //1：门店用户 2：门店消杀 3： 设备维修 4：烟道清洗 5：客服
+    const TYPE_USER_CUSTOMER = 1;
+    const TYPE_USER_CLEANKILL = 2;
+    const TYPE_USER_REPAIRE = 3;
+    const TYPE_USER_CLEANING = 4;
+    const TYPE_USER_SERVICE = 5;
+    //0不是, 1分配主管 2客服
+    const ADMIN_NOMAL = 0;
+    const ADMIN_DISTRIBUTE = 1;
+    const ADMIN_SERVICE = 2;
+
+    private $dtuInterfaceUrl = "http://p.lz517.net:8080/Printer/getPrinterState";
+    private $dtuInterfaceUrlTest = "http://p.lz517.net:8080/PrinterTask/test";
+
+    public function inviteSend($userId){
+        $param = ['userid' => $userId];
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpPost(self::INVITE_SEND_URL . 'access_token=' . $accessToken,json_encode($param) );
+        return $result;
+    }
+
+    /**
+     * @param $userIdList
+     * @return string
+     */
+    public function userBatchDelete($userIdList){
+        $param = ['useridlist' => $userIdList];
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpPost(self::USER_BATCHDELETE_URL . 'access_token=' . $accessToken,json_encode($param) );
+        return $result;
+    }
+
+    /**
+     * @param $userId
+     * @return Ambigous
+     */
+    public function userDelete($userId){
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::USER_DELETE_URL . 'access_token=' . $accessToken . "&userid=" . $userId);
+        return $result;
+    }
+
+    /**
+     * @param $param
+     * {
+        "userid": "zhangsan",
+        "name": "李四",
+        "department": [1],
+        "position": "后台工程师",
+        "mobile": "15913215421",
+        "gender": "1",
+        "email": "zhangsan@gzdev.com",
+        "weixinid": "lisifordev",
+        "enable": 1,
+        "avatar_mediaid": "2-G6nrLmr5EC3MNb_-zL1dDdzkd0p7cNliYu9V5w7o8K0",
+        "extattr": {"attrs":[{"name":"爱好","value":"旅游"},{"name":"卡号","value":"1234567234"}]}
+        }
+     * @return Ambigous
+     */
+    public function userUpdate($param){
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpPost(self::USER_UPDATE_URL . 'access_token=' . $accessToken,json_encode($param) );
+        return $result;
+    }
+
+    /**
+     * 添加用户
+     * @param $param
+     * {
+        "userid": "zhangsan",
+        "name": "张三",
+        "department": [1, 2],
+        "position": "产品经理",
+        "mobile": "15913215421",
+        "gender": "1",
+        "email": "zhangsan@gzdev.com",
+        "weixinid": "zhangsan4dev",
+        "avatar_mediaid": "2-G6nrLmr5EC3MNb_-zL1dDdzkd0p7cNliYu9V5w7o8K0",
+        "extattr": {"attrs":[{"name":"爱好","value":"旅游"},{"name":"卡号","value":"1234567234"}]}
+        }
+     * @return Ambigous
+     */
+    public function userCreate($param){
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpPost(self::USER_CREATE_URL . 'access_token=' . $accessToken,json_encode($param) );
+        return $result;
+    }
+
+    // 构造函数
+    public function __construct($encodingAesKey, $token, $corpId = COMPANY_CORPID, $corpsecret)
+    {
+        $this->encodingAesKey = $encodingAesKey;
+        $this->token = $token;
+        $this->corpId = $corpId;
+        $this->corpsecret = $corpsecret;
+    }
+
+    /**
+     * 验证回调URL
+     */
+    public function verifyURL()
+    {
+
+        /*
+         * ------------使用示例一：验证回调URL---------------
+         * 企业开启回调模式时，企业号会向验证url发送一个get请求
+         * 假设点击验证时，企业收到类似请求：
+         * GET /cgi-bin/wxpush?msg_signature=5c45ff5e21c57e6ad56bac8758b79b1d9ac89fd3&timestamp=1409659589&nonce=263014780&echostr=P9nAzCzyDtyTWESHep1vC5X9xho%2FqYX3Zpb4yKa9SKld1DsH3Iyt3tP3zNdtp%2B4RPcs8TgAE7OaBO%2BFZXvnaqQ%3D%3D
+         * HTTP/1.1 Host: qy.weixin.qq.com
+         *
+         * 接收到该请求时，企业应
+         * 1.解析出Get请求的参数，包括消息体签名(msg_signature)，时间戳(timestamp)，随机数字串(nonce)以及公众平台推送过来的随机加密字符串(echostr),
+         * 这一步注意作URL解码。
+         * 2.验证消息体签名的正确性
+         * 3. 解密出echostr原文，将原文当作Get请求的response，返回给公众平台
+         * 第2，3步可以用公众平台提供的库函数VerifyURL来实现。
+         *
+         */
+
+        // $sVerifyMsgSig = HttpUtils.ParseUrl("msg_signature");
+        $sVerifyMsgSig = $_GET ['msg_signature'];
+        // $sVerifyTimeStamp = HttpUtils.ParseUrl("timestamp");
+        $sVerifyTimeStamp = $_GET ['timestamp'];
+        // $sVerifyNonce = HttpUtils.ParseUrl("nonce");
+        $sVerifyNonce = $_GET ['nonce'];
+        // $sVerifyEchoStr = HttpUtils.ParseUrl("echostr");
+        $sVerifyEchoStr = $_GET ['echostr'];
+
+        log::write('服务端接收微信验证数据 : '.$sVerifyMsgSig." | ".$sVerifyTimeStamp." | ".$sVerifyNonce." | ".$sVerifyEchoStr);
+        log::write('服务端配置的微信数据: '.$this->token." | ".$this->encodingAesKey." | ".$this->corpId);
+        // 需要返回的明文
+        $EchoStr = "";
+
+        $wxcpt = new \WXBizMsgCrypt ($this->token, $this->encodingAesKey, $this->corpId);
+        $errCode = $wxcpt->VerifyURL($sVerifyMsgSig, $sVerifyTimeStamp, $sVerifyNonce, $sVerifyEchoStr, $sEchoStr);
+
+        log::write('微信验证结果为 | '.$errCode);
+        if ($errCode == 0) {
+            //
+            // 验证URL成功，将sEchoStr返回
+            echo $sEchoStr;
+            // HttpUtils.SetResponce($sEchoStr);
+        } else {
+            print ("ERR: " . $errCode . "\n\n");
+        }
+    }
+
+    /**
+     * 消息解密
+     */
+    public function decrypt()
+    {
+        /*
+         * ------------使用示例二：对用户回复的消息解密---------------
+         * 用户回复消息或者点击事件响应时，企业会收到回调消息，此消息是经过公众平台加密之后的密文以post形式发送给企业，密文格式请参考官方文档
+         * 假设企业收到公众平台的回调消息如下：
+         * POST /cgi-bin/wxpush? msg_signature=477715d11cdb4164915debcba66cb864d751f3e6&timestamp=1409659813&nonce=1372623149 HTTP/1.1
+         * Host: qy.weixin.qq.com
+         * Content-Length: 613
+         * <xml>
+         * <ToUserName><![CDATA[wx5823bf96d3bd56c7]]></ToUserName><Encrypt><![CDATA[RypEvHKD8QQKFhvQ6QleEB4J58tiPdvo+rtK1I9qca6aM/wvqnLSV5zEPeusUiX5L5X/0lWfrf0QADHHhGd3QczcdCUpj911L3vg3W/sYYvuJTs3TUUkSUXxaccAS0qhxchrRYt66wiSpGLYL42aM6A8dTT+6k4aSknmPj48kzJs8qLjvd4Xgpue06DOdnLxAUHzM6+kDZ+HMZfJYuR+LtwGc2hgf5gsijff0ekUNXZiqATP7PF5mZxZ3Izoun1s4zG4LUMnvw2r+KqCKIw+3IQH03v+BCA9nMELNqbSf6tiWSrXJB3LAVGUcallcrw8V2t9EL4EhzJWrQUax5wLVMNS0+rUPA3k22Ncx4XXZS9o0MBH27Bo6BpNelZpS+/uh9KsNlY6bHCmJU9p8g7m3fVKn28H3KDYA5Pl/T8Z1ptDAVe0lXdQ2YoyyH2uyPIGHBZZIs2pDBS8R07+qN+E7Q==]]></Encrypt>
+         * <AgentID><![CDATA[218]]></AgentID>
+         * </xml>
+         *
+         * 企业收到post请求之后应该
+         * 1.解析出url上的参数，包括消息体签名(msg_signature)，时间戳(timestamp)以及随机数字串(nonce)
+         * 2.验证消息体签名的正确性。
+         * 3.将post请求的数据进行xml解析，并将<Encrypt>标签的内容进行解密，解密出来的明文即是用户回复消息的明文，明文格式请参考官方文档
+         * 第2，3步可以用公众平台提供的库函数DecryptMsg来实现。
+         */
+
+        // $sReqMsgSig = HttpUtils.ParseUrl("msg_signature");
+        $sReqMsgSig = $_GET ['msg_signature'];
+        // $sReqTimeStamp = HttpUtils.ParseUrl("timestamp");
+        $sReqTimeStamp = $_GET ['timestamp'];
+        // $sReqNonce = HttpUtils.ParseUrl("nonce");
+        $sReqNonce = $_GET ['nonce'];
+        // post请求的密文数据
+        // $sReqData = HttpUtils.PostData();
+        $sReqData = $GLOBALS['HTTP_RAW_POST_DATA'];
+
+        $sMsg = ""; // 解析之后的明文
+        $wxcpt = new \WXBizMsgCrypt ($this->token, $this->encodingAesKey, $this->corpId);
+        $errCode = $wxcpt->DecryptMsg($sReqMsgSig, $sReqTimeStamp, $sReqNonce, $sReqData, $sMsg);
+
+        if ($errCode == 0) {
+            // 解密成功，sMsg即为xml格式的明文
+            // TODO: 对明文的处理
+            // For example:
+            if (!empty ($sMsg)) {
+                libxml_disable_entity_loader(true);
+                $this->_receive = ( array )simplexml_load_string($sMsg, 'SimpleXMLElement', LIBXML_NOCDATA);
+                return $this->_receive;
+            }
+            return null;
+        } else {
+        }
+    }
+
+    /**
+     * 加密消息并发送
+     */
+    public function encrypt($sRespData)
+    {
+        /*
+         * ------------使用示例三：企业回复用户消息的加密---------------
+         * 企业被动回复用户的消息也需要进行加密，并且拼接成密文格式的xml串。
+         * 假设企业需要回复用户的明文如下：
+         * <xml>
+         * <ToUserName><![CDATA[mycreate]]></ToUserName>
+         * <FromUserName><![CDATA[wx5823bf96d3bd56c7]]></FromUserName>
+         * <CreateTime>1348831860</CreateTime>
+         * <MsgType><![CDATA[text]]></MsgType>
+         * <Content><![CDATA[this is a test]]></Content>
+         * <MsgId>1234567890123456</MsgId>
+         * <AgentID>128</AgentID>
+         * </xml>
+         *
+         * 为了将此段明文回复给用户，企业应：
+         * 1.自己生成时间时间戳(timestamp),随机数字串(nonce)以便生成消息体签名，也可以直接用从公众平台的post url上解析出的对应值。
+         * 2.将明文加密得到密文。
+         * 3.用密文，步骤1生成的timestamp,nonce和企业在公众平台设定的token生成消息体签名。
+         * 4.将密文，消息体签名，时间戳，随机数字串拼接成xml格式的字符串，发送给企业号。
+         * 以上2，3，4步可以用公众平台提供的库函数EncryptMsg来实现。
+         */
+        $sReqTimeStamp = time();
+        $sReqNonce = $this->createNonceStr();
+        $sEncryptMsg = ""; // xml格式的密文
+        $wxcpt = new \WXBizMsgCrypt ($this->token, $this->encodingAesKey, $this->corpId);
+        $errCode = $wxcpt->EncryptMsg($sRespData, $sReqTimeStamp, $sReqNonce, $sEncryptMsg);
+        if ($errCode == 0) {
+            echo $sEncryptMsg;
+        } else {
+        }
+    }
+
+    /**
+     * 回复文本消息（被动）
+     */
+    public function responsePassiveText($content)
+    {
+        $xmlTpl = "<xml>
+                        <ToUserName><![CDATA[" . $this->getRev('FromUserName') . "]]></ToUserName>
+                        <FromUserName><![CDATA[" . $this->getRev('ToUserName') . "]]></FromUserName>
+                        <CreateTime>" . time() . "</CreateTime>
+                        <MsgType><![CDATA[text]]></MsgType>
+                        <Content><![CDATA[" . $content . "]]></Content>
+                    </xml>";
+        $this->encrypt($xmlTpl);
+    }
+
+    /**
+     * 获取16位随机字符串
+     *
+     * @param number $length
+     * @return string
+     */
+    private function createNonceStr($length = 16)
+    {
+        $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $str = "";
+        for ($i = 0; $i < $length; $i++) {
+            $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+        }
+        return $str;
+    }
+
+    /**
+     * GET 请求
+     *
+     * @param string $url
+     */
+    private function httpGet($url)
+    {
+        $oCurl = curl_init();
+        if (stripos($url, "https://") !== FALSE) {
+            curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        }
+        curl_setopt($oCurl, CURLOPT_URL, $url);
+        curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
+        $sContent = curl_exec($oCurl);
+        $aStatus = curl_getinfo($oCurl);
+        curl_close($oCurl);
+        if (intval($aStatus ["http_code"]) == 200) {
+            return $sContent;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * POST 请求
+     *
+     * @param string $url
+     * @param array $param
+     * @return string content
+     */
+    private function httpPost($url, $param, $isArray = false)
+    {
+        $oCurl = curl_init();
+        curl_setopt ( $oCurl, CURLOPT_SAFE_UPLOAD, false);
+        if (stripos($url, "https://") !== FALSE) {
+            curl_setopt($oCurl, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($oCurl, CURLOPT_SSL_VERIFYHOST, false);
+        }
+        if (!$isArray) {
+            if (is_string($param)) {
+                $strPOST = $param;
+            } else {
+                $aPOST = array();
+                foreach ($param as $key => $val) {
+                    $aPOST [] = $key . "=" . urlencode($val);
+                }
+                $strPOST = join("&", $aPOST);
+            }
+        } else {
+            $strPOST = $param;
+        }
+        curl_setopt($oCurl, CURLOPT_URL, $url);
+        curl_setopt($oCurl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($oCurl, CURLOPT_POST, true);
+        curl_setopt($oCurl, CURLOPT_POSTFIELDS, $strPOST);
+        $sContent = curl_exec($oCurl);
+        $aStatus = curl_getinfo($oCurl);
+
+        curl_close($oCurl);
+
+        if (intval($aStatus ["http_code"]) == 200) {
+            return $sContent;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 解析微信返回的json数据
+     *
+     * @param unknown $result
+     * @return Ambigous <NULL, mixed>
+     */
+    private function decodeJson($result)
+    {
+        $arr = null;
+        if ($result) {
+            $arr = json_decode($result, true);
+            if ($arr && array_key_exists('errcode', $arr)) {
+                $this->errCode = $arr ['errcode'];
+                $this->errMsg = $arr ['errmsg'];
+            }
+        }
+        return $arr;
+    }
+
+    /**
+     * 解析POST过来的XML信息
+     *
+     * @return NULL
+     */
+    public function parseMsg()
+    {
+        // 解密
+        $this->decrypt();
+    }
+
+    /**
+     * 获取解析后的XML数据中信息
+     *
+     * @param unknown $name
+     *            为all时返回整个数组
+     * @return NULL
+     */
+    public function getRev($name)
+    {
+        if ($name == 'all') {
+            return $this->_receive;
+        }
+        if (is_array($this->_receive) && array_key_exists($name, $this->_receive)) {
+            return $this->_receive [$name];
+        }
+        return null;
+    }
+
+    /**
+     * 获取access_token
+     *
+     * @return \Wechat\Service\Ambigous
+     */
+    public function getAccessToken()
+    {
+        if (is_null($this->_accessToken)) {
+            $this->_accessToken = S($this->corpsecret);
+            if (!$this->_accessToken) {
+                $result = $this->httpGet(self::GET_ACCESS_TOKEN_URL . 'corpid=' . $this->corpId . '&corpsecret=' . $this->corpsecret);
+                Log::write("获取access——token".$result);
+                $json = $this->decodeJson($result);
+                if (array_key_exists('access_token', $json)) {
+                    $this->_accessToken = $json ['access_token'];
+                    S($this->corpsecret, $json ['access_token'], 3600);
+                }
+            }
+        }
+        return $this->_accessToken;
+    }
+
+    /**
+     * 获取员工
+     *
+     * @param unknown $corpsecret
+     * @param unknown $code
+     * @param unknown $agentid
+     */
+    Public function getUserInfo($code, $agentid)
+    {
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::GET_USER_INFO_URL . 'access_token=' . $accessToken . '&code=' . $code . '&agentid=' . $agentid);
+        return $this->decodeJson($result);
+    }
+
+    /**
+     * 根据获取员工信息
+     *
+     * @param unknown $userId
+     * @param unknown $corpsecret
+     * @return \Wechat\Service\Ambigous
+     */
+    public function getUserById($userId)
+    {
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::GET_USER_URL . 'access_token=' . $accessToken . '&userid=' . $userId);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+
+    /**
+     * 下载多媒体文件
+     *
+     * @param string $dirname
+     *            图片保存地址，默认保存到导购
+     * @param unknown $corpsecret
+     * @param unknown $mediaId
+     * @return string
+     */
+    public function saveMedia($mediaId, $dirname = "./Uploads/wx_shoppingGuide/")
+    {
+        set_time_limit(C('MAX_RUN_TIME'));
+        $accessToken = $this->getAccessToken();
+        $url = self::GET_MEDIA_URL . 'access_token=' . $accessToken . '&media_id=' . $mediaId;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_NOBODY, 0); // 对body进行输出。
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $package = curl_exec($ch);
+        $httpinfo = curl_getinfo($ch);
+        curl_close($ch);
+
+        $media = array_merge(array(
+            'mediaBody' => $package
+        ), $httpinfo);
+
+        // 求出文件格式
+        preg_match('/\w\/(\w+)/i', $media ["content_type"], $extmatches);
+        $fileExt = $extmatches [1];
+        $filename = time() . rand(100, 999) . ".{$fileExt}";
+        if (!file_exists($dirname)) {
+            mkdir($dirname, 0777, true);
+        }
+        file_put_contents($dirname . $filename, $media ['mediaBody']);
+        return $dirname . $filename;
+    }
+
+    /**
+     * 获取部门列表
+     * @param $corpsecret
+     * @param int $departmentId 部门id，默认为1（全企业）
+     * @return bool|mixed|Ambigous
+     */
+    public function getDepartmentList($departmentId = 1)
+    {
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::GET_DEPARTMENT_LIST . 'access_token=' . $accessToken . '&id=' . $departmentId);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+
+    /**
+     * 获取部门成员简单列表
+     * @param $corpsecret
+     * @param $departmentId 部门id
+     * @param int $fetch_child 是否递归获取子成员 1是2否
+     * @param int $status 0获取全部成员，1获取已关注成员列表，2获取禁用成员列表，4获取未关注成员列表。status可叠加
+     * @return bool|mixed|Ambigous
+     */
+    public function getDepartmentUserSimpleList($departmentId = 1, $fetch_child = 1, $status = 0)
+    {
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::GET_DEPARTMENT_USER_SIMPLE_LIST . 'access_token=' . $accessToken . '&department_id=' . $departmentId . '&fetch_child=' . $fetch_child . '&status=' . $status);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+
+    /**
+     * 获取部门成员详细列表
+     * @param $corpsecret
+     * @param $departmentId 部门id
+     * @param int $fetch_child 是否递归获取子成员 1是2否
+     * @param int $status 0获取全部成员，1获取已关注成员列表，2获取禁用成员列表，4获取未关注成员列表。status可叠加
+     * @return bool|mixed|Ambigous
+     */
+    public function getDepartmentUserList($departmentId = 1, $fetch_child = 1, $status = 0)
+    {
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::GET_DEPARTMENT_USER_LIST . 'access_token=' . $accessToken . '&department_id=' . $departmentId . '&fetch_child=' . $fetch_child . '&status=' . $status);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+
+    /**
+     * 上传媒体文件
+     * @param $type 类型
+     * @param $media array('media'=>"@media.jpg")
+     * @return string|Ambigous
+     */
+    public function mediaUpload($type, $media)
+    {
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpPost(self::MEDIA_UPLOAD . 'access_token=' . $accessToken . '&type=' . $type, $media, true);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+
+    public function sendMessage($param){
+        $accessToken = $this->getAccessToken();
+        Log::write("发消息返回数据".$accessToken);
+        $result = $this->httpPost(self::SEND_MESSAGE . 'access_token=' . $accessToken,$param);
+        Log::write("发消息返回数据".$result);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+    
+    /**
+     * 获取code
+     */
+    public function getUserCode($url){
+        $appId = $this->corpId;
+        return self::GET_CODE . 'appid='.$appId.'&redirect_uri='.$url.'&response_type=code&scope=snsapi_base&state=getCode#wechat_redirect';
+    }
+    
+    /**
+     * 根据code获取userid
+     */
+    public function getUserId($code){
+        $accessToken = $this->getAccessToken();
+        $result = $this->httpGet(self::GET_USER_INFO_URL . 'access_token='.$accessToken.'&code=' . $code);
+        $result = $this->decodeJson($result);
+        return $result;
+    }
+    
+    /**
+     * 获取jsapi_ticket
+     * jsapi_ticket是企业号用于调用微信JS接口的临时票据
+     * 开发者必须在自己的服务全局缓存jsapi_ticket
+     */
+    public function getJsApiTicket()
+    {
+        $accessToken = $this->getAccessToken();
+        if (is_null($this->_jsapiTicket)) {
+            $this->_jsapiTicket = S('qy_jsapiTicket');
+            if (!$this->_jsapiTicket) {
+                $result = $this->httpGet(self::GET_JS_API_TICKET_URL . 'access_token=' . $accessToken);
+                $json = $this->decodeJson($result);
+                if (array_key_exists('ticket', $json)) {
+                    $this->_jsapiTicket = $json ['ticket'];
+                    S('qy_jsapiTicket', $json ['ticket'], 3600);
+                }
+            }
+        }
+        return $this->_jsapiTicket;
+    }
+    
+    /**
+     * 获取jsapi签名
+     *
+     * @return multitype:string NULL number unknown
+     */
+    public function getSignPackage()
+    {
+        $jsapiTicket = $this->getJsApiTicket();
+        $url = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $timestamp = time();
+        $nonceStr = $this->createNonceStr();
+    
+        // 这里参数的顺序要按照 key 值 ASCII 码升序排序
+        $string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+    
+        $signature = sha1($string);
+    
+        $signPackage = array(
+                "appId" => $this->corpId,
+                "nonceStr" => $nonceStr,
+                "timestamp" => $timestamp,
+                "url" => $url,
+                "signature" => $signature,
+                "rawString" => $string
+        );
+        return $signPackage;
+    }
+    
+    /**
+     * 根据时间/日期，返回星期
+     * @author wuhao
+     * @param string $dateTime 指定日期
+     * @return string $return 例：'周三'
+     */
+    public function getWeek($dateTime) {
+        $w = date ( "w", strtotime ( $dateTime ) );
+        switch ($w) {
+            case '0' :
+                return "周日";
+                break;
+            case '1' :
+                return "周一";
+                break;
+            case '2' :
+                return "周二";
+                break;
+            case '3' :
+                return "周三";
+                break;
+            case '4' :
+                return "周四";
+                break;
+            case '5' :
+                return "周五";
+                break;
+            case '6' :
+                return "周六";
+                break;
+            default :
+                return "";
+                break;
+        }
+    }
+    
+    /**
+     * 根据userId获取dtucode(企业号：商家后台)
+     * @author wuhao
+     * @param string $userId 企业号用户手机号
+     * @return string $dtucode 与该用户绑定的打印机code
+     */
+    public function getDtucodeByUserId($userId){
+        $model = new StoreManagerBindStoreModel();
+        $dtucode = $model->where ( "store_manager_userid = '{$userId}'" )->getField ( 'dtucode' );
+        return $dtucode;
+    }
+    
+    /**
+     * 根据dtucode获取打印机故障记录
+     * @auhtor wuhao
+     * @param string $dtucode 打印机标识
+     * @return array $printerFaultRecordData打印机故障记录 例：array(0=>array('id'=>1,'dtucode'=>打印机code,'store_id'=>门店id,'reason'=>故障原因,'resolvement'=>解决方案,'ctime'=>创建时间),1=>array(...),...)
+     */
+    public function getPrinterFaultDataByDtucode($dtucode){
+        $printerFaultModel = new PrinterFaultRecordModel();
+        $printerFaultRecordData = $printerFaultModel->where ( "dtu_code = " . $dtucode )->order('ctime desc')->select ();
+        return $printerFaultRecordData;
+    }
+    
+    /**
+     * 根据dtucode获取与门店绑定的数据
+     * @author wuhao
+     * @param string $dtucode 打印机标识
+     * @return array $userIdData打印机绑定信息 例：array(0=>array('store_manager_userid'=>门店店长userId（手机号）,'dtucode'=>打印机code),1=>array(...),...)
+     */
+    public function getBindDataByDtucode($dtucode){
+        $model = new StoreManagerBindStoreModel ();
+        $userIdData = $model->where ( "dtucode = " . $dtucode )->select();
+        return $userIdData;
+    }
+    
+    /**
+     * 添加打印机故障记录
+     * @author wuhao
+     * @param array $data 例：array('dtucode'=>打印机code,'store_id'=>门店id,'reason'=>故障原因,'resolvement'=>解决方案,'ctime'=>创建时间)
+     * @return $result 如果数据非法或者查询错误则返回false，如果是自增主键 则返回主键值，否则返回1
+     */
+    public function addPrinterFaultRecord($data){
+        $printerFaultRecordModel = new PrinterFaultRecordModel ();
+        $result = $printerFaultRecordModel->add ( $data );
+        return $result;
+    }
+
+    /**
+     * 添加消息提醒记录
+     * @author wuhao
+     * @param array $data 例：array('user_id'=>使用者id,'user_name'=>使用者姓名,'content'=>消息提醒内容,'type'=>消息类型（text）,'create_time'=>创建时间,'update_time'=>修改时间,'from_user'=>使用者身份,'remote_addr'=>使用者ip)
+     * @return 如果数据非法或者查询错误则返回false，如果是自增主键 则返回主键值，否则返回1
+     */
+    public function addMessageReminder($data){
+        $model = new MessageReminderModel();
+        $result = $model->add($data);
+        return $result;
+    }
+
+
+    /**
+     * 调用欧阳接口，测试dtuCode
+     */
+    public function sendDtuCodeForTest($dtuCode){
+
+        $result = $this->httpPost($this->dtuInterfaceUrl,['dtuCode'=>$dtuCode]);
+
+        return json_decode($result,true);
+    }
+
+    public function sendDtuCodeAgain($dtuCode){
+        $result = $this->httpPost($this->dtuInterfaceUrlTest,['dtuCode'=>$dtuCode]);
+
+        return json_decode($result,true);
+    }
+
+    public function getOrderStatusText($status){
+        $text = "";
+        //0:派单中;1:已接单;2:待支付;3:已完成;4:已取消;5:已电话解决;6:已退款;7:已评价8:已支付;9:待验收;10:未接单)
+        switch($status){
+            case 0:$text = "派单中";break;
+            case 1:$text = "已接单";break;
+            case 2:$text = "待支付";break;
+            case 3:$text = "已完成";break;
+            case 4:$text = "已取消";break;
+            case 5:$text = "无需上门";break;
+            case 6:$text = "已退款";break;
+            case 7:$text = "已评价";break;
+            case 8:$text = "已支付";break;
+            case 9:$text = "待验收";break;
+            case 10:$text = "未接单";break;
+            case 11:$text = "服务中";break;
+            case 12:$text = "已过期";break;
+            case 13:$text = "待确认";break;
+        }
+        return $text;
+    }
+    /**
+     * 获取客服发消息内容
+     * @param $orderId
+     * @param $type
+     * @return array|string
+     * @author pangyongfu
+     */
+    public function getCustomerSendMsg($orderId,$type){
+
+        $toUser = null;
+        $description = '';
+        $agentid = 0;
+        $title = '';
+        $url = '';
+        $wechatOrderModel = new WechatOrderModel();
+        $map['orde.id'] = $orderId;
+        $field = "orde.id,orde.order_code,orde.order_state,orde.create_time,orde.store_name,item.difference_status,item.difference_status,item.urgent_level,
+        orde.order_type,orde.money_total,member.name worker,member.uid,faci.id fid,faci.name fname";
+        $repairData = $wechatOrderModel->getDataByOrderId($map,$field);
+        $repairData = $repairData[0];
+        $repairData['order_type_text'] = $repairData['order_type']==1?"门店维修":($repairData['order_type']==2?"门店消杀":"门店清洗");
+
+        $repairData['order_state_text'] = $this->getOrderStatusText($repairData['order_state']);
+        $description .= "工单编号：".$repairData['order_code']."\r\n";
+        $description .= "报修门店：".$repairData['store_name']."\r\n";
+        $description .= "报修时间：".$repairData['create_time']."\r\n";
+        $description .= "当前状态：".$repairData['order_state_text']."\r\n";
+        if($repairData['order_type']==2 && $repairData['order_type']==2){
+            $repairData['money_total'] += $repairData['difference_price'];
+        }
+        //获取所有客服人员
+        $wechatMemberModel = new WechatMemberModel();
+        $serviceArr = $wechatMemberModel->where(['isadmin'=>self::ADMIN_SERVICE,'status'=>1,'type_user'=>self::TYPE_USER_SERVICE])->select();
+
+        $serviceArrWxCodeArr = [];
+        if(!empty($serviceArr)){
+            foreach ($serviceArr as $v) {
+                $serviceArrWxCodeArr[] = $v['wx_code'];
+            }
+        }
+        $serviceWxCode = implode("|",$serviceArrWxCodeArr);
+        $toUser = $serviceWxCode;
+        //发送消息类型 1客户下单后 2客户取消订单 3师傅接单后 4客户支付后 5客户验收完毕（消杀）
+        switch($type){
+            case 1:
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "新订单提醒！";
+                $description = "您好，".$repairData['store_name']."报修了一个【".$repairData['order_type_text']."】的订单，请操作派单【点击查看详情】";
+                if($repairData['urgent_level'] == 2){
+                    $description = "您好，".$repairData['store_name']."报修了一个【".$repairData['order_type_text']."】的🔥紧急订单，师傅必须在【2小时内】上门，请尽快操作派单【点击查看详情】";
+                }
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 2://维修主管未处理订单
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "订单状态超时提醒！";
+                $description = "您好，订单号为：".$repairData['order_code']."的【".$repairData['order_type_text']."】订单将超过1小时5分钟对方未操作，请知悉【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 3://消杀主管和清洗主管未处理订单
+            $agentid = self::CUSTOMER_SERVICE;
+                $title = "订单状态超时提醒！";
+                $description = "您好，订单号为：".$repairData['order_code']."的【".$repairData['order_type_text']."】订单将超过2小时对方未操作，请知悉【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 4:
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "售后订单提醒！";
+                $description = "您好，订单号".$repairData['order_code']."的订单已申请售后服务，请查看并及时派单【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 5:
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "烟道清洗提醒！";
+                $description = "您好，订单号".$repairData['order_code']."的订单距离烟道清洗周期还有5天，请提醒用户及时下新订单【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 6:
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "烟道清洗提醒！";
+                $description = "您好，订单号".$repairData['order_code']."的订单距离烟道清洗周期还有2天，请提醒用户及时下新订单【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 7:
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "四害消杀提醒！";
+                $description = "您好，订单号".$repairData['order_code']."的订单距离消杀周期还有5天，请提醒用户及时下新订单【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+            case 8:
+                $agentid = self::CUSTOMER_SERVICE;
+                $title = "四害消杀提醒！";
+                $description = "您好，订单号".$repairData['order_code']."的订单距离消杀周期还有2天，请提醒用户及时下新订单【点击查看详情】";
+                $url = host_url . "/Enterprise/CustomerServices/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId;
+                break;
+        }
+
+        $param = [
+            'msgtype'=> 'news',
+            'agentid'=>$agentid,
+            'touser'=>$toUser,
+            'news'=> [
+                'articles'=>[
+                    [
+                        'title'=>$title,
+                        'description'=>$description,
+                        'url'=>$url,
+                        'picurl'=>''
+                    ]
+                ]
+            ]
+        ];
+
+        $param = json_encode($param,JSON_UNESCAPED_UNICODE);
+
+        return $param;
+    }
+    /**
+     * 获取分配主管发消息内容
+     * @param $repairId
+     * @param $type
+     * @return array|string
+     * @author pangyongfu
+     */
+    public function getDistributeSendMsg($orderId,$type){
+
+        $toUser = null;
+        $description = '';
+        $agentid = 0;
+        $title = '';
+        $url = '';
+        $wechatOrderModel = new WechatOrderModel();
+        $map['orde.id'] = $orderId;
+        $field = "orde.id,orde.order_code,orde.order_state,orde.create_time,orde.store_name,item.difference_status,item.difference_status,item.urgent_level,
+        orde.order_type,orde.money_total,member.name worker,member.uid,faci.id fid,faci.name fname";
+        $repairData = $wechatOrderModel->getDataByOrderId($map,$field);
+        $repairData = $repairData[0];
+        $repairData['order_type_text'] = $repairData['order_type']==1?"门店维修":($repairData['order_type']==2?"门店消杀":"门店清洗");
+
+        $repairData['order_state_text'] = $this->getOrderStatusText($repairData['order_state']);
+        $description .= "工单编号：".$repairData['order_code']."\r\n";
+        $description .= "报修门店：".$repairData['store_name']."\r\n";
+        $description .= "报修时间：".$repairData['create_time']."\r\n";
+        $description .= "当前状态：".$repairData['order_state_text']."\r\n";
+        if($repairData['order_type']==2 && $repairData['order_type']==2){
+            $repairData['money_total'] += $repairData['difference_price'];
+        }
+        //获取所有分配主管人员
+        $wechatMemberModel = new WechatMemberModel();
+        $serviceArr = $wechatMemberModel->where(['isadmin'=>self::ADMIN_DISTRIBUTE,'status'=>1,'facilitator_id'=>$repairData['fid']])->select();
+
+        $serviceArrWxCodeArr = [];
+        if(!empty($serviceArr)){
+            foreach ($serviceArr as $v) {
+                $serviceArrWxCodeArr[] = $v['wx_code'];
+            }
+        }
+        $serviceWxCode = implode("|",$serviceArrWxCodeArr);
+        $toUser = $serviceWxCode;
+        //发送消息类型 1客户下单后 2客户取消订单 3师傅接单后 4客户支付后 5客户验收完毕（消杀）
+        switch($type){
+            case 1:
+                $title = "新订单提醒！";
+                $description = "您好，餐讯网给您分派了【".$repairData['order_type_text']."】的新订单，订单号【".$repairData['order_code']."】，请查看并及时操作订单分配【点击查看详情】";
+                if($repairData['urgent_level'] == 2){
+                    $description = "您好，".$repairData['store_name']."报修了一个【".$repairData['order_type_text']."】的🔥紧急订单，师傅必须在【2小时内】上门，如超过2小时到达，不能按照紧急订单标准收费，请查看并尽快分配订单【点击查看详情】";
+                }
+                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];
+                break;
+            case 2:
+                $title = "订单状态提醒！";
+                $description = "您好，订单号为：".$repairData['order_code']."的【".$repairData['order_type_text']."】订单已操作取消，有问题请与餐讯网客服联系，电话：18810250371【点击查看详情】";
+                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];;
+                break;
+            case 3://订单被客服派单给主管
+                $title = "订单状态超时提醒！";
+                $description = "您好，订单号为：".$repairData['order_code']."的【".$repairData['order_type_text']."】订单未操作派单，请您尽快操作，特殊原因请联系客服取消订单，以免您企业综合评分受损【点击查看详情】";
+                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];;
+                break;
+            case 4://订单被主管派单给师傅
+                $title = "订单状态超时提醒！";
+                $description = "您好，您分配的订单号为：".$repairData['order_code']."的【".$repairData['order_type_text']."】订单师傅长时间未操作接单，请尽快提醒师傅操作接单或改派订单，以免您企业综合评分受损；取消订单请致电：18810250371【点击查看详情】";
+                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];;
+                break;
+            case 5:
+                $title = "售后订单提醒！";
+                $description = "您好，订单号：".$repairData['order_code']."，用户已申请售后服务，请联系【".$repairData['order_type_text']."】师傅并及时处理订单【点击查看详情】";
+                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];
+                break;
+//            case 6://清洗和消杀订单被主管派单给师傅1小时30分钟后
+//                $title = "订单状态超时提醒！";
+//                $description = "您好，您分配的订单号为：".$repairData['order_code']."的【".$repairData['order_type_text']."】订单师傅长时间未操作接单，请尽快提醒师傅操作接单或改派订单，以免您企业综合评分受损；取消订单请致电：188888【点击查看详情】";
+//                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];;
+//                break;
+            case 7://消杀主管接单后
+                $title = "订单状态提醒！";
+                $url = host_url . "/Enterprise/DistributionSupervisor/orderDetail?type=".$repairData['order_type']."&order_id=".$orderId."&fid=".$repairData['fid'];
+                $description = "您好，订单号：".$repairData['order_code']."已操作接单，请您尽快进行处理，以免引起客诉";
+                break;
+            case 8://维修和清洗主管接单后
+                $title = "订单状态提醒！";
+                if($repairData['order_type'] == 1){
+                    $text = "维修师傅端";
+                    $url = host_url . "/Enterprise/DistributionSupervisor/maintainOrderDetail?order_id=".$orderId;
+                }else{
+                    $text = "清洗师傅端";
+                    $url = host_url . "/Enterprise/DistributionSupervisor/cleaningOrderDetail?order_id=".$orderId;
+                }
+                $description = "您好，订单号：".$repairData['order_code']."已操作接单，请到".$text."查看详情并进行其他操作";
+                break;
+        }
+
+        $agentid = self::DISTRIBUTE_MANAGER;
+        $param = [
+            'msgtype'=> 'news',
+            'agentid'=>$agentid,
+            'touser'=>$toUser,
+            'news'=> [
+                'articles'=>[
+                    [
+                        'title'=>$title,
+                        'description'=>$description,
+                        'url'=>$url,
+                        'picurl'=>''
+                    ]
+                ]
+            ]
+        ];
+
+        $param = json_encode($param,JSON_UNESCAPED_UNICODE);
+
+        return $param;
+    }
+    /**
+     * 获取师傅发消息内容
+     * @param $repairId
+     * @param $type
+     * @return array|string
+     * @author pangyongfu
+     */
+    public function getMasterSendMsg($orderId,$type){
+
+        $toUser = null;
+        $description = '';
+        $agentid = 0;
+        $title = '';
+        $url = '';
+        $wechatOrderModel = new WechatOrderModel();
+        $map['orde.id'] = $orderId;
+        $field = "orde.id,orde.order_code,orde.order_state,orde.create_time,orde.store_name,item.difference_status,item.difference_status,item.urgent_level,
+        orde.order_type,orde.money_total,member.name worker,member.uid,faci.id fid,faci.name fname";
+        $repairData = $wechatOrderModel->getDataByOrderId($map,$field);
+        $repairData = $repairData[0];
+        log::write("订单数据：".json_encode($repairData));
+        $repairData['order_type_text'] = $repairData['order_type']==1?"门店维修":($repairData['order_type']==2?"门店消杀":"门店清洗");
+
+        $repairData['order_state_text'] = $this->getOrderStatusText($repairData['order_state']);
+        $description .= "工单编号：".$repairData['order_code']."\r\n";
+        $description .= "报修门店：".$repairData['store_name']."\r\n";
+        $description .= "报修时间：".$repairData['create_time']."\r\n";
+        $description .= "当前状态：".$repairData['order_state_text']."\r\n";
+        if($repairData['order_type']==2 && $repairData['order_type']==2){
+            $repairData['money_total'] += $repairData['difference_price'];
+        }
+        //获取所有客服人员
+        $wechatMemberModel = new WechatMemberModel();
+        $serviceArr = $wechatMemberModel->where(['isadmin'=>self::ADMIN_NOMAL,'status'=>1,'uid'=>$repairData['uid']])->select();
+
+        $serviceArrWxCodeArr = [];
+        if(!empty($serviceArr)){
+            foreach ($serviceArr as $v) {
+                $serviceArrWxCodeArr[] = $v['wx_code'];
+            }
+        }
+        $serviceWxCode = implode("|",$serviceArrWxCodeArr);
+        $toUser = $serviceWxCode;
+        //发送消息类型 1客户下单后 2客户取消订单 3师傅接单后 4客户支付后 5客户验收完毕（消杀）
+        switch($type){
+            case 1:
+                $title = "新工单提醒！";
+                $description = "您好，您有新订单，请尽快与用户电话联系，并操作接单【点击查看详情】";
+                if($repairData['urgent_level'] == 2){
+                    $description = "您有新的🔥紧急订单，请在【2小时内】上门，如超过2小时到达，不能按照紧急订单标准收费，请尽快电话告知用户上门时间，并操作接单";
+                }
+                break;
+            case 2://订单超过一定时间师傅未接单
+                $title = "订单状态超时提醒！";
+                $description = "您好，订单号：".$repairData['order_code']."未操作接单，请您尽快操作，特殊原因请联系您的订单分配主管取消订单，以免您企业综合评分受损【点击查看详情】";
+                break;
+            case 3://消杀师傅接单后
+                $title = "订单状态提醒！";
+                $description = "您好，订单号：".$repairData['order_code']."已操作接单，请在1小时内与用户取得联系，以免引起客诉【点击查看详情】";
+                break;
+            case 4://消杀和清洗订单超过1小时20分钟师傅未接单
+                $title = "订单状态提醒！";
+                $description = "您好，订单号：".$repairData['order_code']."已操作接单，请点击查看详情并进行其他操作【点击查看详情】";
+                break;
+            case 5://客服取消订单后
+                $title = "订单状态提醒！";
+                $description = "您好，订单号为：".$repairData['order_code']."的订单已由客服操作取消，有问题请与餐讯网客服联系，电话：18810250371【点击查看详情】";
+                break;
+            case 6://消杀完成差价支付
+                $title = "订单状态提醒！";
+                $description = "您好，您服务的订单号：".$repairData['order_code']."，用户已完成差价支付【点击查看详情】";
+                break;
+            case 7://清洗和维修完成支付
+                $title = "订单状态提醒！";
+                $description = "您好，您服务的订单号：".$repairData['order_code']."，用户已完成支付【点击查看详情】";
+                break;
+            case 8:
+                $title = "售后工单提醒！";
+                $description = "您好，您服务的订单号：".$repairData['order_code']."，用户已申请售后服务，请尽快与用户电话联系【点击查看详情】";
+                break;
+        }
+        //1门店维修，2门店消杀，3烟道清洗
+        if($repairData['order_type'] == 1){
+            $agentid = self::REPAIRE_MASTER;
+            $url = host_url . "/Enterprise/StoreMaintain/orderDetail?order_id=".$orderId;
+        }elseif($repairData['order_type'] == 2){
+            $agentid = self::CLEANKILL_MASTER;
+            $url = host_url . "/Enterprise/StoreCleanKill/orderDetail?order_id=".$orderId;
+        }else{
+            $agentid = self::CLEANING_MASTER;
+            $url = host_url . "/Enterprise/StoreCleaning/orderDetail?order_id=".$orderId;
+        }
+        $param = [
+            'msgtype'=> 'news',
+            'agentid'=>$agentid,
+            'touser'=>$toUser,
+            'news'=> [
+                'articles'=>[
+                    [
+                        'title'=>$title,
+                        'description'=>$description,
+                        'url'=>$url,
+                        'picurl'=>''
+                    ]
+                ]
+            ]
+        ];
+
+        $param = json_encode($param,JSON_UNESCAPED_UNICODE);
+
+        return $param;
+    }
+
+    //发送图文消息
+    public function sendPicTextMsg($wxCode,$order_type,$title,$description,$url,$pic = ''){
+
+        //1门店维修，2门店消杀，3烟道清洗
+        $agentid = self::DISTRIBUTE_MANAGER;
+
+        $param = [
+            'msgtype'=> 'news',
+            'agentid'=>$agentid,
+            'touser'=>$wxCode,
+            'news'=> [
+                'articles'=>[
+                    [
+                        'title'=>$title,
+                        'description'=>$description,
+                        'url'=>$url,
+                        'picurl'=>$pic
+                    ]
+                ]
+            ]
+        ];
+
+        $param = json_encode($param,JSON_UNESCAPED_UNICODE);
+        $this->sendMessage($param);
+    }
+}
+
+?>

@@ -1,0 +1,294 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>首单即赠690元门店检测</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        #ranks{display:inline-block;position:absolute;top:3px;right:10px;border:0px;}
+    </style>
+</head>
+<style>
+    .centerBtnWarpNew {
+        bottom: 0px;
+        height: 3.985rem;
+        width: 100%;
+        background: #ffe500;
+        z-index: 10;
+    }
+    .centerBtnWarpNew .centerBtn {
+        width: 12rem;
+        height: 1.7rem;
+        line-height: 1.7rem;
+        text-align: center;
+        background: #e50112;
+        -webkit-border-radius: 0.2rem;
+        -moz-border-radius: 0.2rem;
+        border-radius: 0.2rem;
+        display: block;
+        margin: 0 auto;
+        font-size: 0.68rem;
+        color: white;
+    }
+    .weui-select-new {
+        -webkit-appearance: none;
+        border: 0;
+        outline: 0;
+        background-color: transparent;
+        width: 100%;
+        font-size: inherit;
+        position: relative;
+        z-index: 1;
+        padding-left: 15px;
+    }
+    .weui-label{
+        width: 100px;
+    }
+</style>
+<body style="background-color: #ffe500;">
+<div id="successApp" class="popLayer hide">
+    <div class="valuePop">
+        <h3 class="title">已成功获得资格</h3>
+        <input type="hidden" id="orderId" value="{$order_id}" />
+        <a class="btn" onclick="back()">关 闭</a>
+    </div>
+</div>
+<!--我的积分-积分规则-->
+<div class="receiptInfoWarp" style="background-color: #ffe500;padding: 0px 0px;">
+    <div class="questionWarpCon">
+        <div class="questionOne" style="margin-bottom: 0rem;">
+            <img style="height: 100%;width: 100%" src="/Public/wechat/i/price.jpg"/>
+        </div>
+    </div>
+</div>
+<div class="receiptInfoWarp" style="background-color: #ffe500">
+    <div class="weui-cells weui-cells_form" style="background-color: #faf5e2;border-radius:10px;">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店名称:</label></div>
+            <div class="weui-cell__bd">
+                <input type="hidden" value="{$equipment_id}" id="equipment_id"/>
+                <input class="weui-input" type="text" id="storename" value="{$store_name}" placeholder="门店名称，必填"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店地址:</label></div>
+            <div class="weui-cell__hd">
+                <select class="weui-select-new" style="padding-left: 0px;" id="province" onchange="changeCity()" name="province">
+                    <!--1：商场 2：写字楼 3：美食城 4：底商 5：其他-->
+                    <notempty name="province">
+                        <volist name="province" id="data">
+                            <option value="{$data.id}">{$data.name}</option>
+                        </volist>
+                    </notempty>
+                </select>
+            </div>
+            <div class="weui-cell__hd">
+                <select class="weui-select-new" id="city" name="city">
+                    <!--1：商场 2：写字楼 3：美食城 4：底商 5：其他-->
+                    <notempty name="city">
+                        <volist name="city" id="data">
+                            <option value="{$data.id}">{$data.name}</option>
+                        </volist>
+                    </notempty>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">详细地址:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="address" value="{$address}"  placeholder="详细地址，必填"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联 系 人:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$link_person}" id="linkperson" placeholder="必填"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">门店电话:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="number" id="linkphone" placeholder="座机或手机号"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">注册手机号:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="number" value="{$link_phone}" id="telphone" placeholder="手机号,必填"/>
+            </div>
+        </div>
+        <div class="weui-cell" style="position:relative;">
+            <div class="weui-cell__hd"><label class="weui-label">验证码:</label></div>
+            <input placeholder="请输入验证码" type="tel" id="codeVal"/>
+            <button type="button" style="background-color: #ffe500" id="ranks" class="weui-cell" onclick="sendemail()">获取验证码</button>
+        </div>
+    </div>
+</div>
+<!--<div style="height:3.16rem;"></div>-->
+<div class="centerBtnWarpNew" style="padding-top: 1.1rem;"><a href="javascript:;" onclick="createOrder()" class="centerBtn">立即提交</a></div>
+<div class="receiptInfoWarp" style="background-color: #ffe500">
+    <div class="questionWarpCon" style="background-color: #faf5e2;border-radius:10px;padding: 0.5rem 0.5rem 0.5rem; margin-bottom: 0.5rem;">
+        <div class="questionOne">
+            <p style="font-weight: bold;font-size: 0.65rem;text-align: center;color: #9f9f9f;margin-bottom: 0.5rem;">_____________&nbsp;&nbsp;&nbsp;&nbsp;活动规则&nbsp;&nbsp;&nbsp;&nbsp;_____________</p>
+            <p style="font-size: 0.6rem">1.活动时间：2018年2月26日-5月31日；</p>
+            <p style="font-size: 0.6rem">2.门店免费检测资格需用户点击“立即提交”,首次下单后即可享受；</p>
+            <p style="font-size: 0.6rem">3.首次上门服务订单完成后,维修人员会为您进行11项检测服务项目,检测完毕后将提供纸质单据作为服务凭证,用户需签字确定检查服务完成；</p>
+            <p style="font-size: 0.6rem">4.在法律法规许可的范围内,餐讯网对本次活动拥有解释权；</p>
+            <p style="font-size: 0.6rem">5.如有问题请点击公众号右下角“我的→客服”联系在线客服。</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+<script>
+    var doubleClick = false;
+
+    function back(){
+        // 关闭微信浏览器
+        WeixinJSBridge.call('closeWindow');
+    }
+    function changeCity(){
+        var upid = $("#province").val();
+        $.ajax({
+            url: "{:U('Wechat/index/getArea')}",
+            type: 'post',
+            dataType: 'json',
+            data:{upid:upid},
+            success: function (data) {
+                // 先清空第二个
+                $("#city").empty();
+                // 实际的应用中，这里的option一般都是用循环生成多个了
+                var option = "";
+                for(var i in data){
+                    option += "<option value='"+data[i].id+"'>"+data[i].name+"</option>"
+                }
+                $("#city").append(option);
+            }
+        })
+    }
+    function createOrder(){
+        //设备必选
+        if(!$("#storename").val()){
+            weui.alert('请填写预约门店名称');
+            $("#storename").focus();
+            return false;
+        }
+        if(Number($("#city").val()) === 0){
+            weui.alert('请选择门店地址');
+            return false;
+        }
+        if(!$("#address").val()){
+            weui.alert('请填写门店详细地址');
+            $("#address").focus();
+            return false;
+        }
+        if(!$("#linkperson").val()){
+            weui.alert('请填写联系人');
+            $("#linkperson").focus();
+            return false;
+        }
+        var telphone = $('#telphone').val();
+        var myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+        if(!telphone){
+            weui.alert('请填写联系方式');
+            $("#telphone").focus();
+            return false;
+        }
+        if(!myreg.test(telphone)){
+            weui.alert('请填写正确的联系方式');
+            $("#telphone").focus();
+            return false;
+        }
+        //获取用户输入的验证码
+        if(!$("#codeVal").val()){
+            weui.alert('请输入验证码');
+            $("#codeVal").focus();
+            return false;
+        }
+        var postData = {
+            store_name:$("#storename").val(),
+            store_address:$("#address").val(),
+            province:$("#province").val(),
+            city:$("#city").val(),
+            link_person:$("#linkperson").val(),
+            link_phone:$("#linkphone").val(),
+            tel_phone:telphone,
+            codeVal:$("#codeVal").val()
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+
+        var loading = weui.loading('正在提交体验申请', {
+            className: 'createOrder'
+        });
+        $.post("{:U('Wechat/index/activitesOrder')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                weui.toast(res.msg, function() {
+                    // 关闭微信浏览器
+                    WeixinJSBridge.call('closeWindow');
+                });
+            }else{
+                doubleClick = false;
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+            }
+        },'json');
+    }
+    //获取验证码方法
+    var countdown=60;
+    function sendemail(){
+
+        //验证手机号是否符合规则
+        var telphone = $('#telphone').val();
+        var myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+        if (!myreg.test(telphone)) {
+
+            $('#phoneYz').removeClass('hide');
+            return;
+        } else {
+            $('#phoneYz').addClass('hide');
+        }
+
+        var obj = $("#ranks");
+        settime(obj);
+
+        //发送用户短信验证码
+        $.post("{:U('Wechat/index/sendCodeSms')}",{'phone':telphone},function(res){
+            weui.alert(res.msg);
+        },'json');
+
+    }
+    function settime(obj) { //发送验证码倒计时
+        if(countdown == 1){
+            obj.attr('disabled',false);
+            obj.html("获取验证码");
+            countdown = 60;
+            return;
+        } else {
+            obj.attr('disabled',true);
+            obj.html("重新发送("+countdown+")");
+            countdown--;
+        }
+        setTimeout(function() {
+            settime(obj)
+        },1000)
+    }
+</script>

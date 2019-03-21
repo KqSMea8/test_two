@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>添加新设备</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+
+	<style>
+		.polling-list {
+			background-color: black;
+			border-radius: 0rem;
+		}
+		.colorWhite{
+			color: white;
+		}
+		.colorHui{
+			font-family: "Microsoft Yahei";
+			color: #b2b2b2;
+		}
+
+
+		.deviceCheckBox{
+			float: right;
+			-webkit-appearance: none;
+			vertical-align:middle;
+			margin-top:0.1rem;
+			background:#fff;
+			border:#999 solid 1px;
+			border-radius: 3px;
+			min-height: 1rem;
+			min-width: 1rem;
+		}
+		.deviceCheckBox:checked {
+			background: #ffe512;
+		}
+		.deviceCheckBox:checked::after{
+			content: '\2714';
+			font-size: 0.7rem;
+			padding-left: 0.2rem;
+		}
+		.weui-select-new{
+			width: 100%;
+			font-family: "Microsoft Yahei";
+			color: #b2b2b2;
+			font-size: 0.6rem;
+		}
+		.weui-select-new option{
+			color: #000;
+		}
+	</style>
+</head>
+<body>
+
+<div class="receiptInfoWarp" style="margin-bottom: 2rem;">
+	<div class="weui-cells weui-cells_form" style="height: 23.5rem;overflow:auto">
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">企业名称：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.enterprise_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">门店名称：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.store_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">服务商：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.fac_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">巡检员：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" type="text" value="{$childOrderDetail.inspector_name}" readonly="readonly"/>
+			</div>
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd"><label class="weui-label">联系电话：</label></div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" value="{$childOrderDetail.inspector_phone}" type="number" id="linkphone" placeholder="座机或手机号"/>
+			</div>
+		</div>
+			<div class="appointment-polling-index-color">
+				<volist id="device" name="deviceList" key="key">
+				<div class="polling-list">
+					<div class="weui-cell__hd" style="background-color: #ffe512;">
+						<input type="checkbox" name="device_id" value="{$device.id}" <?php if(!$isImport && $device['status'] != 3){echo 'checked';}?> class="deviceCheckBox"/>
+						<label style="padding-left: 0.6rem;font-weight: 600;line-height: 1.5rem">设备{$key}</label>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label colorWhite">设备名称：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input colorHui" name="device_name" type="text" value="{$device.device_name}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label colorWhite">设备品牌：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input colorHui" name="brand" type="text" value="{$device.brand}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label colorWhite">设备类别：</label></div>
+						<div class="weui-cell__bd">
+							<select class="weui-select-new category" id="findtime">
+								<!--1：一周 2：二周 3：三周 4：一个月之上-->
+								<option value="0">请选择</option>
+								<volist id="category" name="categoryList" key="key">
+									<option value="{$category.id}" <?php if($device['category'] == $category['id']){echo 'selected';}?>>{$category.name}</option>
+								</volist>
+							</select>
+						</div>
+					</div>
+				</div>
+				</volist>
+			</div>
+	</div>
+</div>
+	<div class="centerBtnWarp centerBtn" style="height: 2rem;padding-top: 0.2rem;">
+		<if condition="!empty($deviceList) && $isImport">
+			<a href="javascript:;" onclick="confirmDevice('{$child_id}')" class="centerBtn">导 入</a>
+		<else/>
+			<a href="javascript:;" style="background-color: #C0C0C0" class="centerBtn">导 入</a>
+		</if>
+	</div>
+</body>
+</html>
+<script type="text/javascript" src="/Public/wechat/j/jquery.js"></script>
+<script>
+	function closeWindow(){
+		window.close();
+		WeixinJSBridge.call('closeWindow');
+	}
+	function confirmDevice(child_id){
+
+        var deviceArr = [];
+        $('.polling-list').each(function(){
+			var device = [];
+            var device_id = $(this).find("input[name='device_id']:checked").val();
+			if(device_id){
+				device[0] = device_id;
+				device[1] = $(this).find("input[name='device_name']").val();
+				device[2] = $(this).find("input[name='brand']").val();
+				device[3] = $(this).find(".category").val();
+				deviceArr.push(device);
+			}
+        });
+        if(deviceArr.length == 0){
+            weui.alert('请选择需要导入的设备');
+            return;
+        }
+
+		var loading = weui.loading('正在导入设备');
+
+		$.post("{:U('Enterprise/CustomerServices/updateDeviceStatus')}",{child_id:child_id,device_arr:deviceArr},function(res){
+			loading.hide();
+			if(res.status == 1){
+				weui.toast("导入成功", function() {
+					window.location.reload();
+				},1000);
+			}else{
+				weui.alert(res.msg);
+			}
+		},'json');
+	}
+</script>

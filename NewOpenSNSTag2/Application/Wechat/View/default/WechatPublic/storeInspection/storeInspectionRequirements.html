@@ -1,0 +1,252 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>巡检需求</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <style>
+        .receiptInfoWarp li{margin-bottom:1rem;}
+        .centerBtnWarp{
+            left: 0.1rem;
+        }
+    </style>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+
+<div class="receiptInfoWarp">
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cells__title">巡检需求：</div>
+        <div class="weui-cells weui-cells_form">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入需求,限制60个字。" id="requirementsId" rows="3">{$infoData.requirements_text}</textarea>
+                </div>
+            </div>
+        </div>
+        <div class="weui-cells__title">需求图片（<span style="color: red">上传失败时请压缩重试</span>）
+            <div class="weui-uploader__info">
+                <if condition="$picNum neq 0">
+                    <span id="uploadCountAfter">{$picNum}</span>/6
+                    <else/>
+                    <span id="uploadCountAfter">0</span>/6
+                </if>
+            </div>
+        </div>
+        <div class="weui-cells weui-cells_form" id="uploaderAfter">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__bd">
+                            <ul class="weui-uploader__files" id="uploaderFilesAfter">
+                                <foreach name="pic" item="item" key="k">
+                                    <li class="weui-uploader__file" data-id="{$k}" style="background-image: url({$item});"></li>
+                                </foreach>
+                            </ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInputAfter" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="centerBtnWarp">
+        <a href="javascript:;" onclick="createOrder()" class="centerBtn">提交</a>
+    </div>
+</div>
+</body>
+<script>
+    $(function(){
+        inspectionChildId = "{$inspectionChildId}";
+
+        //处理页面的图片
+        uploadCountAfter = 0,uploadImageListAfter = [],uploadListAfter = [];
+
+        imgNum = 0;
+        imgNumNew = 0;
+        var picjson = {$picJson};
+        if(picjson){
+            for(var m in picjson){
+                uploadImageListAfter.push(picjson[m]);
+                uploadListAfter.push({id:m});
+                imgNum++;
+                imgNumNew++;
+                uploadCountAfter++;
+            }
+        }
+    });
+
+    var doubleClick = false;
+
+    //提交
+    function createOrder(){
+
+        if(!$("#requirementsId").val()){
+            weui.alert('请填写巡检需求');
+            return false;
+        }
+
+        //判断文字长度
+        if($("#requirementsId").val().length >60){
+            weui.alert('需求文字数量不可超过60！<br>当前文字数量'+$("#requirementsId").val().length);
+            return false;
+        }
+
+//        if(uploadCountAfter <= 0 || uploadImageListAfter.length <= 0){
+//            uploadImageListAfter = [];
+//            weui.alert('请上传需求图片');
+//            return false;
+//        }
+
+        //创建订单时，根据规则生成相应的服务费用，维修和清洗默认0
+        var postData = {
+            inspectionChildId:inspectionChildId,
+            requirements_text:$("#requirementsId").val(),
+            imageData:uploadImageListAfter
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+
+        var loading = weui.loading('正在提交', {
+            className: 'createOrder'
+        });
+        $.post("{:U('Wechat/index/addInspectionRequirements')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                weui.toast("提交成功", function() {
+                    var id = res.data.id;
+                    window.location.href="{:U('Wechat/index/inspectionchildorderdetail/inspection_store_child_id/"+id+"')}";
+                });
+            }else{
+                doubleClick = false;
+                if(res.msg){
+                    weui.alert(res.msg);
+                }
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+
+</script>
+
+<script>
+    // 缩略图预览 这里展示的是新添加的图片预览地址
+    $('#uploaderFilesAfter').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCountAfter;
+                    uploadCountAfterDom.html(uploadCountAfter);
+                    for (var i = 0; i < uploadListAfter.length; ++i) {
+                        var file = uploadListAfter[i];
+                        if(id>=10){
+                            var newId = id-10;
+                        }else{
+                            var newId = Number(id)+Number(imgNumNew);
+                        }
+                        if(file.id == id){
+                            delete uploadImageListAfter[newId];
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCountAfterDom = $("#uploadCountAfter");
+
+    try{
+        weui.uploader('#uploaderAfter', {
+            url: "{:U('Wechat/index/downLoadImage')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCountAfter + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCountAfter;
+                uploadCountAfterDom.html(uploadCountAfter);
+            },
+            onQueued: function(){
+                uploadListAfter.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+
+                //这里做了判断，如果是师傅第一次添加设备就正常key值就正常添加
+                //如果是第二次处理图片，就用imgNum+1来做key
+                if(imgNum==0){
+                    uploadImageListAfter[this.id] = ret.data;
+                }else{
+                    uploadImageListAfter[++imgNum] = ret.data;
+                }
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+</html>

@@ -1,0 +1,373 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author HQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatOrderModel extends Model
+{
+
+    protected $_auto = array(
+        array('status', '1', self::MODEL_INSERT),
+    );
+
+    /**
+     * 获取数据详细信息
+     * @param $id
+     * @param bool $field
+     * @return mixed
+     */
+    public function info($id, $field = true)
+    {
+        /* 获取单个课程信息 */
+        $map = array();
+        if (is_numeric($id)) { //通过ID查询
+            $map['id'] = $id;
+        }
+        return $this->field($field)->where($map)->find();
+    }
+
+    public function editData($data)
+    {
+        if ($data['id']) {
+            $data['update_time'] = date('Y-m-d H:i:s');
+            $res = $this->save($data);
+            $detail['id'] = $data['id'];
+        } else {
+            $data['create_time'] = $data['update_time'] = date('Y-m-d H:i:s');
+            $res = $this->add($data);
+            $detail['id'] = $res;
+        }
+
+        return $res;
+    }
+
+    public function getData($id)
+    {
+        if ($id > 0) {
+            $map['id'] = $id;
+            $data = $this->where($map)->find();
+            return $data;
+        }
+        return null;
+    }
+
+    public function getListByPage($map = [], $page = 1, $order = 'update_time desc', $field = '*', $r = 20)
+    {
+        $totalCount = $this->where($map)->count();
+        if ($totalCount) {
+            $list = $this->where($map)->page($page, $r)->order($order)->field($field)->select();
+        }
+        return array($list, $totalCount);
+    }
+
+    public function getOrderListByPage($map = [], $page = 1, $order = 'orde.update_time desc', $field = '*', $r = 20)
+    {
+        $totalCount = $this->alias("orde")
+            ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+            ->where($map)
+            ->count();
+
+        if ($totalCount) {
+            $list = $this->alias("orde")
+                ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+                ->join("left join jpgk_wechat_facilitator as faci on faci.id = orde.facilitator_id")
+                ->join("left join jpgk_wechat_member as member on member.uid = orde.workers_id")
+                ->where($map)
+                ->page($page, $r)
+                ->order($order)
+                ->field($field)
+                ->select();
+        }
+//        var_dump($this->getLastSql());die;
+        return array($list, $totalCount);
+    }
+
+    /**
+     * 获取订单详情列表
+     * @author  pangyongfu
+     */
+    public function getOrderMemberListByPage($map = [], $page = 1, $order = 'orde.update_time desc', $field = '*', $r = 20)
+    {
+        if($map["selectDate"]){
+
+            switch($map["selectDate"]){
+
+                case 1:
+                    $map["orde.create_time"] = ['like','%'.date("Y-m-d").'%'];
+                    break;
+                case 2:
+                    $map["orde.create_time"] = ['like','%'.date("Y-m-d",strtotime("-1 day")).'%'];
+                    break;
+                case 3:
+                    $map["orde.create_time"] = ["between",[date("Y-m-d",strtotime("-7 day"))." 00:00:00",date("Y-m-d")." 23:59:59"]];
+                    break;
+                case 4:
+                    $map["orde.create_time"] = ["between",[date("Y-m-d",strtotime("-30 day"))." 00:00:00",date("Y-m-d")." 23:59:59"]];
+                    break;
+            }
+            unset($map['selectDate']);
+        }
+
+        $totalCount = $this->alias("orde")
+            ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+            ->join("LEFT JOIN jpgk_wechat_member as member on orde.workers_id = member.uid")
+            ->join("LEFT JOIN jpgk_wechat_member as mem on orde.member_id = mem.uid")
+            ->join("LEFT JOIN jpgk_wechat_equipment_category as equipment on orde.equipment_id = equipment.id")
+            ->where($map)
+            ->count();
+
+        if ($totalCount) {
+            $list = $this->alias("orde")
+                ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+                ->join("LEFT JOIN jpgk_wechat_member as member on orde.workers_id = member.uid")
+                ->join("LEFT JOIN jpgk_wechat_member as mem on orde.member_id = mem.uid")
+                ->join("LEFT JOIN jpgk_wechat_equipment_category as equipment on orde.equipment_id = equipment.id")
+                ->join("LEFT JOIN jpgk_wechat_facilitator as faci on orde.facilitator_id = faci.id")
+                ->where($map)
+                ->page($page, $r)
+                ->order($order)
+                ->field($field)
+                ->select();
+        }
+//        var_dump($this->getLastSql());die;
+        return array($list, $totalCount);
+    }
+    public function getOrderMemberListToExcel($map = [], $order = 'orde.update_time desc', $field = '*'){
+
+        if($map["selectDate"]){
+
+            switch($map["selectDate"]){
+
+                case 1:
+                    $map["orde.create_time"] = ['like','%'.date("Y-m-d").'%'];
+                    break;
+                case 2:
+                    $map["orde.create_time"] = ['like','%'.date("Y-m-d",strtotime("-1 day")).'%'];
+                    break;
+                case 3:
+                    $map["orde.create_time"] = ["between",[date("Y-m-d",strtotime("-7 day"))." 00:00:00",date("Y-m-d")." 23:59:59"]];
+                    break;
+                case 4:
+                    $map["orde.create_time"] = ["between",[date("Y-m-d",strtotime("-30 day"))." 00:00:00",date("Y-m-d")." 23:59:59"]];
+                    break;
+            }
+            unset($map['selectDate']);
+        }
+        $list = [];
+        $totalCount = $this->alias("orde")
+            ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+            ->join("LEFT JOIN jpgk_wechat_member as member on orde.workers_id = member.uid")
+            ->join("LEFT JOIN jpgk_wechat_equipment_category as equipment on orde.equipment_id = equipment.id")
+            ->where($map)
+            ->count();
+
+        if ($totalCount) {
+            $list = $this->alias("orde")
+                ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+                ->join("LEFT JOIN jpgk_wechat_member as member on orde.workers_id = member.uid")
+                ->join("LEFT JOIN jpgk_wechat_equipment_category as equipment on orde.equipment_id = equipment.id")
+                ->join("LEFT JOIN jpgk_wechat_facilitator as faci on orde.facilitator_id = faci.id")
+                ->where($map)
+                ->order($order)
+                ->field($field)
+                ->select();
+        }
+        return $list;
+    }
+
+    public function getDataByOrderId($map = [],$field = '*'){
+        $list = $this->alias("orde")
+            ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+            ->join("LEFT JOIN jpgk_wechat_member as member on orde.workers_id = member.uid")
+            ->join("LEFT JOIN jpgk_wechat_equipment_category as equipment on orde.equipment_id = equipment.id")
+            ->join("LEFT JOIN jpgk_wechat_facilitator as faci on orde.facilitator_id = faci.id")
+            ->where($map)
+            ->field($field)
+            ->select();
+        Log::write("获取sql查询语句|||".$this->getLastSql());
+        return $list;
+    }
+    public function getYearDataByOrderId($map = [],$field = '*'){
+        $list = $this->alias("orde")
+            ->join("jpgk_wechat_year_service as service on orde.year_service_id = service.id")
+            ->join("jpgk_wechat_year_service_time as serviceTime on service.id = serviceTime.year_service_id")
+            ->where($map)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+    /**
+     * 获取订单所有的数据 包含item表
+     * @param array $map
+     * @param string $field
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getOrderAndItemData($map = [],$field = '*'){
+        $list = $this->alias("orde")
+            ->join("jpgk_wechat_order_item as item on orde.id = item.order_id")
+            ->where($map)
+            ->field($field)
+            ->select();
+        Log::write("获取年服务订单数据sql:|||".$this->getLastSql());
+        return $list;
+    }
+    public function getOrderDataByStatus($map,$field,$type=0,$order="create_time desc"){//0客服，1维修，2消杀，3清洗
+        $data = $this->alias("orde")
+            ->join("left join jpgk_wechat_member member on member.uid=orde.workers_id")
+            ->join("left join jpgk_wechat_facilitator faci on faci.id=orde.facilitator_id")
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        if(!empty($data)){
+            foreach($data as &$dv){
+//                $dv['order_code'] = substr($dv['order_code'],0,10)."...";
+                $dv['create_time'] = substr($dv['create_time'],0,10);
+                $dv['uname'] = mb_substr($dv['uname'],0,10);
+                switch($dv['order_type']){
+                    case 1:
+                        $dv['order_type_text'] = "门店维修";
+                        $dv['url'] = "/index.php?s=/Enterprise/CustomerServices/orderDetail/order_id/".$dv['id']."/type/".$dv['order_type'].".html";
+                        if($type == 1){
+                            $dv['url'] = "/index.php?s=/Enterprise/storeMaintain/orderDetail/order_id/".$dv['id'].".html";
+                        }
+                        if($type == 4){
+                            $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/orderDetail/order_id/".$dv['id']."/type/".$dv['order_type']."/fid/".$dv['facilitator_id'].".html";
+                        }
+                        if($type == 5){
+                            $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/maintainOrderDetail/order_id/".$dv['id'].".html";
+                        }
+                        break;
+                    case 2:
+                        $dv['order_type_text'] = "门店消杀";
+                        $dv['url'] = "/index.php?s=/Enterprise/CustomerServices/orderDetail/order_id/".$dv['id']."/type/".$dv['order_type'].".html";
+                        if($dv['is_year'] == 1 && $dv['order_state'] != 2 && $dv['is_main'] == 1){
+                            $dv['url'] = "/index.php?s=/Enterprise/CustomerServices/showCleanKillYearOrder/order_id/".$dv['id'].".html";
+                        }
+                        if($type == 2){
+                            $dv['url'] = "/index.php?s=/Enterprise/storeCleanKill/orderDetail/order_id/".$dv['id'].".html";
+                        }
+                        if($type == 4){
+                            $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/orderDetail/order_id/".$dv['id']."/type/".$dv['order_type']."/fid/".$dv['facilitator_id'].".html";
+                            if($dv['is_year'] == 1 && in_array($dv['order_state'],[11,3]) && $dv['is_main'] == 1){
+                                $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/showCleanKillYearOrder/order_id/".$dv['id'].".html";
+                            }
+                        }
+                        if($type == 5){
+                            $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/cleanKillOrderDetail/order_id/".$dv['id'].".html";
+                        }
+                        break;
+                    case 3:
+                        $dv['order_type_text'] = "烟道清洗";
+                        $dv['url'] = "/index.php?s=/Enterprise/CustomerServices/orderDetail/order_id/".$dv['id']."/type/".$dv['order_type'].".html";
+                        if($type == 3){
+                            $dv['url'] = "/index.php?s=/Enterprise/storeCleaning/orderDetail/order_id/".$dv['id'].".html";
+                        }
+                        if($type == 4){
+                            $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/orderDetail/order_id/".$dv['id']."/type/".$dv['order_type']."/fid/".$dv['facilitator_id'].".html";
+                        }
+                        if($type == 5){
+                            $dv['url'] = "/index.php?s=/Enterprise/DistributionSupervisor/cleaningOrderDetail/order_id/".$dv['id'].".html";
+                        }
+                        break;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * 获取年服务订单列表
+     * @param array $map
+     * @param int $page
+     * @param string $order
+     * @param string $field
+     * @param int $r
+     * @return array
+     */
+    public function getYearOrderList($map = [], $page = 1, $order = 'orde.create_time desc', $field = '*', $r = 20){
+
+
+        $totalCount = $this->alias("orde")
+            ->join("LEFT JOIN jpgk_wechat_year_service as ys on orde.year_service_id = ys.id")
+            ->join("LEFT JOIN jpgk_wechat_facilitator as faci on orde.facilitator_id = faci.id")
+            ->where($map)
+            ->count();
+
+        if ($totalCount) {
+            $list = $this->alias("orde")
+                ->join("LEFT JOIN jpgk_wechat_year_service as ys on orde.year_service_id = ys.id")
+                ->join("LEFT JOIN jpgk_wechat_facilitator as faci on orde.facilitator_id = faci.id")
+                ->where($map)
+                ->page($page, $r)
+                ->order($order)
+                ->field($field)
+                ->select();
+        }
+
+        return array($list, $totalCount);
+
+    }
+
+    public function getYearBabyOrderList($map = [], $order = 'orde.update_time desc', $field = '*' ){
+        $list = M('WechatYearServiceTime')->alias("yst")
+            ->join("jpgk_wechat_order as orde on yst.order_id = orde.id")
+            ->join("LEFT JOIN jpgk_wechat_facilitator as faci on orde.facilitator_id = faci.id")
+            ->join("LEFT JOIN jpgk_wechat_member as mem on orde.workers_id = mem.uid")
+            ->join("LEFT JOIN jpgk_wechat_order_appraise as woa on orde.id = woa.order_id")
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+
+    public function getOrderMemberList($map = [], $field = '*', $order = 'orde.update_time desc' ){
+        $list = $this->alias("orde")
+            ->join("LEFT JOIN jpgk_wechat_member as mem on orde.member_id = mem.uid")
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+
+    public function getYearServiceTime($map = [], $field = '*', $order = ''){
+        $list = M('WechatYearService')->alias("service")
+            ->join("jpgk_wechat_year_service_time as time on service.id = time.year_service_id")
+            ->where($map)
+//            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+
+    /**
+     * 年服务定时任务时使用
+     * @param array $map
+     * @param string $field
+     * @param string $group
+     * @return mixed
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function getYearDataByMap($map = [],$field = '*',$order='serviceTime.year_service_id,serviceTime.service_time'){
+        $list = M('WechatYearService')->alias("service")
+            ->join("jpgk_wechat_year_service_time as serviceTime on service.id = serviceTime.year_service_id")
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+} 

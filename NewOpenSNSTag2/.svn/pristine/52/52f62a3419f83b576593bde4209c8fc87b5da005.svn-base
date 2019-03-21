@@ -1,0 +1,30 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionStoreModel extends Model
+{
+    /**
+     * 获取订单详情
+     * @param $map
+     * @param string $order
+     * @param $field
+     * @return mixed
+     */
+    public function getInspectionOrderChildrenList($map, $order = 'create_time desc', $field){
+        $list = M('WechatInspectionStore')
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+}

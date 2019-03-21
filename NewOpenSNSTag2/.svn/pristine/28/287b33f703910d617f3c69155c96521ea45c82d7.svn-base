@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>申请售后</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="orderDetail" style="padding-top:0.7rem;padding-bottom:0.5rem;">
+    <ul>
+        <li><span class="title">订单编号：</span><div class="con">{$order_code}</div></li>
+        <li><span class="title">订单状态：</span><div class="con cor_red" style="font-weight:bold;">已完成</div></li>
+        <li><span class="title">下单时间：</span><div class="con">{$create_time}</div></li>
+    </ul>
+</div>
+<div class="spaceLine"></div>
+<div class="serviceReason">
+    <h3>申请售后原因：</h3>
+    <input type="hidden" id="order_id" value="{$order_id}" />
+    <div class="con"><textarea id="after_sale"></textarea><span>不多于200字</span></div>
+</div>
+
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="subApply()" class="centerBtn" >提交</a></div>
+<!--提交弹出框-->
+<div id="apply" class="popLayer hide">
+    <div class="popWarp">
+        <h3>提交成功</h3>
+        <p>您的售后申请已提交成功，请保持电话畅通，等待师傅与您联系</p>
+        <a class="btn" onclick="back()" href="javascript:;">关 闭</a>
+    </div>
+</div>
+<script>
+    function subApply(){
+        var content = $("#after_sale").val();
+        if(!content){
+            weui.alert('请填写申请售后原因！');
+            return false;
+        }
+        var postData = {
+            order_id:$("#order_id").val(),
+            after_sale_text:content
+        };
+        var loading = weui.loading('正在提交售后申请');
+        $.post("{:U('Wechat/index/applyAfterSale')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                $("#apply").show();
+            }else{
+                weui.alert(res.msg);
+            }
+        },'json');
+    }
+    function back(){
+        // 关闭微信浏览器
+        WeixinJSBridge.call('closeWindow');
+    }
+</script>
+</body>
+</html>

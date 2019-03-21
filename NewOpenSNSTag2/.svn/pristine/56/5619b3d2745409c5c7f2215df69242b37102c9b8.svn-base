@@ -1,0 +1,25 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * @author MQ
+ */
+
+namespace Wechat\Model;
+
+use Think\Model;
+use Think\Log;
+
+class WechatInspectionStoreChildModel extends Model
+{
+
+    public function serviceDetailList($map, $order = 'create_time desc', $field){
+
+        $list = M('WechatInspectionStoreChild')
+            ->where($map)
+            ->order($order)
+            ->field($field)
+            ->select();
+        return $list;
+    }
+}

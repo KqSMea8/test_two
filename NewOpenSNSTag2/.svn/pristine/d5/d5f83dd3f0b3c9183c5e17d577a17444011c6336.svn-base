@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>巡检详情页面</title>
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            // if(hWidth>800){
+            //     hWidth=800;
+            // }
+            html.style.fontSize=hWidth/15 + 'px';
+//            console.log(html.style.fontSize);
+        })()
+    </script>
+</head>
+<body style="background: #f3f3f3;">
+    <div class="operationPage-top-change">
+        <ul id="populId">
+
+            <notempty name="deviceOperationInfo">
+                <volist name="deviceOperationInfo" id="data">
+                    <li id="operation{$data.id}" value="{$data.id}" onclick="changeOperation({$data.id})">
+                        <if condition="$data.selected eq yes">
+                            <i id="tipId{$data.id}" data-value="{$data.id}" class="selected"></i>
+                        <else />
+                            <i id="tipId{$data.id}" data-value="{$data.id}"></i>
+                        </if>
+                        <div>{$data.name}</div>
+                    </li>
+                </volist>
+            </notempty>
+        </ul>
+    </div>
+
+    <div class="operationPage-middle-index">
+        <div class="weui-cells weui-cells_form" id="uploader">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__hd">
+                            <p class="weui-uploader__title">巡检前：<label style="color: #ff3333;font-size: 0.4rem">（最多6张）</label></p>
+                            <div class="weui-uploader__info"><span id="uploadCount">0</span>/6</div>
+                        </div>
+                        <!--<div class="weui-uploader__bd">-->
+                            <!--<ul class="weui-uploader__files" id="uploaderFiles"></ul>-->
+                            <!--<div class="weui-uploader__input-box">-->
+                                <!--<input id="uploaderInput" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <div class="weui-uploader__bd">
+                            <ul class="weui-uploader__files" id="uploaderFiles">
+                                <foreach name="imgFrontData" item="item" key="k">
+                                    <php>$item = ltrim($item,'.');</php>
+                                    <li class="weui-uploader__file" data-id="{$k}" style="background-image: url({$item});"></li>
+                                </foreach>
+                            </ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInput" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="weui-cells weui-cells_form" id="uploaderAfter">
+            <div class="weui-cell">
+                <div class="weui-cell__bd">
+                    <div class="weui-uploader">
+                        <div class="weui-uploader__hd">
+                            <p class="weui-uploader__title">巡检后：<label style="color: #ff3333;font-size: 0.4rem">（最多6张）</label></p>
+                            <div class="weui-uploader__info"><span id="uploadCountAfter">0</span>/6</div>
+                        </div>
+                        <!--<div class="weui-uploader__bd">-->
+                            <!--<ul class="weui-uploader__files" id="uploaderFilesAfter"></ul>-->
+                            <!--<div class="weui-uploader__input-box">-->
+                                <!--<input id="uploaderInputAfter" value="" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <div class="weui-uploader__bd">
+                            <ul class="weui-uploader__files" id="uploaderFilesAfter">
+                                <foreach name="imgBackData" item="item" key="k">
+                                    <php>$item = ltrim($item,'.');</php>
+                                    <li class="weui-uploader__file" data-id="{$k}" style="background-image: url({$item});"></li>
+                                </foreach>
+                            </ul>
+                            <div class="weui-uploader__input-box">
+                                <input id="uploaderInputAfter" class="weui-uploader__input" type="file" accept="image/*" multiple="multiple">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="operationPage-bottom-index">
+        <textarea placeholder="巡检备注，限制50字" maxlength="50" id="pollingRemark" class="operationPage-bottom-index-text">{$inspectionChildDeviceInfo.remark}</textarea>
+    </div>
+
+    <div class="operationPage-bottom-button-div">
+        <input type="button" class="operationPage-bottom-button" onclick="confirmOperation()" value="保存">
+    </div>
+</body>
+<script src="/Public/wechat/j/jquery.js"></script>
+<script>
+    $(function() {
+        inspectionStoreChildId = "{$inspectionStoreChildId}";
+        inspectionChildDeviceId = "{$inspectionChildDeviceId}";
+        deviceId = "{$deviceId}";
+
+        //巡检前图片
+        PicDataJs = {$imgFrontDataJson};
+        uploadCount = 0, uploadList = [],uploadImageList = [];
+        imgNum = 0;
+        imgNumNew = 0;
+        if(PicDataJs){
+            for(var m in PicDataJs){
+                uploadImageList.push(PicDataJs[m]);
+                uploadList.push({id:m});
+                imgNum++;
+                imgNumNew++;
+                uploadCount++;
+            }
+            $('#uploadCount').html(uploadCount);
+        }
+
+        //巡检后 图片
+        PicDataJsBack = {$imgBackDataJson};
+        uploadCountAfter = 0, uploadListAfter = [],uploadImageListAfter = [];
+        imgNumAfter = 0;
+        imgNumAfterNew = 0;
+        if(PicDataJsBack){
+            for(var m in PicDataJsBack){
+                uploadImageListAfter.push(PicDataJsBack[m]);
+                uploadListAfter.push({id:m});
+                imgNumAfter++;
+                imgNumAfterNew++;
+                uploadCountAfter++;
+            }
+            $('#uploadCountAfter').html(uploadCountAfter);
+        }
+
+    });
+
+    //点击操作
+    function changeOperation(id){
+
+        //切换选中的效果
+        $("#tipId"+id+"").toggleClass('selected');
+//        $(this).children('i').toggleClass('selected');
+    }
+
+    //点击“操作”，确认按钮
+    function confirmOperation(){
+        //获取备注内容
+        var textRemark = $("#pollingRemark").val();
+
+        //获取选中的selected 值
+        var result='';
+        $(".selected").each(function(){
+            result=result+ $(this).data("value")+',';
+        });
+
+        //判断是否有选中的值，有的话去除末尾的字符
+        if(result){
+            result = removeLastOne(result);
+        }else{
+            weui.alert('请选择至少一条操作');
+            return;
+        }
+
+        if(uploadCount <= 0 || uploadCount.length <= 0){
+            uploadCount = [];
+            weui.alert('请上传巡检前照片');
+            return false;
+        }
+
+        if(uploadCountAfter <= 0 || uploadCountAfter.length <= 0){
+            uploadCountAfter = [];
+            weui.alert('请上传巡检后照片');
+            return false;
+        }
+
+        //拼接参数
+        var data = {
+            inspectionStoreChildId:inspectionStoreChildId,
+            inspectionChildDeviceId:inspectionChildDeviceId,
+            deviceId:deviceId,
+            uploadImageListFront:uploadImageList,
+            uploadImageListBack:uploadImageListAfter,
+            inspectionOperate:result,
+            remark:textRemark
+        };
+
+        var loading = weui.loading('正在更新');
+        $.post("{:U('storeMaintain/showinspectionoperationPage')}",data, function(result){
+            loading.hide();
+
+            if(result.status == 1){
+                //跳转页面
+                weui.toast(result.msg, function() {
+                    location.href = "index.php?s=/Enterprise/StoreMaintain/showinspectionoperationdetail/inspection_store_child_id/"+inspectionStoreChildId+"";
+                },1000);
+
+            }else{
+                weui.alert(result.msg);
+            }
+
+        });
+    }
+
+    //去除最后一位的值
+    function removeLastOne(str){
+        return str.substring(0,str.length - 1);
+    }
+
+</script>
+
+<script>
+    // 缩略图预览
+    $('#uploaderFiles').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCount;
+                    uploadCountDom.html(uploadCount);
+
+                    for (var i = 0, len = uploadList.length; i < len; ++i) {
+                        var file = uploadList[i];
+
+                        if(id>=10){
+                            var newId = id-10;
+                        }else{
+                            var newId = Number(id)+Number(imgNumNew);
+                        }
+                        if(file.id == id){
+                            delete uploadImageList[newId];
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCountDom = $("#uploadCount");
+
+    try{
+        weui.uploader('#uploader', {
+            url: "{:U('Enterprise/storeMaintain/downLoadImageForInspection')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCount + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCount;
+                uploadCountDom.html(uploadCount);
+            },
+            onQueued: function(){
+                uploadList.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+
+                //这里做了判断，如果是师傅第一次添加设备就正常key值就正常添加
+                //如果是第二次处理图片，就用imgNum+1来做key
+                if(imgNum==0){
+                    uploadImageList[this.id] = ret.data;
+                }else{
+                    uploadImageList[++imgNum] = ret.data;
+                }
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+
+<script>
+    // 缩略图预览
+    $('#uploaderFilesAfter').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('style') || '';
+        var id = target.getAttribute('data-id');
+
+        if(url){
+            url = url.match(/url\((.*?)\)/)[1].replace(/"/g, '');
+        }
+        var gallery = weui.gallery(url, {
+            className: 'custom-name',
+            onDelete: function(){
+                weui.confirm('确定删除该图片？', function(){
+                    --uploadCountAfter;
+                    uploadCountAfterDom.html(uploadCountAfter);
+
+                    for (var i = 0, len = uploadListAfter.length; i < len; ++i) {
+                        var file = uploadListAfter[i];
+
+                        if(id>=10){
+                            var newIdAfter = id-10;
+                        }else{
+                            var newIdAfter = Number(id)+Number(imgNumAfterNew);
+                        }
+                        if(file.id == id){
+                            delete uploadImageListAfter[newIdAfter];
+                            break;
+                        }
+                    }
+                    target.remove();
+                    gallery.hide();
+                });
+            }
+        });
+    });
+
+    var uploadCountAfterDom = $("#uploadCountAfter");
+
+    try{
+        weui.uploader('#uploaderAfter', {
+            url: "{:U('Enterprise/storeMaintain/downLoadImageForInspection')}",
+            auto: true,
+            type: 'file',
+            fileVal: 'fileVal',
+//            compress: {
+//                width: 1600,
+//                height: 1600,
+//                quality: .1
+//            },
+            onBeforeQueued: function(files) {
+//                if(["image/jpg", "image/jpeg", "image/png", "image/gif"].indexOf(this.type) < 0){
+//                    weui.alert('请上传图片');
+//                    return false;
+//                }
+                if(this.size > 10 * 1024 * 1024){
+                    weui.alert('您上传的图片超过10M，请压缩之后重新上传');
+                    return false;
+                }
+                if (files.length > 6) { // 防止一下子选中过多文件
+                    weui.alert('最多只能上传6张图片，请重新选择');
+                    return false;
+                }
+                if (uploadCountAfter + 1 > 6) {
+                    weui.alert('最多只能上传6张图片');
+                    return false;
+                }
+
+                ++uploadCountAfter;
+                uploadCountAfterDom.html(uploadCountAfter);
+            },
+            onQueued: function(){
+                uploadListAfter.push(this);
+            },
+            onBeforeSend: function(data, headers){
+                // $.extend(data, { test: 1 }); // 可以扩展此对象来控制上传参数
+                // $.extend(headers, { Origin: 'http://127.0.0.1' }); // 可以扩展此对象来控制上传头部
+
+                // return false; // 阻止文件上传
+            },
+            onProgress: function(procent){
+                console.log(procent);
+            },
+            onSuccess: function (ret) {
+
+                //这里做了判断，如果是师傅第一次添加设备就正常key值就正常添加
+                //如果是第二次处理图片，就用imgNum+1来做key
+                if(imgNumAfter==0){
+                    uploadImageListAfter[this.id] = ret.data;
+                }else{
+                    uploadImageListAfter[++imgNumAfter] = ret.data;
+                }
+            },
+            onError: function(err){
+            }
+        });
+    }catch (e){
+        alert(e);
+    }
+</script>
+</html>

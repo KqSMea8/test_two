@@ -1,0 +1,72 @@
+<div>
+    <style>
+        .modal-dialog {
+            width: 420px;
+        }
+    </style>
+    <form id="migration" action="__SELF__" method="post" class="ajax-form">
+        <input type="hidden" name="ids" value="{$ids}">
+        <input type="hidden" name="cateVal" value="{$cateVal}">
+        <div class="form-group">
+            <label class="col-xs-4 control-label" style="text-align: right;">
+                推送信息
+            </label>
+            <div class="col-xs-8">
+                <textarea name="reason" style="width: 240px;height: 73px;margin-bottom: 10px;" ></textarea>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-4 control-label" style="text-align: right;">
+                推送时间
+            </label>
+            <div class="col-xs-8">
+                <input type="text" name="startTime" class="text input-large form-datetime time form-control"
+                       style="width: 240px"  placeholder={:L("_PLEASE_CHOOSE_TIME_WITH_DOUBLE_")}/>
+            </div>
+        </div>
+        <!--<div class="form-group">-->
+            <!--<label class="col-xs-4 control-label" style="text-align: right;">-->
+                <!--结束时间-->
+            <!--</label>-->
+            <!--<div class="col-xs-8">-->
+                <!--<input type="text" data-field-name="endTime" class="text input-large form-datetime time form-control"-->
+                       <!--style="width: 240px"  placeholder={:L("_PLEASE_CHOOSE_TIME_WITH_DOUBLE_")}/>-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div style="width: 100%;text-align: center;">
+            <a class="btn btn-primary" data-role="submit">{:L('_SUBMIT_')}</a>
+            <a onclick="$('.close').click();" class="btn btn-default">{:L('_CANCEL_')}</a>
+        </div>
+    </form>
+</div>
+
+<link href="__ZUI__/lib/datetimepicker/datetimepicker.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="__ZUI__/lib/datetimepicker/datetimepicker.min.js"></script>
+
+
+<script>
+    $('.form-datetime').datetimepicker({
+        language: "zh-CN",
+        autoclose: true,
+        format: 'yyyy-mm-dd hh:ii'
+    });
+
+    $(function(){
+        $('[data-role="submit"]').click(function(){
+            query=$('#migration').serialize();
+            var url=$('#migration').attr('action');
+            $.post(url,query,function(msg){
+                if(msg.status){
+                    toast.success('{:L("_SUCCESS_TIP_")}！');
+                    setTimeout(function(){
+                        window.location.href=msg.url;
+                    },1500);
+                }else{
+                    handleAjax(msg);
+                }
+            },'json');
+        });
+    });
+</script>

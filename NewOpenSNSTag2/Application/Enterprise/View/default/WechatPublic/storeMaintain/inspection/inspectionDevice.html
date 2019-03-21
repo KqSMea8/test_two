@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>添加新设备</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/device_detail.css?111" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			// if(hWidth>800){
+			//     hWidth=800;
+			// }
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+
+</head>
+<body>
+	<div class="appointment-polling-index-color">
+		<notempty name="inspectionDetail">
+			<volist name="inspectionDetail" key='key' id="inspection">
+				<div class="detail-list">
+					<div class="weui-cell__hd" style="background-color: #ffe512;">
+						<label style="padding-left: 0.6rem;font-weight: 600;line-height: 1.5rem">设备{$key}</label>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备名称：</label></div>
+						<div class="weui-cell__bd">
+							<input disabled class="weui-input device_name" type="text" value="{$inspection.device_name}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备品牌：</label></div>
+						<div class="weui-cell__bd">
+							<input disabled class="weui-input device_brand" type="text" value="{$inspection.device_brand}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备类别：</label></div>
+						<div class="weui-cell__bd">
+							<input disabled class="weui-input device_brand" type="text" value="{$inspection.category_name}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">巡检结果：</label></div>
+						<div class="weui-cell__bd">
+							<if condition="!empty($inspection['repairs_id'])">
+								<span class="weui-input" style="color: red">故障已报修</span><span style="margin-left: 1.6rem"><a href="{$inspection.repaire_url}" style="color: red">报修详情 </a>></span>
+							<elseif condition="!empty($inspection['yet_repairs_id'])"/>
+								<span class="weui-input" style="color: red">故障已维修</span><span style="margin-left: 1.6rem"><a href="{$inspection.yet_repaire_url}" style="color: red">已修详情 </a>></span>
+							<else/>
+								<input disabled class="weui-input device_brand" style="color: red" type="text" value="正常"/>
+							</if>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">巡检备注：</label></div>
+						<div class="weui-cell__bd">
+							<input disabled class="weui-input device_brand" type="text" value="{$inspection.remark}"/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">设备图片：</label></div>
+						<div class="weui-cell__bd uploader__files">
+							<php>$picArray = $inspection['device_pic']</php>
+							<volist name="picArray" id="picData">
+								<img class="uploader__file" src="{$picData}" style="width: 2rem;height: 2rem;">
+							</volist>
+						</div>
+					</div>
+				</div>
+			</volist>
+		</notempty>
+	</div>
+<!--<div class="centerBtnWarp centerBtn" style="height: 2rem;padding-top: 0.2rem;">-->
+	<!--<a href="javascript:;" class="centerBtn">导 入</a>-->
+<!--</div>-->
+</body>
+</html>
+<script type="text/javascript" src="/Public/wechat/j/jquery.js"></script>
+<script type="text/javascript">
+
+	// 缩略图预览
+	$('.uploader__files').on('click', function(e){
+		var target = e.target;
+
+		while(!target.classList.contains('uploader__file') && target){
+			target = target.parentNode;
+		}
+		if(!target) return;
+
+		var url = target.getAttribute('src') || '';
+
+		weui.gallery(url);
+		$('.weui-gallery__del').remove();
+	});
+</script>

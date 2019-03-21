@@ -1,0 +1,68 @@
+<style type="text/css">
+    .form-control {
+        display:inline-block;
+        width: 120px;
+    }
+</style>
+
+<select class="form-control" name="one_level_category" id="one_level_category"></select>
+<input type="hidden" name="one_level_category_text" id="one_level_category_text"/>
+<select class="form-control"  name="two_level_category" id="two_level_category" style="display:none;"></select>
+<input type="hidden" name="two_level_category_text" id="two_level_category_text"/>
+<select class="form-control"  name="three_level_category" id="three_level_category" style="display:none;"></select>
+<input type="hidden" name="three_level_category_text" id="three_level_category_text"/>
+
+<script type="text/javascript">
+    $(function(){
+        var c_pid=<if condition="$dsparam.one_level_category neq ''">{$dsparam.one_level_category}<else />0</if>;  //默认省份id
+        var c_cid=<if condition="$dsparam.two_level_category neq ''">{$dsparam.two_level_category}<else />0</if>;  //默认城市id
+        var c_did=<if condition="$dsparam.three_level_category neq ''">{$dsparam.three_level_category}<else />0</if>;  //默认区县市id
+
+        /*修复联动不及时的bug，陈一枭*/
+        function c_change_1(pid){
+            $.post("{:U('Gxpt/selectCategoryLevelOne')}", {pid: pid}, function(result){
+                $("#one_level_category").html(result);
+                pid = $("#one_level_category").val();
+            });
+        }
+
+        function c_change_2(p_pid,p_cid){
+            $.post("{:U('Gxpt/selectCategoryLevelTwo')}", {pid: p_pid, cid: p_cid}, function(result){
+                $("#two_level_category").show().html(result);
+            });
+        }
+        function c_change_3(p_cid,p_did){
+            $.post("{:U('Gxpt/selectCategoryLevelThree')}", {cid: p_cid, did: p_did}, function(result){
+                $("#three_level_category").show().html(result);
+            });
+        }
+
+        c_change_1(c_pid);
+        c_change_2(c_pid,c_cid);
+        c_change_3(c_cid,c_did);
+
+
+        $('#one_level_category').change(function(){
+            var pid_g=$(this).children('option:selected').val();
+            $("#one_level_category_text").val($(this).children('option:selected').text())
+            c_change_2(pid_g)
+            c_change_3(0);
+
+        });
+
+        $('#two_level_category').change(function(){
+            var cid_g=$(this).children('option:selected').val();
+            $("#two_level_category_text").val($(this).children('option:selected').text())
+            c_change_3(cid_g)
+
+
+        });
+
+        $('#three_level_category').change(function(){
+            var did_g=$(this).children('option:selected').val();
+            $("#three_level_category_text").val($(this).children('option:selected').text())
+        });
+
+    });
+    /*修复联动不及时的bug，陈一枭end*/
+</script>

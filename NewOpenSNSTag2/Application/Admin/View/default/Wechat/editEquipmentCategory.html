@@ -1,0 +1,147 @@
+<extend name="Public/base"/>
+<link href="__ZUI__/css/zui.css" rel="stylesheet">
+<link href="__ZUI__/css/zui-theme.css" rel="stylesheet">
+<link href="__PUBLIC__/css/core.css" rel="stylesheet"/>
+<link type="text/css" rel="stylesheet" href="__PUBLIC__/js/ext/magnific/magnific-popup.css"/>
+<include file="Public/head"/>
+<block name="style">
+    <link href="Application/Event/Static/css/event.css" rel="stylesheet" type="text/css"/>
+    <link href="__ZUI__/lib/datetimepicker/datetimepicker.min.css" rel="stylesheet" type="text/css">
+</block>
+<block name="header">
+    <include file="_nav"/>
+</block>
+<block name="body">
+    <div id="frm-post-popup " class="white-popup1 boxShadowBorder col-xs-12" style="">
+        <div>
+            <div class="row">
+                <div style="padding: 0 10px;width: 840px;float: left;">
+                    <form class="form-horizontal ajax-form" role="form" method="post">
+                        <div class="form-group has-feedback">
+                            <label class="control-label">类别名称</label>
+                            <div class="col-xs-5">
+                                <input id="name" name="title" class="form-control" check-type="Text" value="{$equipmentInfo.name}" placeholder="类别名称"  />
+                                <input type="hidden" name="id" id="id" value="{$id}"/>
+                            </div>
+                        </div>
+                        <if condition="!empty($equipmentOperationInfo)">
+                            <div class="form-group has-feedback">
+                                <label class="control-label">巡检操作</label>
+                                <div class="col-xs-5 do" >
+                                    <foreach name="equipmentOperationInfo" item="item" key="k">
+                                        <input id="xj{$k+1}" name="xj" class="form-control xj" check-type="Text" value="{$item.name}" placeholder="操作{$k+1}"/>
+                                        <a id="delId{$k+1}" onclick="delDiv({$k+1})">删除</a>
+                                        <input type="hidden" name="operationId" id="operationId{$k+1}" value="{$item.id}"/>
+                                    </foreach>
+                                </div>
+                            </div>
+                        <else />
+                            <div class="form-group has-feedback">
+                                <label class="control-label">巡检操作</label>
+                                <div class="col-xs-5 do" >
+                                    <input id="xj1" name="xj" class="form-control xj" check-type="Text" value="" placeholder="操作1"/>
+                                    <a id="delId1" onclick="delDiv(1)">删除</a>
+                                    <input type="hidden" name="operationId" id="operationId1" value=""/>
+                                </div>
+                            </div>
+                        </if>
+                        <div class="form-group has-feedback">
+                            <label class="control-label"></label>
+                            <div class="col-xs-5">
+                            <a onclick="addDiv()" style="margin-top: 0.4rem; margin-left: 1rem;width: 4rem">增加</a>
+
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-xs-2" style="margin-left: 50px;">
+                                <button onclick="complete()" class="btn ajax-post btn-primary " target-form="form-horizontal"  style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;">{:L('_SUBMIT_')}
+                                </button>
+                            </div>
+                            <div class="col-xs-8">
+                                <button onclick="history.go(-1);" class="btn btn-default " type="button"  style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;">{:L('_RETURN_')}
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="__STATIC__/uploadify/jquery.uploadify.min.js"></script>
+    <link href="__ROOT__/Application/Core/Static/css/form_check.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="__ROOT__/Application/Core/Static/js/form_check.js"></script>
+    <script type="text/javascript" src="__ZUI__/lib/datetimepicker/datetimepicker.min.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="/Public/js/jquery.js" charset="UTF-8"></script>
+    <script>
+
+        //新增操作
+        function addDiv() {
+            var pollingLevel = $(".do .xj").length;
+            var deviceNum = Number(pollingLevel)+1;
+            var problem = "<input id=\"xj"+deviceNum+"\" name=\"xj\" class=\"form-control xj\" check-type=\"Text\" value=\"\" placeholder=\"操作"+deviceNum+"\"  />"+
+                            "<a id=\"delId"+deviceNum+"\" onclick=\"delDiv("+deviceNum+")\">删除</a>"+
+                            "<input type=\"hidden\" name=\"operationId\" id=\"operationId"+deviceNum+"\" value=\"\"/>";
+            $(".do").append(problem);
+            $(".do .xj").each(function () {
+                var num = $(this).index();
+            });
+            /*if ($(".do .xj").length > 1) {
+                $("#delId").show();
+            }*/
+        }
+        //删除功能
+        function delDiv(id){
+            $("#delId"+id).remove();
+            $("#xj"+id).remove();
+            $("#operationId"+id).remove();
+        }
+        //********************************************************
+        $(function(){
+            deviceLength = {$countEquipmentOperationInfo};
+            if ($(".do .xj").length > 1) {
+                $("#delId").show();
+            }
+        });
+
+
+        function complete(){
+            var DeviceName = $("#name").val();
+            if(!DeviceName){
+                alert('填写类别名称');
+                return false;
+            }
+                var Data = [];
+                var ID = [];
+                var i = 0;
+                $(".do .xj").each(function() {
+                    var index = $(this).index();
+                    var name = $(this).val();
+                    var operationId = $("input[name='operationId']")[i].value;
+                    i += 1;
+                    var tempDetail = {};
+                    var ids = {};
+                    tempDetail['name'] = name;
+                    tempDetail['operationId'] = operationId;
+                    ids['operationId'] = operationId;
+                    Data.push(tempDetail);
+                    ID.push(ids);
+                });
+                var param = {
+                    xunjian:Data,
+                    ids:ID,
+                    name:DeviceName,
+                    id:$("#id").val(),
+                };
+                $.post("{:U('saveEquipment')}",param,function(res){
+                    if(res.status == 1){
+                        window.location.href="{:U('equipmentCategoryList')}";
+                    }else{
+                        alert('操作失败，请刷新再试！');
+                    }
+                });
+
+        }
+    </script>
+</block>

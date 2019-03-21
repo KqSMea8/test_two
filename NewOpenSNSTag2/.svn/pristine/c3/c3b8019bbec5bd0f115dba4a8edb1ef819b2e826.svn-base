@@ -1,0 +1,1075 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: caipeichao
+ * Date: 14-3-11
+ * Time: PM5:41
+ */
+
+namespace Admin\Controller;
+
+use Admin\Builder\AdminConfigBuilder;
+use Admin\Builder\AdminListBuilder;
+use Admin\Builder\AdminTreeListBuilder;
+use Event\Model\EventAttendModel;
+use Event\Model\EventModel;
+
+class EventController extends AdminController
+{
+	protected $eventModel;
+	protected $eventTypeModel;
+
+	function _initialize()
+	{
+		$this->eventModel = D('Event/Event');
+		$this->eventTypeModel = D('Event/EventType');
+		$tree = $this->eventTypeModel->where(array('status' => 1))->select();
+		$this->assign('tree', $tree);
+		parent::_initialize();
+	}
+
+	public function config()
+	{
+		$admin_config = new AdminConfigBuilder();
+		$data = $admin_config->handleConfig();
+
+		$admin_config->title(L('_EVENT_BASIC_CONF_'))->data($data)
+			->keyBool('NEED_VERIFY', L('_EVENT_CREATE_AUDIT_'), L('_AUDIT_DEFAULT_NO_NEED_'))
+			->keyBool('SHENHE_SEND_WEIBO', L('_EVENT_AUDIT_SEND_FRESH_'), L('_EVENT_AUDIT_SEND_FRESH_DEFAULT_'))->keyDefault('SHENHE_SEND_WEIBO', 0)
+			->keyText('EVENT_SHOW_TITLE', L('_TITLE_NAME_'), L('_HOME_BLOCK_TITLE_'))->keyDefault('EVENT_SHOW_TITLE', '热门活动')
+			->keyText('EVENT_SHOW_COUNT', '显示活动的个数', '只有在网站首页模块中启用了活动模块之后才会显示')->keyDefault('EVENT_SHOW_COUNT', 4)
+			->keyRadio('EVENT_SHOW_TYPE', '活动的删选范围', '', array('1' => L('_BG_RECOMMEND_'), '0' => L('_EVERYTHING_')))->keyDefault('EVENT_SHOW_TYPE', 0)
+			->keyRadio('EVENT_SHOW_ORDER_FIELD', L('_SORT_VALUE_'), L('_TIP_SORT_VALUE_'), array('view_count' => L('_VIEWS_'), 'create_time' => L('_DELIVER_TIME_'), 'update_time' => L('_UPDATE_TIME_'), 'attentionCount' => '报名人数'))->keyDefault('EVENT_SHOW_ORDER_FIELD', 'view_count')
+			->keyRadio('EVENT_SHOW_ORDER_TYPE', L('_SORT_TYPE_'), L('_TIP_SORT_TYPE_'), array('desc' => L('_COUNTER_'), 'asc' => L('_DIRECT_')))->keyDefault('EVENT_SHOW_ORDER_TYPE', 'desc')
+			->keyText('EVENT_SHOW_CACHE_TIME', L('_CACHE_TIME_'), L('_TIP_CACHE_TIME_'))->keyDefault('EVENT_SHOW_CACHE_TIME', '600')
+			->group(L('_EVENT_BASIC_CONF_'), 'NEED_VERIFY,SHENHE_SEND_WEIBO')->group(L('_HOME_SHOW_CONF_'), 'EVENT_SHOW_COUNT,EVENT_SHOW_TITLE,EVENT_SHOW_TYPE,EVENT_SHOW_ORDER_TYPE,EVENT_SHOW_ORDER_FIELD,EVENT_SHOW_CACHE_TIME')
+			->groupLocalComment(L('_LOCAL_COMMENT_CONF_'), 'event')
+			->buttonSubmit('', L('_SAVE_'));
+		$admin_config->display();
+	}
+
+	public function event($page = 1, $r = 10, $id = 0)
+	{
+		//读取列表
+		$map = ['status' => 1,'type_id'=>['neq',1001]];
+		$model = $this->eventModel;
+
+//		if (!empty($id)) {
+//
+//			$typeData = $this->eventTypeModel->where(['pid' => $id])->select();
+//			$typeIdArr = [$id];
+//			foreach ($typeData as $typeList) {
+//				$typeIdArr[] = $typeList['id'];
+//			}
+//
+//
+//			$map = array('status' => 1, 'type_id' => ['in', $typeIdArr]);
+//		}
+
+        $aCate=I('cate',0,'intval');
+
+        if($aCate){
+            $cates=$this->eventTypeModel->where(['id'=>$aCate])->select();
+            if($cates){
+                $cateWhere['type_id']=$aCate;
+                $cateWhere['_logic'] = 'OR';
+                $map['_complex'] = $cateWhere;
+            }
+        }
+
+        $eventName=I('eventName');
+
+        //拼接活动标题
+        if($eventName){
+            $eventWhere['title']=["like","%{$eventName}%"];
+            $eventWhere['_logic'] = 'OR';
+            $map['_complex'] = $eventWhere;
+        }
+
+        //分类条件搜索
+        $category=$this->eventTypeModel->where(['status'=>['eq',1]])->select();
+        $category=array_combine(array_column($category,'id'),$category);
+
+        //查询活动数据
+		$list = $model->where($map)->page($page, $r)->order('update_time desc')->select();
+//        $list = useFieldAsArrayKey($list,'id');
+
+		$nowTime = time();
+
+        //查询今日用户报名数
+        $attendData = (new EventAttendModel())->where(['status'=>['neq',-1]])->select();
+
+		foreach ($list as &$oneObject) {
+            //拼接活动是否结束
+			$oneObject['eTime'] = (($nowTime > $oneObject['eTime']) ? '已结束(' : '进行中(') . date('Y-m-d', $oneObject['eTime']) . ')';
+            $oneObject['cateText'] = $category[$oneObject['type_id']]['title'];
+
+            //拼接用户今日报名数据
+            foreach($attendData as &$val){
+                if($val['event_id'] == $oneObject['id']){
+
+                    //所有的报名数
+                    if($oneObject['allAttendNum']){
+                        $oneObject['allAttendNum'] = $oneObject['allAttendNum']+1;
+                    }else{
+                        $oneObject['allAttendNum'] = 1;
+                    }
+
+                    //今日报名数据
+                    if($val['create_time'] >= strtotime(date('Y-m-d',time())) && $val['create_time'] >= strtotime(date('Y-m-d',strtotime('+1 day')))){
+                        if($oneObject['todayAttendNum']){
+                            $oneObject['todayAttendNum'] = $oneObject['todayAttendNum']+1;
+                        }else{
+                            $oneObject['todayAttendNum'] = 1;
+                        }
+                    }
+
+                }
+            }
+
+            //拼接限制人数 如果为-1 就改成不限制
+
+            if($oneObject['limitCount'] == -1){
+                $oneObject['limitCountNew'] = '不限制';
+            }else{
+                $oneObject['limitCountNew'] = $oneObject['limitCount'];
+            }
+		}
+
+		unset($li);
+		$totalCount = $model->where($map)->count();
+        //拼接活动列表分类搜索
+        $optCategory=$category;
+        foreach($optCategory as &$val){
+            $val['value']=$val['title'];
+        }
+
+		//显示页面
+		$builder = new AdminListBuilder();
+
+		$attr['class'] = 'btn ajax-post';
+		$attr['target-form'] = 'ids';
+
+//		if (!empty($id)) {
+        $builder->title(L('_CONTENT_MANAGE_'))
+            ->setStatusUrl(U('setEventContentStatus'))
+            ->search("标题",'eventName','text','')
+            ->select('','cate','select','','','',array_merge(array(array('id'=>0,'value'=>L('_EVERYTHING_'))),$optCategory))
+            ->buttonNew(U('admin/event/addHuoDong'), '添加活动')
+            ->buttonSetStatus(U('setEventContentStatus'), 2, L('_AUDIT_UNSUCCESS_'), array())->buttonDelete()->button(L('_RECOMMEND_MAKE_UP_'), array_merge($attr, array('url' => U('doRecommend', array('tip' => 1)))))->button(L('_RECOMMEND_CANCEL_'), array_merge($attr, array('url' => U('doRecommend', array('tip' => 0)))))
+            ->keyId()->keyLink('title', L('_TITLE_'), 'Event/Index/detail?id=###')->keyUid()->keyText('cateText','分类')->keyCreateTime()->keyUpdateTime()->keyStatus()
+            ->keyMap('is_recommend', L('_RECOMMEND_YES_OR_NOT_'), array(0 => L('_YES_'), 1 => L('_NOT_')))
+            ->keyText('limitCountNew','限制人数')
+            ->keyText('todayAttendNum','今日新增报名人数')
+            ->keyText('allAttendNum','已报名人数')
+            ->keyETimeText()
+            ->data($list)
+            ->keyDoActionEdit('Event/edit?id=###')
+            ->keyLink('查看报名', '查看报名', 'Admin/event/eventAttend?id=###')
+            ->pagination($totalCount, $r)
+            ->display();
+//		} else {
+//			$builder->title(L('_CONTENT_MANAGE_'))
+//				->setStatusUrl(U('setEventContentStatus'))
+//				->buttonSetStatus(U('setEventContentStatus'), 2, L('_AUDIT_UNSUCCESS_'), array())->buttonDelete()->button(L('_RECOMMEND_MAKE_UP_'), array_merge($attr, array('url' => U('doRecommend', array('tip' => 1)))))->button(L('_RECOMMEND_CANCEL_'), array_merge($attr, array('url' => U('doRecommend', array('tip' => 0)))))
+//				->keyId()->keyLink('title', L('_TITLE_'), 'Event/Index/detail?id=###')->keyUid()->keyCreateTime()->keyUpdateTime()->keyStatus()->keyMap('is_recommend', L('_RECOMMEND_YES_OR_NOT_'), array(0 => L('_YES_'), 1 => L('_NOT_')))
+//				->data($list)
+//				->keyLink('title', L('_TITLE_'), 'Event/Index/detail?id=###')
+//				->keyDoActionEdit('Event/edit?id=###')
+//				->pagination($totalCount, $r)
+//				->display();
+//		}
+	}
+
+
+	public function edit()
+	{
+        $id = I('get.id');
+		$event_content = D('Event')->where(array('status' => 1, 'id' => $id))->find();
+		if (!$event_content) {
+			$this->error('404 not found');
+		}
+
+//		$this->checkAuth('Event/edit', $event_content['uid'], L('_INFO_EVENT_EDIT_LIMIT_') . L('_EXCLAMATION_'));
+		$event_content['user'] = query_user(array('id', 'username', 'nickname', 'space_url', 'space_link', 'avatar64', 'rank_html', 'signature'), $event_content['uid']);
+//		print_r($event_content);die;
+
+        $this->assign('content', $event_content);
+		$this->setTitle(L('') . L('_DASH_') . L('_MODULE_'));
+		$this->setKeywords(L('_EDIT_') . L('_COMMA_') . L('_MODULE_'));
+
+		$this->display();
+
+	}
+
+
+	public function addHuoDong()
+	{
+		$tree = $this->eventTypeModel->where(['status' => 1])->select();
+		$this->assign('pid', $type_id);
+		$this->assign('tree', $tree);
+
+		$this->display();
+	}
+
+    /**
+     * 活动绑定的报名数据
+     * @param $id
+     * @param int $page
+     * @param int $r
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+	public function eventAttend($id,$page=1,$r=20)
+	{
+        if(I('get.selectDate')){
+            $map['selectDate']=I('get.selectDate');
+        }
+
+        $map['id'] = $id;
+        list($list,$totalCount)=(new EventAttendModel())->getListByPage($map,$page,'b.status desc','*',$r);
+
+        $attr['href'] = U('exportExcel?eventID='.$id);
+        $attr['class']='btn btn-ajax';
+
+        foreach($list as &$val){
+            if($val['status'] == 0){
+                $val['statusText'] = '报名中';
+            }elseif($val['status'] == 1){
+                $val['statusText'] = '报名成功';
+            }elseif($val['status'] == -1){
+                $val['statusText'] = '取消报名';
+            }
+        }
+
+        //查询活动标题
+        $eventData = (new  EventModel())->where(['id'=>$id])->find();
+
+		//显示页面
+		$builder = new AdminListBuilder();
+
+		$builder->title("报名列表 | 《".$eventData['title']."》")
+			->keyId()
+            ->data($list)
+            ->select('发布日期：','selectDate','select','','','',array_merge(array(array('id'=>0,'value'=>"全部")),[["id" =>1,"value" => "今天"],["id" => 2,"value" => "昨天"],["id" => 3,"value" => "一周内"],["id" => 4,"value" => "一个月内"]]))
+			->keyUsername()
+			->keyMobile()
+			->keyText('email','邮箱')
+			->keyText('statusText','报名状态')
+			->keyCreateTime('create_time','报名时间')
+			->keyText('brand','品牌')
+			->keyText('job','职位')
+			->button('导出excel列表',$attr)
+            ->button('确认报名', ['class' => 'btn ajax-post tox-confirm', 'data-confirm' => '您确定要确认报名吗?', 'url' => U('Event/AttendSetStatus?status=1&eventId='.$id), 'target-form' => 'ids'])
+            ->button('取消报名', ['class' => 'btn ajax-post tox-confirm', 'data-confirm' => '您确定要取消报名吗?', 'url' => U('Event/AttendSetStatus?status=-1&eventId='.$id), 'target-form' => 'ids']);
+        $builder->pagination($totalCount,$r)
+            ->display();
+	}
+
+    /**
+     * 报名列表
+     * @param $id
+     * @param int $page
+     * @param int $r
+     * @author  HQ.
+     * email: huangqing@jpgk.com.cn
+     * QQ:2322523770
+     */
+    public function eventAttendList($page=1,$r=20)
+    {
+        $map = [];
+        //拼接搜索数据 发布日期
+        if(I('get.selectDate')){
+            $map['selectDate']=I('get.selectDate');
+        }
+
+        //拼接搜索数据 报名状态
+        if(I('get.enrolStatus')){
+            $map['enrolStatus']=I('get.enrolStatus');
+        }
+
+        list($list,$totalCount)=(new EventAttendModel())->getListAttendByPage($map,$page,'b.status desc','*',$r);
+
+        $attr['href'] = U('exportAttendExcel');
+        $attr['class']='btn btn-ajax';
+
+        //拼接数据
+        foreach($list as &$val){
+
+            //拼接活动报名数据状态
+            if($val['status'] == 0){
+                $val['statusText'] = '报名中';
+            }elseif($val['status'] == 1){
+                $val['statusText'] = '报名成功';
+            }elseif($val['status'] == -1){
+                $val['statusText'] = '取消报名';
+            }
+
+            //拼接费用状态
+            if($val['price'] == -1){
+                $val['priceText'] = '免费';
+            }else{
+                $val['priceText'] = $val['price'].'元';
+            }
+
+            //拼接
+            $val['eventStatus'] = ((time() > $val['eTime']) ? '已结束(' : '进行中(') . date('Y-m-d', $val['eTime']) . ')';
+        }
+
+        //查询活动标题
+//        $eventData = (new  EventModel())->where(['id'=>$id])->find();
+
+        //显示页面
+        $builder = new AdminListBuilder();
+
+        $builder->title("报名列表")
+            ->keyId()
+            ->data($list)
+            ->select('报名状态：','enrolStatus','select','','','',array_merge([['id'=>0,'value'=>"全部"]],[["id" =>1,"value" => "报名中"],["id" => 2,"value" => "报名成功"],["id" => 3,"value" => "取消报名"]]))
+            ->select('发布日期：','selectDate','select','','','',array_merge([['id'=>0,'value'=>"全部"]],[["id" =>1,"value" => "今天"],["id" => 2,"value" => "昨天"],["id" => 3,"value" => "一周内"],["id" => 4,"value" => "一个月内"]]))
+            ->search('活动名称','searchName')
+            ->keyUsername()
+            ->keyText('title','报名活动')
+            ->keyMobile()
+            ->keyCreateTime('create_time','报名时间')
+            ->keyText('priceText','报名费')
+            ->keyText('email','邮箱')
+            ->keyText('brand','品牌')
+            ->keyText('job','职位')
+            ->keyETimeText('eventStatus','活动状态')
+            ->keyText('statusText','报名状态')
+            ->button('导出excel列表',$attr);
+        $builder->pagination($totalCount,$r)
+            ->display();
+    }
+
+    //修改报名状态
+    public function AttendSetStatus(){
+        $eventId = I('get.eventId');
+        $ids = I('post.ids');
+        $status = I('get.status');
+        (new EventAttendModel())->where(['id'=>['IN',$ids]])->save(['status'=>$status]);
+
+        $this->success('操作成功',U('Event/eventAttend?id='.$eventId));
+    }
+
+    /**
+     * 导出报名excel数据
+     */
+    public function exportExcel(){
+
+        $id = I('get.eventID');
+        $model = M('');
+        $sql = "SELECT
+			  a.`mobile`,
+			  a.`username`,
+			  a.`email`,
+			  b.`create_time`,
+			  b.`brand`,
+			  b.`department`,
+			  b.`position`,
+			  b.`job`,
+			  b.`id`,
+			  a.`id` 'cuid',
+			  b.event_id,
+			  b.status,
+		      b.status 'statusText'
+			FROM
+			  `jpgk_ucenter_member` a
+			  JOIN `jpgk_event_attend` b
+				ON a.`id` = b.uid
+			WHERE b.`event_id` = {$id}";
+
+        $data = $model->query($sql);
+
+        foreach($data as &$val){
+            if($val['status'] == 0){
+                $val['statusText'] = '报名中';
+            }elseif($val['status'] == 1){
+                $val['statusText'] = '报名成功';
+            }elseif($val['status'] == -1){
+                $val['statusText'] = '取消报名';
+            }
+        }
+
+        $eventData = $this->eventModel->find($id);
+
+        for($i = 0; $i < count ( $data ); $i ++) {
+            array_unshift ( $data [$i], $i );
+        }
+
+        $excelData = array ();
+        $title = array (
+            "row" => 1,
+            "count" => 15,
+            "title" => $this->getExcelHeaderData()
+        );
+
+        $num = 1;
+        foreach ( $data as $k => $v ) {
+
+            $excelData [$k] ['username'] = $v ['username'];
+            $excelData [$k] ['mobile'] = $v ['mobile'];
+            $excelData [$k] ['email'] = $v ['email'];
+            $excelData [$k] ['create_time'] = Date('Y-m-d H:i:s',$v ['create_time']);
+            $excelData [$k] ['brand'] = $v ['brand'];
+            $excelData [$k] ['job'] = $v ['job'];
+            $excelData [$k] ['statusText'] = $v ['statusText'];
+            $num ++;
+        }
+        $len = count ( $excelData );
+        $info = array (
+            "table_name_one" =>  "报名信息数据表|".$eventData['title'],
+            "lister" => "",
+            "tabletime" => date ( "Y-m-d", time () )
+        );
+
+        $optional = array (
+            'colwidth' => array (
+                'A' => '20',
+                'B' => '40',
+                'C' => '20',
+                'D' => '25',
+                'E' => '20',
+                'F' => '20',
+                'G' => '15',
+//                'I' => '25',
+            ),
+            'fontsize' => array (
+                'A1:O' . ($len + 4) => '10'
+            ),
+            'colalign' => array (
+                'A1:O' . ($len + 4) => '2'
+            )
+        );
+        outputExcel ( $info, $title, $excelData, $optional );
+    }
+
+    private function getExcelHeaderData()
+    {
+        $return = [
+            '用户名',
+            '手机号码',
+            '邮箱',
+            '报名时间',
+            '品牌',
+            '职位',
+            '报名状态',
+        ];
+
+        return $return;
+    }
+
+    /**
+     * 导出报名excel数据
+     */
+    public function exportAttendExcel(){
+
+        $data = (new EventAttendModel())->getAttendList();
+
+        foreach($data as &$val){
+
+            //拼接活动报名数据状态
+            if($val['status'] == 0){
+                $val['statusText'] = '报名中';
+            }elseif($val['status'] == 1){
+                $val['statusText'] = '报名成功';
+            }elseif($val['status'] == -1){
+                $val['statusText'] = '取消报名';
+            }
+
+            //拼接费用状态
+            if($val['price'] == -1){
+                $val['priceText'] = '免费';
+            }else{
+                $val['priceText'] = $val['price'].'元';
+            }
+
+            //拼接
+            $val['eventStatus'] = ((time() > $val['eTime']) ? '已结束(' : '进行中(') . date('Y-m-d', $val['eTime']) . ')';
+        }
+
+        for($i = 0; $i < count ( $data ); $i ++) {
+            array_unshift ( $data [$i], $i );
+        }
+
+        $excelData = array ();
+        $title = array (
+            "row" => 1,
+            "count" => 15,
+            "title" => $this->getAttendExcelHeaderData()
+        );
+
+        $num = 1;
+        foreach ( $data as $k => $v ) {
+            $excelData [$k] ['username'] = $v ['username'];
+            $excelData [$k] ['mobile'] = $v ['mobile'];
+            $excelData [$k] ['title'] = $v ['title'];
+            $excelData [$k] ['create_time'] = Date('Y-m-d H:i:s',$v ['create_time']);
+            $excelData [$k] ['priceText'] = $v ['priceText'];
+            $excelData [$k] ['email'] = $v ['email'];
+            $excelData [$k] ['brand'] = $v ['brand'];
+            $excelData [$k] ['job'] = $v ['job'];
+            $excelData [$k] ['eventStatus'] = $v ['eventStatus'];
+            $excelData [$k] ['statusText'] = $v ['statusText'];
+            $num ++;
+        }
+        $len = count ( $excelData );
+        $info = array (
+            "table_name_one" =>  "报名信息数据表",
+            "table_name_two" => "报名信息报表",
+            "lister" => "",
+            "tabletime" => date ( "Y-m-d", time () )
+        );
+
+        $optional = array (
+            'colwidth' => array (
+                'A' => '20',
+                'B' => '20',
+                'C' => '30',
+                'D' => '25',
+                'E' => '20',
+                'F' => '20',
+                'G' => '15',
+                'H' => '25',
+                'I' => '25',
+                'J' => '25',
+            ),
+            'fontsize' => array (
+                'A1:O' . ($len + 4) => '10'
+            ),
+            'colalign' => array (
+                'A1:O' . ($len + 4) => '2'
+            )
+        );
+        outputExcel ( $info, $title, $excelData, $optional );
+    }
+
+    //
+    private function getAttendExcelHeaderData()
+    {
+
+        $return = [
+            '用户名',
+            '手机号码',
+            '报名活动',
+            '报名时间',
+            '报名费',
+            '邮箱',
+            '品牌',
+            '职位',
+            '活动状态',
+            '报名状态',
+        ];
+
+        return $return;
+    }
+
+	/**
+	 * 批量审核
+	 */
+	public function pishenhe()
+	{
+
+		$ids = I('post.ids');
+
+		$data = D('event_attend')->where(array('id' => ['in', $ids]))->select();
+
+		if(empty($data)){
+			$this->error('没有需要审核的数据！');
+		}
+
+		foreach ($data as $val) {
+			$this->shenhe($val['uid'], $val['event_id'], $val['status']);
+		}
+
+		$this->success('操作成功！');
+
+
+	}
+
+
+	/**
+	 * 审核
+	 * @param $uid
+	 * @param $event_id
+	 * @param $tip
+	 * autor:xjw129xjt
+	 */
+	public function shenhe($uid, $event_id, $tip = 1)
+	{
+		$event_content = D('Event')->where(array('status' => 1, 'id' => $event_id))->find();
+		$tip = $tip ? 0 : 1;
+		$res = D('event_attend')->where(array('uid' => $uid, 'event_id' => $event_id))->setField('status', $tip);
+		if ($tip) {
+			if ($event_content['attentionCount'] + 1 == $event_content['limitCount']) {
+				$data['deadline'] = time();
+				$data['attentionCount'] = $event_content['limitCount'];
+				D('Event')->where(array('id' => $event_id))->setField($data);
+			} else {
+				D('Event')->where(array('id' => $event_id))->setInc('attentionCount');
+			}
+			D('Message')->sendMessageWithoutCheckSelf($uid, L('_MESSAGE_AUDIT_APPLY_1_'), get_nickname(is_login()) . L('_MESSAGE_AUDIT_APPLY_2_') . $event_content['title'] . L('_MESSAGE_AUDIT_APPLY_3_'), 'Event/Index/detail', array('id' => $event_id));
+		} else {
+			D('Event')->where(array('id' => $event_id))->setDec('attentionCount');
+			D('Message')->sendMessageWithoutCheckSelf($uid, L('_MESSAGE_AUDIT_CANCEL_1_'), get_nickname(is_login()) . L('_MESSAGE_AUDIT_CANCEL_2_') . $event_content['title'] . L('_MESSAGE_AUDIT_CANCEL_3_'), 'Event/Index/member', array('id' => $event_id));
+
+		}
+
+		if($res === false){
+			$this->error(L('_ERROR_OPERATION_FAIL_').L('_EXCLAMATION_'));
+		}
+	}
+
+
+	/**
+	 * 发布活动
+	 * @param int $id
+	 * @param int $cover_id
+	 * @param string $title
+	 * @param string $explain
+	 * @param string $sTime
+	 * @param string $eTime
+	 * @param string $address
+	 * @param int $limitCount
+	 * @param string $deadline
+	 * autor:xjw129xjt
+	 */
+	public function doPost($id = 0, $cover_id = 0, $title = '', $explain = '', $sTime = '', $eTime = '',$province = '',$city = '',$address = '', $limitCount = 0, $priceWay = '',$limitCount = '',$peopleNum = '',$price = '',$deadline = '',$period = '',$sort = '', $type_id = 0,$pid = 0)
+	{
+		if (!is_login()) {
+			$this->error(L('_ERROR_LOGIN_'));
+		}
+		if (!$cover_id) {
+			$this->error(L('_ERROR_COVER_'));
+		}
+		if (trim(op_t($title)) == '') {
+			$this->error(L('_ERROR_TITLE_'));
+		}
+		if ($type_id == 0) {
+			$this->error(L('_ERROR_CATEGORY_'));
+		}
+		if (trim(op_h($explain)) == '') {
+			$this->error(L('_ERROR_CONTENT_'));
+		}
+		if (trim(op_h($address)) == '') {
+			$this->error(L('_ERROR_SITE_'));
+		}
+		if ($eTime < $deadline) {
+			$this->error(L('_ERROR_TIME_DEADLINE_'));
+		}
+		if ($deadline == '') {
+			$this->error(L('_ERROR_DEADLINE_'));
+		}
+		if ($sTime > $eTime) {
+			$this->error(L('_ERROR_TIME_START_'));
+		}
+        if (empty($limitCount)) {
+			$this->error(L('请选择报名人数方式'));
+		}
+        if (empty($period)) {
+			$this->error(L('请填写具体时间'));
+		}
+
+        if($priceWay == 'payPrice' && !$price){
+            $this->error('选择计费方式为付费时 价格不可为空');
+        }
+
+        if($limitCount == 'numberYes' && !$peopleNum){
+            $this->error('选择人数时 数量不可为空');
+        }
+
+		$content = D('Event')->create();
+        if (!mb_strlen($content['description'], 'utf-8')) {
+            $content['description'] = msubstr(trimall(op_t($content['explain'])), 0, 200);
+        }
+
+		$content['explain'] = filter_content($content['explain']);
+		$content['title'] = op_t($content['title']);
+		$content['sTime'] = strtotime($content['sTime']);
+		$content['eTime'] = strtotime($content['eTime']);
+		$content['period'] = trim($content['period']);
+		$content['deadline'] = strtotime($content['deadline']);
+        $content['type_id'] = intval($type_id);
+        //判断如果人数不限 limitCount等于-1 其他方式
+        if($limitCount == 'numberYes'){
+            $content['limitCount'] = $peopleNum;
+        }elseif($limitCount == 'numberNo'){
+            $content['limitCount'] = -1;
+        }
+        $content['sort'] = $sort;
+		$content['province'] = $province;
+		$content['city'] = $city;
+        if($priceWay == 'payPrice'){
+            $content['price'] = $price;
+        }elseif($priceWay == 'payFree'){
+            $content['price'] = '-1';
+        }
+
+        //如果ID有值 编辑数据 反之添加
+		if ($id) {
+			$content_temp = D('Event')->find($id);
+
+			$pid = $this->eventTypeModel->find($type_id)['pid'];
+			$pid = $pid?$pid:$type_id;
+
+
+			$this->checkActionLimit('add_event', 'event', $id, is_login(), true);
+			$content['uid'] = $content_temp['uid']; //权限矫正，防止被改为管理员
+			$rs = D('Event')->save($content);
+			if (D('Common/Module')->isInstalled('Weibo')) { //安装了微博模块
+				$postUrl = "http://$_SERVER[HTTP_HOST]" . U('Event/Index/detail', array('id' => $id));
+				$weiboModel = D('Weibo/Weibo');
+				$weiboModel->addWeibo(L('_EVENT_CHANGED_')."【" . $title . "】：" . $postUrl);
+			}
+			if ($rs!==false) {
+				action_log('add_event', 'event', $id, is_login());
+				if(!empty($pid)){
+
+					$this->success(L('_SUCCESS_SETTING_'), U('event/event?id='.$pid),true);
+				}else{
+					$this->success(L('_SUCCESS_SETTING_'), U('event/event?id='.$type_id),true);
+				}
+			} else {
+				$this->error(L('_ERROR_OPERATION_FAIL_').L('_EXCLAMATION_'),'');
+			}
+		} else {
+            //添加数据
+
+			$this->checkActionLimit('add_event', 'event', 0, is_login(), true);
+			$content['create_time'] = NOW_TIME;
+			$content['update_time']= NOW_TIME;
+            $content['status'] = 1;
+
+            //新版本添加活动 is_pay为1 TODO 支付上线后一起更新
+//			$content['is_pay'] = 1;
+            $content['uid'] = is_login() ;
+			if (modC('NEED_VERIFY', 0) && !is_administrator()) //需要审核且不是管理员
+			{
+				$content['status'] = 2;
+				$tip = L('_PLEASE_WAIT_').L('_PERIOD_');
+				$user = query_user(array('username', 'nickname'), is_login());
+				D('Common/Message')->sendMessage(explode(',', C('USER_ADMINISTRATOR')), $title = L('_EVENT_SPONSOR_1_'), "{$user['nickname']}".L('_EVENT_SPONSOR_2_'), 'Admin/Event/verify', array(), is_login(), 2);
+			}
+
+			$content['attentionCount'] = 0;
+			$content['signCount'] = 0;
+			$rs = D('Event')->add($content);
+
+
+//			$data['uid'] = is_login();
+//			$data['event_id'] = $rs;
+//			$data['create_time'] = time();
+//			$data['status'] = 1;
+//			D('event_attend')->add($data);
+
+
+			if (D('Common/Module')->isInstalled('Weibo')) { //安装了微博模块
+				//同步到微博
+				$postUrl = "http://$_SERVER[HTTP_HOST]" . U('Event/Index/detail', array('id' => $rs));
+
+				$weiboModel = D('Weibo/Weibo');
+				$weiboModel->addWeibo(L('_EVENT_I_SPONSOR_')."【" . $title . "】：" . $postUrl);
+			}
+
+			if ($rs) {
+				if(!empty($pid)){
+
+					$this->success(L('_SUCCESS_SETTING_'), U('event/event?id='.$pid),true);
+				}else{
+					$this->success(L('_SUCCESS_SETTING_'), U('event/event?id='.$type_id),true);
+				}
+			} else {
+				$this->error(L('_ERROR_OPERATION_FAIL_').L('_EXCLAMATION_'));
+			}
+
+		}
+	}
+
+    /**
+     * 设置推荐or取消推荐
+     * @param $ids
+     * @param $tip
+     * autor:xjw129xjt
+     */
+    public function doRecommend($ids, $tip)
+    {
+        D('Event')->where(array('id' => array('in', $ids)))->setField('is_recommend', $tip);
+        $this->success(L('_SUCCESS_SETTING_'), $_SERVER['HTTP_REFERER']);
+    }
+
+    /**
+     * 审核页面
+     * @param int $page
+     * @param int $r
+     * autor:xjw129xjt
+     */
+    public function verify($page = 1, $r = 10)
+    {
+        //读取列表
+        $map = array('status' => 2);
+        $model = $this->eventModel;
+        $list = $model->where($map)->page($page, $r)->select();
+        unset($li);
+        $totalCount = $model->where($map)->count();
+
+        //显示页面
+        $builder = new AdminListBuilder();
+        $attr['class'] = 'btn ajax-post';
+        $attr['target-form'] = 'ids';
+        $builder->title('审核内容')
+            ->setStatusUrl(U('setEventContentStatus'))->buttonEnable('', L('_AUDIT_SUCCESS_'))->buttonDelete()
+            ->keyId()->keyLink('title', L('_TITLE_'), 'Event/Index/detail?id=###')->keyUid()->keyCreateTime()->keyStatus()
+            ->data($list)
+            ->pagination($totalCount, $r)
+            ->display();
+    }
+
+    /**
+     * 设置状态
+     * @param $ids
+     * @param $status
+     * autor:xjw129xjt
+     */
+    public function setEventContentStatus($ids, $status)
+    {
+        $builder = new AdminListBuilder();
+        if ($status == 1) {
+            foreach ($ids as $id) {
+                $content = D('Event')->find($id);
+                D('Common/Message')->sendMessage($content['uid'],$title = L('_MESSAGE_AUDIT_ISSUE_CONTENT_'), L('_MESSAGE_AUDIT_ISSUE_CONTENT_VICE_'),  'Event/Index/detail', array('id' => $id ), is_login(), 2);
+                if(modC('SHENHE_SEND_WEIBO',0,'Event')){
+                    if (D('Common/Module')->isInstalled('Weibo')) { //安装了微博模块
+                        /*同步微博*/
+                        $user = query_user(array('username', 'space_link'), $content['uid']);
+                        $weibo_content = L('_MESSAGE_AUDIT_EVENT_CONTENT1_') . $user['username'] . L('_MESSAGE_AUDIT_EVENT_CONTENT2_') . $content['title'] . L('_MESSAGE_AUDIT_EVENT_CONTENT3_') . "http://$_SERVER[HTTP_HOST]" . U('Event/Index/detail', array('id' => $content['id']));
+                        $model = D('Weibo/Weibo');
+                        $model->addWeibo(is_login(), $weibo_content);
+                        /*同步微博end*/
+                    }
+                }
+            }
+
+        }
+        $builder->doSetStatus('Event', $ids, $status);
+
+    }
+
+    public function contentTrash($page = 1, $r = 10)
+    {
+        //显示页面
+        $builder = new AdminListBuilder();
+        $builder->clearTrash('Event');
+        //读取微博列表
+        $map = array('status' => -1);
+        $model = D('Event');
+        $list = $model->where($map)->page($page, $r)->select();
+        $totalCount = $model->where($map)->count();
+
+        $builder->title(L('_CONTENT_TRASH_'))
+            ->setStatusUrl(U('setEventContentStatus'))->buttonRestore()->buttonClear()
+            ->keyId()->keyLink('title', L('_TITLE_'), 'Event/Index/detail?id=###')->keyUid()->keyCreateTime()->keyStatus()
+            ->data($list)
+            ->pagination($totalCount, $r)
+            ->display();
+    }
+
+
+    public function index()
+    {
+
+        //显示页面
+        $builder = new AdminTreeListBuilder();
+
+        $tree = D('Event/EventType')->getTree(0, 'id,title,sort,pid,status');
+
+
+        $builder->title(L('_EVENT_CATEGORY_MANAGE_'))
+            ->buttonNew(U('Event/add'))->setLevel(2)
+            ->data($tree)
+            ->display();
+    }
+
+    public function add($id = 0, $pid = 0)
+    {
+        if (IS_POST) {
+            if ($id != 0) {
+                $eventtype = $this->eventTypeModel->create();
+                if ($this->eventTypeModel->save($eventtype)) {
+
+                    $this->success(L('_SUCCESS_EDIT_'),U('Event/index'));
+                } else {
+                    $this->error(L('_FAIL_EDIT_'),$this->eventTypeModel->getError());
+                }
+            } else {
+                $eventtype = $this->eventTypeModel->create();
+                if ($this->eventTypeModel->add($eventtype)) {
+
+                    $this->success(L('_SUCCESS_ADD_'),U('Event/index'));
+                } else {
+                    $this->error(L('_FAIL_ADD_'),$this->eventTypeModel->getError());
+                }
+            }
+
+        } else {
+            $builder = new AdminConfigBuilder();
+            $eventtypes =$this->eventTypeModel->where(array('pid'=>0))->select();
+            $opt = array();
+            foreach ($eventtypes as $eventtype) {
+                $opt[$eventtype['id']] = $eventtype['title'];
+            }
+            if ($id != 0) {
+                $eventtype = $this->eventTypeModel->find($id);
+            } else {
+                $eventtype = array('pid' => $pid, 'status' => 1);
+            }
+
+
+            $builder->title(L('_CATEGORY_ADD_'))->keyId()->keyText('title', L('_TITLE_'))
+				->keySelect('pid',L('_FATHER_CLASS_'), L('_FATHER_CLASS_SELECT_'), array('0' =>L('_TOP_CLASS_')) + $opt)->keyDefault('pid',$pid)
+				->keyStatus()->keyCreateTime()->keyUpdateTime()
+				->data($eventtype)
+                ->buttonSubmit(U('Event/add'))->buttonBack()->display();
+        }
+
+    }
+
+    public function operate($type = 'move', $from = 0)
+    {
+        $builder = new AdminConfigBuilder();
+        $from = D('EventType')->find($from);
+
+        $opt = array();
+        $types = $this->eventTypeModel->select();
+        foreach ($types as $event) {
+            $opt[$event['id']] = $event['title'];
+        }
+        if ($type === 'move') {
+
+            $builder->title(L('_CATEGORY_MOVE_'))->keyId()->keySelect('pid',L('_FATHER_CLASS_'), L('_FATHER_CLASS_SELECT_'), $opt)->buttonSubmit(U('Event/add'))->buttonBack()->data($from)->display();
+        } else {
+
+            $builder->title(L('_CATEGORY_COMBINE_'))->keyId()->keySelect('toid', L('_CATEGORY_T_COMBINE_'), L('_CATEGORY_T_COMBINE_SELECT_'), $opt)->buttonSubmit(U('Event/doMerge'))->buttonBack()->data($from)->display();
+        }
+
+    }
+
+    public function doMerge($id, $toid)
+    {
+        $effect_count=D('Event')->where(array('type_id'=>$id))->setField('type_id',$toid);
+        D('EventType')->where(array('id'=>$id))->setField('status',-1);
+        $this->success(L('_SUCCESS_CATEGORY_COMBINE_') . $effect_count . L('_CONTENT_GE_'), U('index'));
+        //TODO 实现合并功能 issue
+    }
+
+
+
+
+    public function eventTypeTrash($page = 1, $r = 20)
+    {
+        $builder = new AdminListBuilder();
+        $builder->clearTrash('EventType');
+
+        //读取微博列表
+        $map = array('status' => -1);
+        $model = $this->eventTypeModel;
+        $list = $model->where($map)->page($page, $r)->select();
+        $totalCount = $model->where($map)->count();
+
+        //显示页面
+
+        $builder->title(L('_EVENT_TYPE_TRASH_'))
+            ->setStatusUrl(U('setStatus'))->buttonRestore()->buttonClear()
+            ->keyId()->keyText('title', L('_TITLE_'))->keyStatus()->keyCreateTime()
+            ->data($list)
+            ->pagination($totalCount, $r)
+            ->display();
+    }
+    /**
+     * 设置活动分类状态：删除=-1，禁用=0，启用=1
+     * @param $ids
+     * @param $status
+     * @author 郑钟良<zzl@ourstu.com>
+     */
+    public function setStatus($ids, $status)
+    {
+        !is_array($ids)&&$ids=explode(',',$ids);
+        if(in_array(1,$ids)){
+            $this->error(L('_ERROR_EVENT_ID_DELETE_').L('_EXCLAMATION_'));
+        }
+        $builder = new AdminListBuilder();
+        $builder->doSetStatus('EventType', $ids, $status);
+    }
+
+    public function getEventExport(){
+        $eventData = (new EventModel())->select();
+        $attendData = (new EventAttendModel())->getList();
+
+        foreach($eventData as $key => $val){
+            foreach($attendData as $k => $v){
+
+                if($val['id'] == $v['event_id']){
+                    $eventData[$key]['num'] = $eventData[$key]['num'] + 1;
+                }
+            }
+        }
+
+        print_r($eventData);die;
+
+//        for($i = 0; $i < count ( $eventData ); $i ++) {
+//            array_unshift ( $eventData [$i], $i );
+//        }
+//
+//        $excelData = array ();
+//        $title = array (
+//            "row" => 1,
+//            "count" => 15,
+//            "title" => $this->getAttendExcelHeaderData()
+//        );
+//
+//        $num = 1;
+//        foreach ( $eventData as $k => $v ) {
+//            $excelData [$k] ['username'] = $v ['username'];
+//            $excelData [$k] ['mobile'] = $v ['mobile'];
+//            $excelData [$k] ['title'] = $v ['title'];
+//            $excelData [$k] ['create_time'] = Date('Y-m-d H:i:s',$v ['create_time']);
+//            $excelData [$k] ['priceText'] = $v ['priceText'];
+//            $excelData [$k] ['email'] = $v ['email'];
+//            $excelData [$k] ['brand'] = $v ['brand'];
+//            $excelData [$k] ['job'] = $v ['job'];
+//            $excelData [$k] ['eventStatus'] = $v ['eventStatus'];
+//            $excelData [$k] ['statusText'] = $v ['statusText'];
+//            $num ++;
+//        }
+//        $len = count ( $excelData );
+//        $info = array (
+//            "table_name_one" =>  "报名信息数据表",
+//            "table_name_two" => "报名信息报表",
+//            "lister" => "",
+//            "tabletime" => date ( "Y-m-d", time () )
+//        );
+//
+//        $optional = array (
+//            'colwidth' => array (
+//                'A' => '20',
+//                'B' => '20',
+//                'C' => '30',
+//                'D' => '25',
+//                'E' => '20',
+//                'F' => '20',
+//                'G' => '15',
+//                'H' => '25',
+//                'I' => '25',
+//                'J' => '25',
+//            ),
+//            'fontsize' => array (
+//                'A1:O' . ($len + 4) => '10'
+//            ),
+//            'colalign' => array (
+//                'A1:O' . ($len + 4) => '2'
+//            )
+//        );
+//        outputExcel ( $info, $title, $excelData, $optional );
+    }
+}

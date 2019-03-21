@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>巡检主订单详情</title>
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/jquery.session.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=4D2BZ-MZM3J-JACFM-KU7RM-JHHET-5GFDC"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .weui-cells{font-size:16px;}
+        .weui-label{color:#666;}
+        .weui-label {
+            color: unset;
+        }
+        .receiptInfoWarp {
+            margin-bottom: 3.16rem;
+        }
+        .polling-list{
+            background-color:black;
+            border-radius:0rem;
+        }
+    </style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单号：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.inspection_code}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">下单时间：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.create_time}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">订单状态：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.inspection_status_text}" style="color: red" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">预约企业：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="kacompanyname" value="{$inspectionMainInfo.kename}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">&#12288;联系人：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$inspectionMainInfo.link_person}" type="text" id="" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" value="{$inspectionMainInfo.link_phone}" type="number" id="linkphone" placeholder="座机或手机号" readonly="readonly"/>
+            </div>
+        </div>
+
+        <div class="appointment-polling-index-color">
+
+            <volist name="inspectionMainInfo['storeData']" id="store">
+                <div class="polling-list">
+                    <div class="weui-cell weui-cell_access" href="javascript:;">
+                        <div class="weui-cell__bd">
+                            <p style="color: white">巡检门店：</p>
+                        </div>
+                        <div onclick="showStoreList('{$store.storeId}','{$inspectionMainInfo.inspection_id}')" class="weui-cell__ft" style="font-size: 0.6rem;color: #ffe512;">已选择{$store.storeNum}个门店</div>
+                    </div>
+
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd"><label class="weui-label" style="color: white">巡检类型：</label></div>
+                        <div class="weui-cell__bd">
+                            <if condition="$store.type eq 1">
+                                <input class="weui-input" style="color: #ffe512;" value="单次" readonly="readonly"/>
+                                <else/>
+                                <input class="weui-input" style="color: #ffe512;" value="周期" readonly="readonly"/>
+                            </if>
+                        </div>
+                    </div>
+
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd"><label class="weui-label" style="color: white">服务次数：</label></div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" style="color: #ffe512;" value="{$store.service_num_total} 次" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd"><label class="weui-label" style="color: white">巡检周期：</label></div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" style="color: #ffe512;" type="text" value="{$store.cycle} 天" readonly="readonly"/>
+                        </div>
+                    </div>
+                    <div class="weui-cell">
+                        <div class="weui-cell__hd"><label class="weui-label" style="color: white">服务费用：</label></div>
+                        <div class="weui-cell__bd">
+                            <input class="weui-input" style="color: #ffe512;" type="text" value="{$store.service_money} 元" readonly="readonly"/>
+                        </div>
+                    </div>
+                </div>
+            </volist>
+
+
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">服务起始时间：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.service_start_time}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">服务终止时间：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.service_end_time}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">费用（总价）：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.service_price}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label for="" class="weui-label">付&nbsp;&nbsp;费&nbsp;&nbsp;方&nbsp;&nbsp;式&nbsp;：</label>
+            </div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.payment_text}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label for="" class="weui-label">服&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;务&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;商：</label>
+            </div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.wfname}" readonly="readonly"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd">
+                <label for="" class="weui-label">服&nbsp;务&nbsp;商&nbsp;电&nbsp;话：</label>
+            </div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" value="{$inspectionMainInfo.wfphone}" readonly="readonly"/>
+                <input type="hidden" id="inspection_id" value="{$inspectionMainInfo.inspection_id}"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp twoBtn">
+<a href="javascript:;" onclick="connectServer()" class="centerBtn">联系客服</a>
+</div>
+<div class="popLayer hide">
+    <div class="phonePop">
+        <h3 class="title" style="text-align: center">提示</h3>
+        <div class="con">
+            <p>结束巡检后，将不再按周期自动</p>
+            <p>生成巡检工单，确认结束巡检？</p>
+        </div>
+        <a style="width: 4rem;background: #C0C0C0;" class="xjbtn fl cancelBTN" href="javascript:;">取消</a>
+        <a style="width: 4rem" class="xjbtn fr sureBTN" href="javascript:;">确定</a>
+    </div>
+</div>
+<div id="server" style="display: none;">
+    <div class="kefuLayer">
+        <div style="top: 30%;height: 19rem;" class="kefuWarp">
+            <h3 class="title">客服中心</h3>
+            <p class="tip">客服电话：<img style="width: 0.6rem;height: 0.6rem;" src="/Public/images/bphoneIcon.png" /><a href="tel:18810250371">18810250371</a></p>
+            <p class="tip" style="height: 10.2rem;">在线客服：<img style="width: 100%;" src="/Public/images/service.png" /><p style="text-align: center;font-size: 0.68rem;color: #666666;">长按添加客服微信</p></p>
+            <a href="javascript:;" onclick="hideTheDialog('server')" class="btnBottom">关闭</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(e) {
+
+        var counter = 0;
+        if (window.history && window.history.pushState) {
+            $(window).on('popstate', function () {
+                window.history.pushState('forward', null, '#');
+                window.history.forward(1);
+
+                // 关闭微信浏览器
+                WeixinJSBridge.call('closeWindow');
+            });
+        }
+
+        //在IE中必须得有这两行
+        window.history.pushState('forward', null, '#');
+        window.history.forward(1);
+    });
+    $(".sub-inspect").click(function(){
+        $(".popLayer").show();
+    });
+    $(".popLayer .cancelBTN").click(function(){
+        $(".popLayer").hide();
+    });
+    $(".popLayer .sureBTN").click(function(){
+        $(".popLayer").hide();
+        endInspection();
+    });
+
+    //跳转到门店列表
+    /*function resetOrder(){
+        $.session.clear();//清空session
+        var ins_id = $("#inspection_id").val();
+        window.location.href = "{:U('Enterprise/Business_Executive/inputInspectionInfo/inspection_id/"+ins_id+"')}";
+    }*/
+    function showStoreList(store_id,ins_id){
+        window.location.href = "{:U('Enterprise/Business_Executive/showMainOrderStoreList/store_id/"+store_id+"/ins_id/"+ins_id+"')}";
+    }
+    function connectServer(){
+        $("#server").show()
+    }
+    function hideTheDialog(id){
+        $("#"+id+"").hide()
+    }
+</script>

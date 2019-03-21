@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>门店巡检详情页面</title>
+
+    <link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/weui.min.js"></script>
+
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            // if(hWidth>800){
+            //     hWidth=800;
+            // }
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+    <style>
+        .wxbb-top{
+            background-size: 26rem 10.5rem;
+        }
+        .sqsb-index-search{
+            top: 7.8rem;
+        }
+        .sheet-list-title{
+            top: 9.1rem;
+        }
+        .sheet-list-li{
+            margin: 11.6rem auto 2.8rem auto;
+        }
+        .store-top{
+            height: 8.6rem;
+        }
+        .sqsb-top-content li{
+            margin-top: 0;
+            height: 0.9rem;
+            line-height: 0.9rem;
+        }
+        .sqsb-top-content{
+            margin: 0.2rem auto;
+        }
+        .sheet-list-li a:first-child{
+            color: red;
+            border: 0;
+        }
+        .sqsb-index-text{
+            top: 7.5rem;
+        }
+    </style>
+</head>
+<body style="background: #f3f3f3;">
+<div class="store-top wxbb-top">
+    <ul class="sqsb-top-content">
+        <li>
+            <span>订单编号：</span>
+            <em>{$list.child_order_code}</em>
+        </li>
+        <li>
+            <span>订单状态：</span>
+            <em>{$list.status_text}</em>
+        </li>
+        <li>
+            <span>巡检门店：</span>
+            <em>{$list.store_name}</em>
+        </li>
+        <li>
+            <span>服务商：</span>
+            <em>{$list.facilitator_name}</em>
+        </li>
+        <li>
+            <span>巡检员：</span>
+            <em>{$list.user_name}</em>
+        </li>
+        <li>
+            <span>联系电话：</span>
+            <em>{$list.user_phone}</em>
+        </li>
+        <li>
+            <span>本次服务：</span>
+            <em>第{$list.service_num}次服务</em>
+        </li>
+        <li>
+            <span>到店时间：</span>
+            <em>{$list.arrive_time}</em>
+        </li>
+    </ul>
+</div>
+<div id="images" hidden="hidden">
+    <div class="sqsb-index-text">巡检结果</div>
+    <div class="weui-cells weui-cells_form" id="uploader" style="position: fixed;top: 9rem;background-color: transparent;">
+        <ul>
+            <li class="weui-uploader__files">
+                <span class="title">设备图片：</span>
+                <div class="machineImgWarp">
+                    <notempty name="imgInfo">
+                        <volist name="imgInfo" id="data">
+                            <div class="oneImg">
+                                <php>$data['path'] = ltrim($data['path'],'.');</php>
+                                <img class="weui-uploader__file" src="{$data.path}"/>
+                            </div>
+                        </volist>
+                    </notempty>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="list" >
+    <div class="sqsb-index-search">
+        <input class="sqsb-index-search text" type="text" id="name">
+        <input type="hidden" id="id" value="{$list.id}">
+        <input type="hidden" id="status" value="{$list.status}">
+        <input type="hidden" id="is_showPic" value="{$list.is_showPic}">
+        <input type="hidden" id="repairs_id" value="{$list.repairs_id}">
+        <a class="sqsb-index-search search-logo" onclick="searchVal()"></a>
+    </div>
+    <ul class="sheet-list-title">
+        <li>
+            <div>设备编号</div>
+            <div>设备名称</div>
+            <div>巡检结果</div>
+        </li>
+    </ul>
+    <ul class="sheet-list-li">
+    </ul>
+    <div class="centerBtnWarp centerBtn" style="height: auto;padding-top:0;">
+        <i class="showMoney">维修费用：{$list.money}元</i><a class="showDetail" onclick="checkDetails()">查看明细</a>
+    </div>
+</div>
+
+</body>
+<script type="text/javascript" src="/Public/wechat/j/jquery.js"></script>
+<script>
+    id = {$store_id};
+    inspection_store_child_id = {$inspection_store_child_id};
+    doubleClick = false;
+
+    $(function() {
+
+        var status = "{$list.status}";
+
+        var is_showPic = "{$list.is_showPic}";
+        if(is_showPic == 1){
+            $("#list").hide();
+            $("#images").show();
+        }else if(is_showPic == 2){
+            $("#list").show();
+            $("#images").hide();
+        }
+
+        if(status == 5){
+
+            $("#successOneId").show();
+            $("#successTwoId").attr('style','display:block;margin-bottom: 0.2rem');
+        }else{
+            $("#successTwoId").attr('style','display:none;margin-bottom: 0.2rem');
+        }
+        getData();
+    });
+    function searchVal(){
+        var name = $("#name").val();
+        getData(name);
+    }
+    function getData(name){
+        $.post("{:U('Wechat/index/getDevice')}", {id: id,name: name,inspection_store_child_id:inspection_store_child_id}, function(result){
+            if(result.status == 1){
+                var html = "";
+                for(var i=0;i<result.data.length;i++){
+                    if(result.data[i].is_fix == 1 && result.data[i].inspection_operate == 1 && result.data[i].is_repairs == 0){
+                        html +='<li><div>'+result.data[i].device_code+'</div> <div>'+result.data[i].device_name+'</div> <div> <a>已检</a> <a onclick="caoz('+result.data[i].inspection_child_device_id+')">操作</a> <a onclick="test('+result.data[i].yet_repairs_id+')" >已修</a> </div></li>';
+                    }else if(result.data[i].is_fix == 0 && result.data[i].inspection_operate == 1 && result.data[i].is_repairs == 1){
+                        html +='<li><div>'+result.data[i].device_code+'</div> <div>'+result.data[i].device_name+'</div> <div> <a>已检</a> <a onclick="caoz('+result.data[i].inspection_child_device_id+')">操作</a> <a onclick="baox('+result.data[i].repairs_id+')" >报修</a></div></li>';
+                    }else if(result.data[i].is_fix == 1 && result.data[i].inspection_operate == 0 && result.data[i].is_repairs == 0){
+                        html +='<li><div>'+result.data[i].device_code+'</div> <div>'+result.data[i].device_name+'</div> <div> <a>已检</a> <a onclick="test('+result.data[i].yet_repairs_id+')" >已修</a> </div></li>';
+                    }else if(result.data[i].is_fix == 0 && result.data[i].inspection_operate == 1 && result.data[i].is_repairs == 0){
+                        html +='<li><div>'+result.data[i].device_code+'</div> <div>'+result.data[i].device_name+'</div> <div> <a>已检</a> <a onclick="caoz('+result.data[i].inspection_child_device_id+')">操作</a> </div></li>';
+                    }else if(result.data[i].is_fix == 0 && result.data[i].inspection_operate == 0 && result.data[i].is_repairs == 1){
+                        html +='<li><div>'+result.data[i].device_code+'</div> <div>'+result.data[i].device_name+'</div> <div> <a>已检</a> <a onclick="baox('+result.data[i].repairs_id+')" >报修</a></div></li>';
+                    }else{
+                        html +='<li><div>'+result.data[i].device_code+'</div> <div>'+result.data[i].device_name+'</div> <div> <a>已检</a></div></li>';
+                    }
+                }
+                $(".sheet-list-li").html(html);
+            }
+        });
+    }
+    function test(id){
+        var url = '/index.php?s=/wechat/index/orderdetail/id/'+id+'';
+        window.location.href = url;
+    }
+    function caoz(id){
+        var url = '/index.php?s=/wechat/index/operation/id/'+id+'';
+        window.location.href = url;
+    }
+    function checkDetails(){
+        var id = $("#id").val();
+        var url = '/index.php?s=/wechat/index/deviceDetail/id/'+id+'';
+        window.location.href = url;
+    }
+    function baox(id){
+        var url = '/index.php?s=/wechat/index/showStoreRepaireOrderForInspection/id/'+id+'';
+        window.location.href = url;
+    }
+    function success(){
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+        var ids = $("#id").val();
+        $.post("{:U('saveStatus')}", {ids: ids}, function(result){
+            if(result.status == 1){
+                weui.alert(result.msg);
+                window.location.reload();
+//                location=location
+                doubleClick = false;
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+
+    // 缩略图预览
+    $('.weui-uploader__files').on('click', function(e){
+        var target = e.target;
+
+        while(!target.classList.contains('weui-uploader__file') && target){
+            target = target.parentNode;
+        }
+        if(!target) return;
+
+        var url = target.getAttribute('src') || '';
+
+        weui.gallery(url);
+        $('.weui-gallery__del').remove();
+    });
+</script>
+</html>

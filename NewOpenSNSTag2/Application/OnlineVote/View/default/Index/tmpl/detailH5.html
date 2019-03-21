@@ -1,0 +1,706 @@
+<!doctype html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+        <meta name="format-detection" content="telephone=no">
+        <if condition="$isApp eq 'yes'">
+            <title>活动详情</title>
+        <else />
+            <title>{$info.eventVoteDetail.title}</title>
+        </if>
+        <link href="__PUBLIC__/css/vote.css?{$random}" rel="stylesheet" type="text/css">
+        <link href="__PUBLIC__/css/animate.css" rel="stylesheet" type="text/css">
+        <script src="__PUBLIC__/js/zepto.min.js"></script>
+        <script src="https://lkme.cc/js/linkedme.min.js" ></script>
+        <script type="text/javascript" src="__PUBLIC__/js/gxptSwiper/swiper.min.js"></script>
+        <link href="__PUBLIC__/js/gxptSwiper/swiper.min.css" rel="stylesheet" type="text/css"/>
+        <script>
+            (function(){
+                var html = document.documentElement;
+                var hWidth = html.getBoundingClientRect().width;
+                html.style.fontSize=hWidth/15 + 'px';
+            })()
+        </script>
+
+        <style>
+            /*产品咨询详情页*/
+            h1,h2,h3,h4,h5,h6{font-weight:bold !important;}
+            *{padding:0px;margin:0px;font-family: 'Microsoft YaHei, SimHei, Verdana';}
+            .dCon p{font-size: 16px;color:#3a3a3a;line-height: 30px;}
+            .dCon img{display: block;width:100%;height:auto;}
+            /*餐饮咨询*/
+            .sTopWarp img {
+                width: 0.94rem;
+                height: auto;
+                vertical-align: middle;
+                margin-bottom: 0.2rem;
+                margin-right: 0.4rem;
+            }
+            .sTopWarp .sTopBtn {
+                right: 0.4rem;
+                position: absolute;
+                display: block;
+                font-size: 0.52rem;
+                height: 0.82rem;
+                line-height: 0.82rem;
+                width: 2.68rem;
+                text-align: center;
+                background: #333;
+                color: #ffe400;
+                -webkit-border-radius: 0.6rem;
+                -moz-border-radius: 0.6rem;
+                border-radius: 0.6rem;
+                top: 0.3rem;
+            }
+            .shareOutter ul {
+                overflow: hidden;
+                width: 76%;
+                margin: 0 auto;
+                margin-top: 0.84rem;
+                margin-bottom: 0.2rem;
+            }
+            .shareOutter ul li {
+                width: 33.3%;
+                float: left;
+            }
+            .shareOutter ul li a {
+                display: block;
+                width: 60%;
+                max-width: 90px;
+                margin: 0 auto;
+                font-size: 0px;
+            }
+            .shareOutter ul li span {
+                width: 100%;
+                display: block;
+                text-align: center;
+                color: #575656;
+                font-size: 0.4744rem;
+                height: 1.32rem;
+                line-height: 1.32rem;
+            }
+            .recommendCon li {
+                background: #ffffff;
+                margin-bottom: 0.16rem;
+                overflow: hidden;
+                height: 28vw;
+                position: relative;
+            }
+
+            .recommendConL h3 {
+                font-size: 0.64rem;
+                color: #2f2725;
+                padding: 0.2rem 0.4rem;
+                height: 2.68rem;
+                overflow: hidden;
+            }
+
+            .reBtnWarp img {
+                width: 0.5rem;
+                height: auto;
+                margin: 0px 0.16rem;
+                vertical-align: middle;
+            }
+
+            /*轮播*/
+            .zxswiper-container {
+                position: fixed;
+                width: 100%;
+                left: 0px;
+                height: 2rem;
+                z-index: 100;
+                top: 0px;
+            }
+            .zxswiper-container .swiper-pagination {
+                position: absolute;
+                bottom: 0.2rem;
+            }
+            .zxswiper-container .swiper-slide {
+                width: 100%;
+                height: 2rem;
+                background: rgba(255, 234, 16, 0.7);
+            }
+            .zxswiper-container .swiper-pagination {
+                bottom: -2px !important;
+            }
+            .zxswiper-container .swiper-pagination-bullet {
+                display: inline-block;
+                width: 5px;
+                height: 5px;
+                margin: 2px !important;
+            }
+            .zxswiper-container .swiper-pagination-bullet-active {
+                background: #000;
+            }
+            .swiperInner {
+                width: 100%;
+                height: 2rem;
+                padding: 0px 0.4rem;
+                position: relative;
+            }
+            .swiperImg1 {
+                width: 2.08rem;
+                height: 1.5rem;
+                margin-top: 0.26rem;
+            }
+            .swiperTip1 {
+                color: #333333;
+                font-size: 0.56rem;
+                position: absolute;
+                top: 0.2rem;
+                left: 2.8rem;
+                line-height: 0.8rem;
+                width: 8.9rem;
+            }
+            .downLoadBtn {
+                display: block;
+                width: 2.3rem;
+                height: 1rem;
+                line-height: 1rem;
+                text-align: center;
+                font-size: 0.52rem;
+                color: #ffe400;
+                background: #000;
+                position: absolute;
+                right: 0.4rem;
+                top: 50%;
+                margin-top: -0.5rem;
+                -webkit-border-radius: 0.6rem;
+                -moz-border-radius: 0.6rem;
+                border-radius: 0.6rem;
+            }
+            .swiperLogo {
+                width: 1.56rem;
+                height: 1.56rem;
+                margin-left: 0.26rem;
+                margin-top: 0.22rem;
+            }
+            .swiperTip2 {
+                position: absolute;
+                color: #221b00;
+                font-size: 0.56rem;
+                top: 0.2rem;
+                left: 2.6rem;
+            }
+            .swiperTip2 h3 {
+                font-size: 0.6rem;
+                color: #221b00;
+                font-weight: bold;
+            }
+            .swiperTip2 p {
+                height: 0.68rem;
+                line-height: 0.68rem;
+                font-size: 0.52rem;
+                color: #221b00;
+            }
+            .pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                line-height: 1.08rem;
+                font-size: 0.56rem;
+                color: #666666;
+                overflow: hidden;
+                padding-bottom: 0.1rem;
+            }
+            .name {
+                padding: 0.05rem 0;
+            }
+        </style>
+    </head>
+<body style="background:#f2f1ec;">
+
+<if condition="$isApp eq 'no'">
+    <!--添加轮播代码start-->
+    <div class="zxswiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <div class="swiperInner">
+                    <img class="swiperLogo" src="__PUBLIC__/images/swiperlogo.png"/>
+                    <div class="swiperTip2"><h3>餐讯网</h3><p>餐饮人的掌上宝典,让餐饮生意不再那么难！</p></div>
+                    <a class="downLoadBtn" id="oneAId" href="https://lkme.cc/UxC/AMw3kuFs9"><span id="spanId">打开</span></a>
+                </div>
+            </div>
+            <volist id="banner" name="topBanners">
+                <div class="swiper-slide">
+                    <div class="swiperInner">
+                        <img class="swiperImg1" src="{$banner['coverimg']}"/>
+                        <p class="swiperTip1">{$banner['title']}</p>
+                        <a class="downLoadBtn" id="twoAId{$banner['banOrder']}"><span id="spanId">打开</span></a>
+                    </div>
+                </div>
+            </volist>
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+    <div class="emptyTop" style="width:100%;height:2rem;"></div>
+</if>
+
+<!--头部导航-->
+<!--<div class="vTitle"><a href="javascript:;" class="backIcon"></a>活动详情<a href="javascript:;" class="shareIcon"></a></div>-->
+<!--<div style="height:1.76rem;width:100%;"></div>-->
+<div class="vTop">
+    <h3>{$info.title}</h3>
+    <div class="con">
+        <div class="limitHeight"></div>
+        <div class="conContent" id="h5Detail">{$info.explain}</div>
+        <a class="seeMoreBtn" >查看全部</a>
+    </div>
+</div>
+<!--
+<div class="vTop">
+    <div class="con">
+        <if condition="$info['explainNew'] neq null">
+            <div class="limitHeight"></div>
+            <p>{$info.explainNew}</p>
+            <a class="seeMoreBtn" href="javascript:;">查看全部</a>
+        <else />
+            <p>{$info.explain}</p>
+        </if>
+    </div>
+    <div class="con all hide">
+        <p>{$info.explain}</p>
+    </div>
+</div>-->
+<div class="space"></div>
+<div class="ruleWarp">
+    <h3 class="title">投票规则</h3>
+    <ul class="con">
+        <pre class="pre">{$info.eventVoteDetail.rule}</pre>
+    </ul>
+</div>
+<div class="space"></div>
+<div class="vlistWarp">
+    <h3 class="title">{$info.eventVoteDetail.title}候选名单： <if condition="$info['eventVoteDetail']['userNum'] gt 0"><if condition="$isApp eq 'yes'"><a class="seeRankBtn" onclick="searchForRanking({$info.eventId})">查看排名</a></if></if><a class="seeRankBtn" style="display:none;" id="showRanking" onclick="searchForRanking({$info.eventId})">查看排名</a></h3>
+    <p class="voteNumDesc">已有<i id="userNum">{$info.eventVoteDetail.userNum}</i>人参与</p>
+    <div class="vlist">
+    <ul>
+            <!-- <li>
+                 <canvas class="imgOuter"></canvas>
+                 <h3 class="name">张某某</h3>
+                 <p class="desc">某某餐饮企业创始人</p>
+                 <div class="voteNum"><span>100000</span>票<a href="javascript:;" class="recommendBtn">入围推荐</a></div>
+                 <a class="voteBtn" href="javascript:;">投 票</a>
+             </li>
+             <li>
+                 <canvas class="imgOuter"></canvas>
+                 <h3 class="name">张某某</h3>
+                 <p class="desc">某某餐饮企业创始人</p>
+                 <div class="voteNum"><span>98000</span>票<a href="javascript:;" class="recommendBtn">入围推荐</a></div>
+                 <a class="voteBtn voted" href="javascript:;">已投票</a>
+             </li>-->
+        </ul>
+    </div>
+</div>
+<!--入围推荐弹出框-->
+<div class="popWarp hide" id="Recommended">
+    <div class="popCon">
+        <h3 class="top">入围理由</h3>
+        <div class="middle">
+            <div class="desc" id="RecommendedMsg"></div>
+        </div>
+        <div class="bottom one">
+            <a class="orange">关 闭</a>
+        </div>
+    </div>
+</div>
+<!--投票成功提示框-->
+<div class="popWarp hide" id="successfulVote">
+    <div class="popCon">
+        <h3 class="top">提示</h3>
+        <div class="middle">
+            <h3 class="title" id="successMsg"></h3>
+            <p class="con">分享给更多朋友一起来参与吧！</p>
+        </div>
+        <div class="bottom two">
+            <a class="fl">关 闭</a>
+            <a class="fr orange" onclick="useMobileShare()">分 享</a>
+        </div>
+    </div>
+</div>
+<!--您已投过票提示框-->
+<div class="popWarp hide" id="voteRepeat">
+    <div class="popCon">
+        <h3 class="top">提示</h3>
+        <div class="middle">
+            <h3 class="voteRepeatTitle" id="phpUpMsg" style="word-wrap: break-word; "></h3>
+            <p class="con">期待您下次继续参与，谢谢！</p>
+        </div>
+        <div class="bottom one">
+            <!--<a class="orange">分 享</a>-->
+        </div>
+    </div>
+</div>
+<!--投票时间已过期提示框-->
+<div class="popWarp hide" id="timeOut">
+    <div class="popCon">
+        <h3 class="top">提示</h3>
+        <div class="middle">
+            <h3 class="title">投票时间已过期！</h3>
+            <p class="con">期待您下次继续参与，谢谢！</p>
+        </div>
+        <div class="bottom one">
+            <!--<a class="orange">分 享</a>-->
+        </div>
+    </div>
+</div>
+<!--投票未开始提示框-->
+<div class="popWarp hide" id="timeNotStart">
+    <div class="popCon">
+        <h3 class="top">提示</h3>
+        <div class="middle">
+            <h3 class="title">投票未开始！</h3>
+            <!--<p class="con">期待您下次继续参与，谢谢！</p>-->
+        </div>
+        <div class="bottom one">
+            <!--<a class="orange">分 享</a>-->
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="__PUBLIC__/js/jquery.js"></script>
+<script>
+    //id=>选手id；name=>名字;desc=>公司介绍;num=>投票数;state=>投票状态;img=>选手照片
+    var voterData = {$voteItems};
+    var uid = "{$uid}";
+    var eventVoteId = {$eventVoteId};
+    var eventId = {$eventId};
+    var deadLine = {$deadLine};
+    var stime = {$stime};
+    var isApp = "{$isApp}";
+    var oldUserNum = "{$userNum}";
+
+    //控制页面的高度
+    if($('.vTop .con .conContent').height() > $('.limitHeight').height()){
+        $('.vTop .con .conContent').height($('.limitHeight').height());
+    }else{
+        $('.seeMoreBtn').hide();
+    }
+    //查看更多
+    $('.seeMoreBtn').click(function(){
+        $('.vTop .con .conContent').toggleClass('open');
+        if($('.vTop .con .conContent').hasClass('open')){
+            $('.seeMoreBtn').hide();
+        }
+    });
+
+    showVoteListHtml(voterData);
+    function showVoteListHtml(vData){
+//        console.log(vData);
+        var thtml='';
+        for(var i in vData) {
+            var stateCls = '';
+            var canVoteVal = '';
+            if (parseInt(vData[i].ifCanVote) == 2) {
+                stateCls = 'voted';
+                canVoteVal = '已投票';
+            }else{
+                canVoteVal = '投票';
+            }
+            thtml += '<li class="animated bounceIn">' +
+            '<img class="imgOuter" src="' + vData[i].pictureUrl + '"/>' +
+            '<h3 class="name">' + vData[i].name + '</h3>' +
+            '<p class="desc">' + vData[i].description + '</p>' +
+            '<div class="voteNum">' +
+            '<span>' + vData[i].voteNum + '</span>票' +
+            '<a onclick="showRecommended(' + vData[i].id + ')"  class="recommendBtn" rel_id="' + vData[i].id + '" >入围理由</a>' +
+            '</div>' +
+            "<div id='item"+vData[i].id+"' style='display:none'>"+vData[i].reason+"</div>" +
+            '<a onclick="clickVote(' + vData[i].id + ',' + vData[i].ifCanVote + ')" id="voteA' + vData[i].id + '" class="voteBtn ' + stateCls + '" >'+canVoteVal+'</a>' +
+            '</li>';
+        }
+        $('.vlist ul').html(thtml);
+    }
+
+    //刷新已投票人数
+    function showUserNumHtml(Data){
+
+        $('#userNum').html(Data);
+        if(oldUserNum < 1){
+
+            $("#showRanking").show();
+        }
+    }
+
+    //点击投票
+    function clickVote(itemId,ifCanVote){
+
+        //如果为已投票 就不往下执行
+        if(ifCanVote == 2){
+            return;
+        }
+
+            //判断是否在App中打开
+            if(isApp == 'yes'){
+
+                //判断已登录才可投票
+                if (uid != null && uid != undefined && uid != 0) {
+                    //判断投票时间是否未开始
+                    if(Date.now()>stime) {
+                        //判断投票时间是否已过期
+                        if(Date.now()<deadLine) {
+                            $.post("{:U('OnlineVote/Index/voteForItem')}", {
+                                "itemId": itemId,
+                                "uid": uid,
+                                "code": 0,
+                                "eventVoteId": eventVoteId,
+                                "eventId": eventId
+                            }, function (res) {
+                                //投票成功
+                                if (res.success == 1) {
+
+                                    //弹出投票成功框
+                                    showSuccessfulVote(res.msg);
+
+                                    //刷新数据
+                                    showVoteListHtml(res.itemData);
+
+                                    //刷新已投票人数
+                                    showUserNumHtml(res.userNum);
+                                } else {  //投票失败
+                                    //显示失败弹框
+                                    showPopup(res.msg);
+                                }
+                            }, 'json');
+                        } else {
+                            //显示投票时间过期框
+                            showTimeOut();
+                        }
+                    } else {
+                        //显示投票时间未到提示框
+                        showTimeNotStart();
+                    }
+
+            }else{
+                    notLogin();
+            }
+        }
+    }
+
+    var ua = navigator.userAgent.toLowerCase();
+
+    //未登录时跳转方法
+    function notLogin(){
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileMethod("notLogin");
+            } else if (/android/.test(ua)) {
+                window.jsObj.callMobileMethod("notLogin");
+            }
+        }catch(e){
+
+        }
+    }
+
+    //调用手机端分享方法
+    function useMobileShare(){
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileShare();
+            } else if (/android/.test(ua)) {
+                window.jsObj.callMobileShare();
+            }
+        }catch(e){
+
+        }
+    }
+
+    //查看排名 手机端使用
+    function searchForRanking(Id){
+
+        try{
+            if (/iphone|ipad|ipod/.test(ua)) {
+                callMobileMethod("searchForRanking",Id);
+            } else if (/android/.test(ua)) {
+                window.jsObj.callMobileMethod("searchForRanking",Id);
+            }
+        }catch(e){
+
+        }
+    }
+
+    //拼接图片放大数据
+    var regImg = /<img(.+?)src=""*([^\s]+?)""*(\s|>)/ig;
+    var voteh5DetailId = document.getElementById("h5Detail").innerHTML;
+    var voteh5DetailNew = voteh5DetailId.match(regImg);
+    var newImageData = [];
+
+    if(voteh5DetailNew !== null) {
+        for (var i = 0; i < voteh5DetailNew.length; i++) {
+            newImageData.push(voteh5DetailNew[i].replace(regImg, "$2"));
+        }
+
+        //点击图片放大 (与手机端交互)
+        function clickImg(clickImgUrl) {
+
+            try {
+                if (/iphone|ipad|ipod/.test(ua)) {
+                    callMobileMethod("clickImgForBig", newImageData, clickImgUrl);
+                } else if (/android/.test(ua)) {
+                    window.jsObj.clickImgForBig(newImageData, clickImgUrl);
+                }
+            } catch (e) {
+
+            }
+        }
+    }
+
+    //隐藏投票相关弹框
+    $('.popWarp').click(function(){
+        $('.popWarp').addClass('hide');
+    });
+
+    //显示投票相关弹框
+    function showPopup(data){
+
+        $("#phpUpMsg").html(data);
+        $('#voteRepeat').removeClass('hide');
+    }
+
+    //显示入围理由弹框
+    function showRecommended(id){
+
+        var msg = $("#item"+id+"").html();
+
+        $("#RecommendedMsg").html(msg);
+        $('#Recommended').removeClass('hide');
+    }
+
+    //隐藏入围理由弹框
+    $('#Recommended').click(function(){
+        $('#Recommended').addClass('hide');
+    });
+
+    //显示投票时间过期弹框
+    function showTimeOut(){
+        $('#timeOut').removeClass('hide');
+    }
+
+    //隐藏投票时间过期弹框
+    $('#timeOut').click(function(){
+        $('#timeOut').addClass('hide');
+    });
+
+    //显示投票时间未开始弹框
+    function showTimeNotStart(){
+        $('#timeNotStart').removeClass('hide');
+    }
+
+    //隐藏投票时间过期弹框
+    $('#timeNotStart').click(function(){
+        $('#timeNotStart').addClass('hide');
+    });
+
+     //显示投票成功弹框
+    function showSuccessfulVote(msg){
+        $("#successMsg").html(msg);
+        $('#successfulVote').removeClass('hide');
+    }
+
+    //隐藏投票成功弹框
+    $('#successfulVote').click(function(){
+        $('#successfulVote').addClass('hide');
+    });
+
+</script>
+
+<script>
+    //头部banner轮播
+    var swiper = new Swiper('.zxswiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true,
+        spaceBetween: 30,
+        centeredSlides: true,
+        autoplay: 5000,
+        autoplayDisableOnInteraction: false,
+        loop:true
+    });
+</script>
+
+<script>
+
+    $(function(){
+
+        var topBannersArr=eval("("+'{$topBannersNew}'+")");//转换为json对象
+        $.each(topBannersArr, function(i, item) {
+            openAppOfMobile(item.id,item.title,item.description,item.banOrder);
+        });
+//        $(".downLoadBtn").eq(-2).attr('href','11321312');
+
+        try{
+            if(isApp == 'no'){
+                var voteItemsArr=eval("("+'{$voteItemsId}'+")");//转换为json对象
+                $.each(voteItemsArr, function(i, voteItem) {
+                    openAppOfOnlineVote(voteItem.id);
+                });
+            }
+        }catch(e){
+            alert(e);
+        }
+
+    });
+
+    function openAppOfMobile(id,title,desc,banOrder){
+        linkedme.init("79e71e72f227b57467f104a90e4f6684",null, null);
+
+        var data = {};
+        var appData = '';
+        data.type = "live";  //表示现在使用线上模式,如果填写"test", 表示测试模式.【可选】
+//      ata.feature = "功能名称"; // 自定义深度链接功能，多个用逗号分隔，【可选】
+//      data.stage = "阶段名称"; // 自定义深度链接阶段，多个用逗号分隔，【可选】
+//      data.channel = "渠道名称"; // 自定义深度链接渠道，多个用逗号分隔，【可选】
+//      data.tags = "标签名称"; // 自定义深度链接标签，多个用逗号分隔，【可选】
+        //data.ios_custom_url = "https://itunes .apple.com/us/app/ifood517/id1137017065?l=zh&ls=1&mt=8"; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.ios_custom_url = ""; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.android_custom_url = "http://opensns.lz517.com/index.php?s=/Home/AppDownload/index";// 自定义安卓平台下App的下载地址，【可选】
+
+        appData = "Detail?id="+id+"&title="+title+"&desc="+desc;
+        // 下面是自定义深度链接参数，用户点击深度链接打开app之后，params参数将被带入app
+        // 比如详情页面的参数，可以写进去，这样唤起app后可直接跳转到详情页【可选】
+        data.params = '{"app":"News","target":"'+appData+'"}'; //注意单引号和双引号的位置
+//        console.log(data.params);
+        linkedme.link(data, function(err, data){
+            if(err){
+                // 生成深度链接失败，返回错误对象err
+            } else {
+//                console.log(data.url);
+                if(banOrder==3){
+                    $(".downLoadBtn").eq(-2).attr('href',data.url);
+                }else{
+                    $("#twoAId"+banOrder).attr('href',data.url);
+                }
+            }
+        },false);
+    }
+
+
+    function openAppOfOnlineVote(itemId){
+        linkedme.init("79e71e72f227b57467f104a90e4f6684",null, null);
+
+        var data = {};
+        var appData = '';
+        data.type = "live";  //表示现在使用线上模式,如果填写"test", 表示测试模式.【可选】
+//      data.feature = "功能名称"; // 自定义深度链接功能，多个用逗号分隔，【可选】
+//      data.stage = "阶段名称"; // 自定义深度链接阶段，多个用逗号分隔，【可选】
+//      data.channel = "渠道名称"; // 自定义深度链接渠道，多个用逗号分隔，【可选】
+//      data.tags = "标签名称"; // 自定义深度链接标签，多个用逗号分隔，【可选】
+        //data.ios_custom_url = "https://itunes .apple.com/us/app/ifood517/id1137017065?l=zh&ls=1&mt=8"; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.ios_custom_url = ""; // 自定义iOS平台下App的下载地址，如果是AppStore的下载地址可以不用填写，【可选】
+        data.android_custom_url = "http://opensns.lz517.com/index.php?s=/Home/AppDownload/index";// 自定义安卓平台下App的下载地址，【可选】
+
+        appData = "Detail?id="+eventVoteId+"";
+        // 下面是自定义深度链接参数，用户点击深度链接打开app之后，params参数将被带入app
+        // 比如详情页面的参数，可以写进去，这样唤起app后可直接跳转到详情页【可选】
+        data.params = '{"app":"OnlineVote","target":"'+appData+'"}'; //注意单引号和双引号的位置
+//        console.log(data.params);
+        linkedme.link(data, function(err, data){
+            if(err){
+                // 生成深度链接失败，返回错误对象err
+            } else {
+                $("#voteA"+itemId).attr('href',data.url);
+            }
+        },false);
+    }
+</script>
+</body>
+</html>

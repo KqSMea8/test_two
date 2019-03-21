@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title></title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<!--<link href="https://weui.io/weui.css" rel="stylesheet" type="text/css">-->
+	<link href="/Public/wechat/c/storeBinding.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		.weui-cell{
+			padding: 0.8rem 0.5rem;
+		}
+	</style>
+</head>
+<body style="background:#f8f5f6;">
+<div class="weui-cells">
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>门店名称：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.name}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>门店地址：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.location_address}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>详细地址：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.stores_address}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>负责人：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.link_person}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>联系电话：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.link_phone}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>所属物业：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.tenement_name}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>所属街道：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.street_name}</div>
+	</div>
+	<div class="weui-cell">
+		<div class="weui-cell__bd">
+			<p>所属辖区：</p>
+		</div>
+		<div class="weui-cell__ft">{$storeInfo.popedom_name}</div>
+	</div>
+</div>
+<input type="hidden" id="store_id" value="{$storeInfo.store_id}">
+<input type="hidden" id="new_member_id" value="{$storeInfo.new_member_id}">
+<input type="hidden" id="member_id" value="{$storeInfo.member_id}">
+<div class="centerBtnWarp twoBtn" style="position: fixed;bottom: -0.5rem;">
+	<a href="javascript:;" onclick="disagreeBindStore()" class="centerBtn fl">不同意</a>
+	<a href="javascript:;" onclick="agreeBindStore()" class="centerBtn fr">同意</a>
+</div>
+</body>
+</html>
+<script>
+	function agreeBindStore(){
+		weui.confirm('您好，您同意后，对方将绑定成功，您将与该门店自动解绑！', function (){
+			var postData = {
+				store_id:$("#store_id").val(),
+				member_id:$("#member_id").val(),
+				new_member_id:$("#new_member_id").val(),
+				is_agree:1
+			};
+			var loading = weui.loading('正在解绑门店');
+			$.post("{:U('Wechat/bindstore/isAgreeBindStore')}",postData,function(res){
+				loading.hide();
+				if(res.status == 1){
+					doubleClick = false;
+					weui.alert(res.msg, function() {
+						WeixinJSBridge.call('closeWindow');
+					},2000);
+				}else{
+					doubleClick = false;
+					if(res.msg){
+						weui.alert(res.msg);
+					}
+					weui.alert('门店绑定失败，请刷新再试！');
+				}
+			},'json');
+		});
+	}
+	function disagreeBindStore(){
+		var loading = weui.loading('正在通知对方');
+		var postData = {
+			store_id:$("#store_id").val(),
+			member_id:$("#member_id").val(),
+			new_member_id:$("#new_member_id").val(),
+			is_agree:0
+		};
+		$.post("{:U('Wechat/bindstore/isAgreeBindStore')}",postData,function(res){
+			loading.hide();
+			if(res.status == 1){
+				doubleClick = false;
+				weui.alert(res.msg, function() {
+					WeixinJSBridge.call('closeWindow');
+				});
+			}else{
+				doubleClick = false;
+				if(res.msg){
+					weui.alert(res.msg);
+				}
+			}
+		},'json');
+	}
+</script>

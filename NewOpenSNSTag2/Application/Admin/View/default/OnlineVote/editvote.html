@@ -1,0 +1,486 @@
+<extend name="Public/base"/>
+<link href="__ZUI__/css/zui.css" rel="stylesheet">
+<link href="__ZUI__/css/zui-theme.css" rel="stylesheet">
+<link href="__PUBLIC__/css/core.css" rel="stylesheet"/>
+<link type="text/css" rel="stylesheet" href="__PUBLIC__/js/ext/magnific/magnific-popup.css"/>
+<include file="Public/head"/>
+<block name="style">
+	<link href="Application/Event/Static/css/event.css" rel="stylesheet" type="text/css"/>
+	<link href="__ZUI__/lib/datetimepicker/datetimepicker.min.css" rel="stylesheet" type="text/css">
+</block>
+<block name="body">
+    <div id="frm-post-popup " class="white-popup1 boxShadowBorder col-xs-12" >
+        <style>
+            .messager{left: 45%}
+        </style>
+        <div>
+            <div class="row">
+                <div style="padding: 0 10px;width: 840px;float: left;">
+                    <form method="post" class="form-horizontal" action="{:U('voteDoPost')}" >
+                        <input type="hidden" name="id" id="id" value="{$content.voteId}"/>
+                        <div class="form-group has-feedback">
+                            <label for="title" class="control-label">奖项标题</label>
+
+                            <div class="col-xs-10">
+                                <input  name="awardsTitle" class="form-control form_check" check-type="Text" value="{$content.awardsTitle}" maxlength="30" placeholder="限制30字" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <label for="type" class="control-label">所属活动</label>
+                            <div class="col-xs-5">
+                                <select id="eventType" name="eventType" class="form-control ">
+                                    <volist name="eventData" id="data">
+                                        <if condition="$data.id eq $eventiid">
+                                            <option value="{$data.id}" selected>
+                                                {$data.title}
+                                            </option>
+                                        <else/>
+                                            <option value="{$data.id}">
+                                                {$data.title}
+                                            </option>
+                                        </if>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <label for="type" class="control-label">每人投票次数限制</label>
+                                <div class="col-xs-5">
+                                    <select id="type" name="type" class="form-control ">
+                                        <volist name="select" id="top">
+                                            <if condition="$content.type eq $i">
+                                                <option value="{$i}" selected>
+                                                    {$top}
+                                                </option>
+                                            <else/>
+                                                <option value="{$i}">
+                                                    {$top}
+                                                </option>
+                                            </if>
+                                        </volist>
+                                    </select>
+                                </div>
+                        </div>
+
+                        <div class="form-group  has-feedback">
+                            <label for="limitPerTime" class="control-label">每人每次票数限制</label>
+                            <div class="col-xs-10">
+                                <input id="limitPerTime" name="limitPerTime" class="form-control " check-type="Num"  value="{$content.limitPerTime}" placeholder="{:L('_NUMBER_LIMIT_')}"  />
+                            </div>
+                        </div>
+
+                        <!--<div class="form-group has-feedback">-->
+                            <!--<label for="deadline" class="control-label">投票截止时间</label>-->
+
+                            <!--<div class="col-xs-10">-->
+                                <!--<input id="deadline" name="deadline" class="time form-control form_check" check-type="Text" value="{:date('Y-m-d H:i',$content['deadline'])}" placeholder="{:L('_DEADLINE_REGISTRATION_')}"/>-->
+                            <!--</div>-->
+                        <!--</div>-->
+
+                        <div class="form-group">
+                            <label for="rule" class="control-label">投票规则说明</label>
+
+                            <div class="col-xs-10">
+                                <textarea name="rule" class="form-control">{$content.rule}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">候选名单</label>
+
+                            <div class="col-xs-10">
+                                <input id="js_addstu_btn" type="button" class="btn" value="新增" style="margin-left:10px;"/>
+
+                            </div>
+                        </div>
+
+                        <div id="js_stu_tb">
+
+                            <!--判断候选数据是否存在-->
+                            <!--<if condition="empty($eventVoteItem) eq true">-->
+                                <div id="js_stuinfo_tby">
+                                    <div>
+                                        <div class="form-group">
+                                            <label for="" class="control-label">企业或个人名称：</label>
+                                            <div class="col-xs-5">
+                                                <input type="text" name="itemName1" class="form-control form_check" maxlength="8" placeholder="限制8字" value=""/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="" class="control-label">入围理由：</label>
+
+                                            <div class="col-xs-10">
+                                                <textarea name="itemReason1" class="form-control "maxlength="100" placeholder="限制100字"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="" class="control-label">排序：</label>
+
+                                            <div class="col-xs-5">
+                                                <input type="text" name="sort1" class="form-control form_check" value="999"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="" class="control-label">候选介绍：</label>
+
+                                            <div class="col-xs-5">
+                                                <input type="text" name="itemDesc1" class="form-control form_check" maxlength="20" placeholder="限制20字" value=""/>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="" class="control-label">图片上传：</label>
+
+                                            <div class="col-xs-5">
+                                                <input type="file" id="itemPicture1" name="itemPicture1">
+                                                <div id ="itemShow1" style="margin-top: 20px;width: 250px"></div>
+                                                <input type="hidden" name="pictureValue1" id="pictureValue1" value=""/>
+                                            </div>
+                                        </div>
+
+                                        <div class="op" align="center">
+                                            <input class="js_studel_btn" type="button" value="删除"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            <!--</if>-->
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-xs-2" style="margin-left: 50px;">
+                                <button type="submit" class="btn ajax-post btn-primary " target-form="form-horizontal" href="{:U('Event/Index/doPost')}" style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;">{:L('_SUBMIT_')}
+                                </button>
+
+                            </div>
+                            <div class="col-xs-8">
+                                <input type="button" class="btn btn-default" style="padding: 5px 20px 5px 32px;letter-spacing: 12px;font-size: 14px;" onclick="javascript:history.back(-1);"value="返回">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="__PUBLIC__/js/jquery.min.js"></script>
+    <script type="text/javascript" src="__STATIC__/uploadify/jquery.uploadify.min.js"></script>
+    <link href="__ROOT__/Application/Core/Static/css/form_check.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="__ROOT__/Application/Core/Static/js/form_check.js"></script>
+    <script type="text/javascript" src="__ZUI__/lib/datetimepicker/datetimepicker.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="__STATIC__/ueditor/ueditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="__STATIC__/ueditor/ueditor.all.min.js"></script>
+    <script>
+        var i = 2;
+        var tb = $("#js_stu_tb");
+        $(document).ready(function(){
+
+            //获取候选数据
+            var eventVoteItem = {$eventVoteItem};
+            //拼接候选数据
+            if(!$.isEmptyObject(eventVoteItem)){
+
+                CreatEventVoteItem(eventVoteItem);
+            }
+
+            //添加信息
+            $("#js_addstu_btn").click(function(){
+
+                //生成Html相关代码
+                var newTr = cloneHtml(i);
+                $(tb).append(newTr);
+
+                //生成Js上传图片的代码
+                createPhoto(i);
+
+                //生成入围理由
+                htmlReason(i,'');
+                i++;
+            });
+
+            //删除信息
+            $(".js_studel_btn",tb).die('click').live('click',function(){
+
+                $(this).parent().parent().remove();
+            });
+
+        });
+
+        //删除候选数据
+        function delItemData(itemId){
+//            console.log(itemId);
+            $.post("{:U('OnlineVote/delItemDataForItemId')}", {itemId:itemId}, function(res){
+                console.log(res);
+            });
+        }
+
+        function CreatEventVoteItem(vData){
+            var html='';
+            for(var data in vData){
+
+                html +='<div id="js_hide_tby">';
+                html +='<div class="form-group">';
+                html +='<label for="" class="control-label">企业或个人名称：</label>';
+                html +='<div class="col-xs-5">';
+                html +='<input type="hidden" name="itemId'+i+'" class="form-control form_check" value="'+vData[data].id+'"/>';
+                html +='<input type="text" name="itemName'+i+'" class="form-control form_check" maxlength="8" placeholder="限制8字" value="'+vData[data].name+'"/>';
+                html +='</div>';
+                html +='</div>';
+                html +='<div class="form-group">';
+                html +='<label for="" class="control-label">入围理由：</label>';
+                html +='<div class="col-xs-10" id="reason'+i+'">';
+                html +='</div>';
+                html +='</div>';
+                html +='<div class="form-group">';
+                html +='<label for="" class="control-label">排序：</label>';
+                html +='<div class="col-xs-5">';
+                html +='<input type="text" name="sort'+i+'" class="form-control form_check"  value="'+vData[data].sort+'"/>';
+                html +='</div>';
+                html +='</div>';
+                html +='<div class="form-group">';
+                html +='<label for="" class="control-label">候选介绍：</label>';
+                html +='<div class="col-xs-5">';
+                html +='<input type="text" name="itemDesc'+i+'" class="form-control form_check" maxlength="20" placeholder="限制20字" value="'+vData[data].description+'"/>';
+                html +='</div>';
+                html +='</div>';
+                html +='<div class="form-group">';
+                html +='<label for="" class="control-label">图片上传：</label>';
+                html +='<div class="col-xs-5">';
+                html +='<input type="file" id="itemPicture'+i+'" name="itemPicture'+i+'">';
+                html +='<div style="margin-top: 20px;width: 250px" id ="itemShow'+i+'">';
+                html +='<img src="http://image.lz517.com/catering'+vData[data].imgUrl+'">';
+                html +='</div>';
+                html +='<input type="hidden" name="pictureValue'+i+'" id="pictureValue'+i+'" value="'+vData[data].picture_id+'"/>';
+                html +='</div>';
+                html +='</div>';
+                if(i!=2){
+                    html +='<div class="op" align="center">';
+                    html +='<input class="js_studel_btn" onclick="delItemData('+vData[data].id+')" type="button" value="删除"/>';
+                    html +='</div>';
+                }
+                html +='</div>';
+
+                $(tb).append(html);
+                html='';
+
+                //生成Js上传图片的代码
+                createPhoto(i);
+
+                //生成入围理由
+                htmlReason(i,vData[data].reason);
+
+                i++;
+            }
+        }
+
+        function cloneHtml(i){
+            var hhtml='';
+            hhtml +='<div id="js_hide_tby">';
+            hhtml +='<div class="form-group">';
+            hhtml +='<label for="" class="control-label">企业或个人名称：</label>';
+            hhtml +='<div class="col-xs-5">';
+            hhtml +='<input type="text" name="itemName'+i+'" class="form-control form_check" maxlength="8" placeholder="限制8字" value=""/>';
+            hhtml +='</div>';
+            hhtml +='</div>';
+            hhtml +='<div class="form-group">';
+            hhtml +='<label for="" class="control-label">入围理由：</label>';
+            hhtml +='<div class="col-xs-10" id="reason'+i+'">';
+            hhtml +='</div>';
+            hhtml +='</div>';
+            hhtml +='<div class="form-group">';
+            hhtml +='<label for="" class="control-label">排序：</label>';
+            hhtml +='<div class="col-xs-5">';
+            hhtml +='<input type="text" name="sort'+i+'" class="form-control form_check"  value="999"/>';
+            hhtml +='</div>';
+            hhtml +='</div>';
+            hhtml +='<div class="form-group">';
+            hhtml +='<label for="" class="control-label">候选介绍：</label>';
+            hhtml +='<div class="col-xs-5">';
+            hhtml +='<input type="text" name="itemDesc'+i+'" class="form-control form_check" maxlength="20" placeholder="限制20字" value=""/>';
+            hhtml +='</div>';
+            hhtml +='</div>';
+            hhtml +='<div class="form-group">';
+            hhtml +='<label for="" class="control-label">图片上传：</label>';
+            hhtml +='<div class="col-xs-5">';
+            hhtml +='<input type="file" id="itemPicture'+i+'" name="itemPicture'+i+'">';
+            hhtml +='<div style="margin-top: 20px;width: 250px" id ="itemShow'+i+'">';
+            hhtml +='</div>';
+            hhtml +='<input type="hidden" name="pictureValue'+i+'" id="pictureValue'+i+'" value=""/>';
+            hhtml +='</div>';
+            hhtml +='</div>';
+            hhtml +='<div class="op" align="center">';
+            hhtml +='<input class="js_studel_btn" type="button" value="删除"/>';
+            hhtml +='</div>';
+            hhtml +='</div>';
+            return hhtml;
+        }
+    </script>
+
+    <script>
+        //生成上传图片代码
+        function createPhoto(i) {
+            $("#itemPicture"+i+"").uploadify({
+                "height": 30,
+                "swf": "__STATIC__/uploadify/uploadify.swf",
+                "fileObjName": "download",
+                "buttonText": "浏览图片",
+                "buttonClass": "uploadcover",
+                "uploader": "{:U('Core/File/uploadPicture',array('session_id'=>session_id()))}",
+                "width": 250,
+                'removeTimeout': 1,
+                'fileTypeExts': '*.jpg; *.png; *.gif;',
+                "onUploadSuccess": uploadPictureNew,
+                'overrideEvents': ['onUploadProgress', 'onUploadComplete', 'onUploadStart', 'onSelect'],
+                'onFallback': function () {
+                    alert("{:L('_NOT_DETECTED_')}");
+                }, 'onUploadProgress': function (file, bytesUploaded, bytesTotal, totalBytesUploaded, totalBytesTotal) {
+                    $("#pictureValue"+i+"").parent().find("#itemShow"+i+"").html('正在上传中...');
+                }, 'onUploadComplete': function (file) {
+                    //alert('The file ' + file.name + ' finished processing.');
+                }, 'onUploadStart': function (file) {
+                    //alert('Starting to upload ' + file.name);
+                }, 'onQueueComplete': function (queueData) {
+                    // alert(queueData.uploadsSuccessful + ' files were successfully uploaded.');
+                }
+            });
+            function uploadPictureNew(file, data) {
+                var data = $.parseJSON(data);
+                var src = '';
+                if (data.status) {
+                    $("#pictureValue"+i+"").val(data.id);
+                    src = data.url || data.path
+                    $("#itemShow"+i+"").html(
+                            '<div class="upload-pre-item"><img src="http://image.lz517.com/catering' + src + '"/></div>'
+                    );
+                } else {
+                    toast.error('{:L("_UPLOAD_FAIL_")}', '{:L("_TIP_GENTLE_")}');
+                }
+            }
+        }
+    </script>
+
+
+    <script>
+        $("#itemPicture1").uploadify({
+            "height": 30,
+            "swf": "__STATIC__/uploadify/uploadify.swf",
+            "fileObjName": "download",
+            "buttonText": "浏览图片",
+            "buttonClass": "uploadcover",
+            "uploader": "{:U('Core/File/uploadPicture',array('session_id'=>session_id()))}",
+            "width": 250,
+            'removeTimeout': 1,
+            'fileTypeExts': '*.jpg; *.png; *.gif;',
+            "onUploadSuccess": uploadPicturecoverNew,
+            'overrideEvents': ['onUploadProgress', 'onUploadComplete', 'onUploadStart', 'onSelect'],
+            'onFallback': function () {
+                alert("{:L('_NOT_DETECTED_')}");
+            }, 'onUploadProgress': function (file, bytesUploaded, bytesTotal, totalBytesUploaded, totalBytesTotal) {
+                $("#pictureValue1").parent().find('#itemShow1').html('正在上传中...');
+            }, 'onUploadComplete': function (file) {
+                //alert('The file ' + file.name + ' finished processing.');
+            }, 'onUploadStart': function (file) {
+                //alert('Starting to upload ' + file.name);
+            }, 'onQueueComplete': function (queueData) {
+                // alert(queueData.uploadsSuccessful + ' files were successfully uploaded.');
+            }
+        });
+        function uploadPicturecoverNew(file, data) {
+            var data = $.parseJSON(data);
+            var src = '';
+            if (data.status) {
+                $("#pictureValue1").val(data.id);
+                src = data.url || data.path
+                $('#itemShow1').html(
+                        '<div class="upload-pre-item"><img src="http://image.lz517.com/catering' + src + '"/></div>'
+                );
+            } else {
+                toast.error('{:L("_UPLOAD_FAIL_")}', '{:L("_TIP_GENTLE_")}');
+            }
+        }
+    </script>
+
+
+    <!--封面上传图片js-->
+    <script>
+        $("#upload_picture_cover").uploadify({
+            "height": 30,
+            "swf": "__STATIC__/uploadify/uploadify.swf",
+            "fileObjName": "download",
+            "buttonText": "{:L('_UPLOAD_COVER_')}",
+            "buttonClass": "uploadcover",
+            "uploader": "{:U('Core/File/uploadPicture',array('session_id'=>session_id()))}",
+            "width": 250,
+            'removeTimeout': 1,
+            'fileTypeExts': '*.jpg; *.png; *.gif;',
+            "onUploadSuccess": uploadPicturecover,
+            'overrideEvents': ['onUploadProgress', 'onUploadComplete', 'onUploadStart', 'onSelect'],
+            'onFallback': function () {
+                alert("{:L('_NOT_DETECTED_')}");
+            }, 'onUploadProgress': function (file, bytesUploaded, bytesTotal, totalBytesUploaded, totalBytesTotal) {
+                $("#cover_id_cover").parent().find('.upload-img-box').html('正在上传中...');
+            }, 'onUploadComplete': function (file) {
+                //alert('The file ' + file.name + ' finished processing.');
+            }, 'onUploadStart': function (file) {
+                //alert('Starting to upload ' + file.name);
+            }, 'onQueueComplete': function (queueData) {
+                // alert(queueData.uploadsSuccessful + ' files were successfully uploaded.');
+            }
+        });
+        function uploadPicturecover(file, data) {
+            var data = $.parseJSON(data);
+            var src = '';
+            if (data.status) {
+                $("#cover_id_cover").val(data.id);
+                src = data.url || data.path
+                $('.upload-img-box').html(
+                        '<div class="upload-pre-item"><img src="http://image.lz517.com/catering' + src + '"/></div>'
+                );
+            } else {
+                toast.error('{:L("_UPLOAD_FAIL_")}', '{:L("_TIP_GENTLE_")}');
+            }
+        }
+
+        $('.time').datetimepicker({
+            language:'zh-CN',
+            weekStart:1,
+            todayBtn:1,
+            autoclose:1,
+            todayHighlight:1,
+            startView:2,
+            minView:0,
+            forceParse:0,
+            format: 'yyyy-mm-dd hh:ii'
+        });
+
+        $('.time_d').datetimepicker({
+            language:'zh-CN',
+            weekStart:1,
+            todayBtn:1,
+            autoclose:1,
+            todayHighlight:1,
+            startView:2,
+            minView:2,
+            forceParse:0,
+            format: 'yyyy-mm-dd'
+        });
+
+    </script>
+
+    <script>
+        //拼接上入围理由
+        function htmlReason(i,reasonData){
+            $.post("{:U('OnlineVote/editor')}", {
+                "id": "myeditor_edit"+i,
+                "name": "itemReason"+i,
+                "default": reasonData,
+                "width": "800px",
+                "height": "200px",
+                "config": "reason"
+            }, function (res) {
+                $("#reason"+i).html(res);
+            });
+        }
+    </script>
+</block>

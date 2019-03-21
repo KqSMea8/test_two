@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>开票信息</title>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body>
+<div class="receiptInfoWarp">
+    <h3 class="title">发票详情</h3>
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">抬头类型:</label></div>
+            <div class="weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div style="font-size: small" class="weui-cell__bd">
+                        <p>企业抬头</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" value="1" checked="checked" class="weui-check" name="head_type">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+            <div class="weui-cells_radio">
+                <label style="font-size: small" class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>个人/非企业单位</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" value="2" class="weui-check" name="head_type">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">增值税类型:</label></div>
+            <div onchange="showOthers()" class="weui-cells_radio">
+                <label class="weui-cell weui-check__label">
+                    <div style="font-size: small" class="weui-cell__bd">
+                        <p>普通发票</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" value="1" checked="checked" class="weui-check" name="tax_ticket_type">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+            <div onchange="showOthers()" class="weui-cells_radio">
+                <label style="font-size: small" class="weui-cell weui-check__label">
+                    <div class="weui-cell__bd">
+                        <p>专用发票</p>
+                    </div>
+                    <div class="weui-cell__ft">
+                        <input type="radio" value="2" class="weui-check" name="tax_ticket_type">
+                        <span class="weui-icon-checked"></span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">发票抬头:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="head" placeholder="企业/个人/非企业单位名称"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">税号:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="tax_number" placeholder="纳税人识别号"/>
+            </div>
+        </div>
+        <div style="display: none;" class="weui-cell showOthers">
+            <div class="weui-cell__hd"><label class="weui-label">地址:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="ticket_address" placeholder="地址，必填"/>
+            </div>
+        </div>
+        <div style="display: none;" class="weui-cell showOthers">
+            <div class="weui-cell__hd"><label class="weui-label">电话:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="number" id="ticket_phone" placeholder="电话，必填"/>
+            </div>
+        </div>
+        <div style="display: none;" class="weui-cell showOthers">
+            <div class="weui-cell__hd"><label class="weui-label">开户行:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="open_bank" placeholder="开户行，必填"/>
+            </div>
+        </div>
+        <div style="display: none;" class="weui-cell showOthers">
+            <div class="weui-cell__hd"><label class="weui-label">账号:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="number" id="account_number" placeholder="账号，必填"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">发票内容:</label></div>
+            <div class="weui-cell__bd">
+                <select class="weui-select" id="content">
+                    <option selected="selected" value="2">服务费</option>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">金额:</label></div>
+            <div class="weui-cell__bd">
+                <p>{$total_money}元</p>
+                <input type="hidden" id="money" value="{$total_money}"/>
+                <input type="hidden" id="order_id" value="{$order_id}"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="spaceLine"></div>
+<div class="receiptInfoWarp">
+    <h3 class="title">收件信息</h3>
+    <div class="weui-cells weui-cells_form">
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">收件人:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="receive_person" placeholder="收件人姓名"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系电话:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="number" id="receive_phone" placeholder="收件人联系方式"/>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">联系地址:</label></div>
+            <div class="weui-cell__bd">
+                <select class="weui-select" id="province" onchange="changeCity()" name="province">
+                    <!--1：商场 2：写字楼 3：美食城 4：底商 5：其他-->
+                    <notempty name="province">
+                        <volist name="province" id="data">
+                            <option value="{$data.id}">{$data.name}</option>
+                        </volist>
+                    </notempty>
+                </select>
+            </div>
+            <div class="weui-cell__bd">
+                <select class="weui-select" id="city" name="city">
+                    <!--1：商场 2：写字楼 3：美食城 4：底商 5：其他-->
+                    <notempty name="city">
+                        <volist name="city" id="data">
+                            <option value="{$data.id}">{$data.name}</option>
+                        </volist>
+                    </notempty>
+                </select>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label">详细地址:</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input" type="text" id="receive_address"  placeholder="详细地址，必填"/>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp"><a href="javascript:;" onclick="submitData()" class="centerBtn">提 交</a></div>
+<script>
+    var doubleClick = false;
+    $(function(){
+        //抬头类型切换
+        $('.receiptType .typeCon div').click(function(){
+            $('.receiptType .typeCon div').removeClass('selected');
+            $(this).addClass('selected');
+        });
+        //选择发票内容
+        $('.selectLi .arrowInputWarp').click(function(){
+            $(this).parents('.subCon').toggleClass('open');
+        });
+        $('.selectLi .selectPopWarp li').click(function(){
+            $(this).parents('.subCon').removeClass('open');
+            $(this).parents('.subCon').find('input').val($(this).text());
+        });
+    });
+    //省市二级联动
+    function changeCity(){
+        var upid = $("#province").val();
+        $.ajax({
+            url: "{:U('Wechat/index/getArea')}",
+            type: 'post',
+            dataType: 'json',
+            data:{upid:upid},
+            success: function (data) {
+                // 先清空第二个
+                $("#city").empty();
+                // 实际的应用中，这里的option一般都是用循环生成多个了
+                var option = "";
+                for(var i in data){
+                    option += "<option value='"+data[i].id+"'>"+data[i].name+"</option>"
+                }
+                $("#city").append(option);
+            }
+        })
+    }
+    function submitData(){
+        var tead_type = $('input[name="head_type"]:checked').val();
+        var tax_ticket_type = $('input[name="tax_ticket_type"]:checked').val();
+        var content = $('#content').val();
+        var money = $('#money').val();
+        var order_id = $('#order_id').val();
+
+        if(!$("#head").val()){
+            weui.alert('请填写发票抬头');
+            $("#head").focus();
+            return false;
+        }
+        if(tax_ticket_type == 2){
+            if(!$("#ticket_address").val()){
+                weui.alert('请填专用发票地址');
+                $("#ticket_address").focus();
+                return false;
+            }
+            if(!$("#ticket_phone").val()){
+                weui.alert('请填专用发票电话');
+                $("#ticket_phone").focus();
+                return false;
+            }
+            if($("#ticket_phone").val().length<7 || $("#ticket_phone").val().length>12){
+                weui.alert('专用发票电话格式不正确');
+                $("#ticket_phone").focus();
+                return false;
+            }
+            if(!$("#open_bank").val()){
+                weui.alert('请填专用发票开户行');
+                $("#open_bank").focus();
+                return false;
+            }
+            if(!$("#account_number").val()){
+                weui.alert('请填专用发票账号');
+                $("#account_number").focus();
+                return false;
+            }
+        }
+        if(!$("#tax_number").val()){
+            weui.alert('请填写税号');
+            $("#tax_number").focus();
+            return false;
+        }
+        if(!$("#receive_person").val()){
+            weui.alert('请填写收件人');
+            $("#receive_person").focus();
+            return false;
+        }
+        if(!$("#receive_phone").val()){
+            weui.alert('请填写联系方式');
+            $("#receive_phone").focus();
+            return false;
+        }
+        if($("#receive_phone").val().length<7 || $("#receive_phone").val().length>11){
+            weui.alert('联系方式不正确');
+            $("#ticket_phone").focus();
+            return false;
+        }
+        if(!$("#receive_address").val()){
+            weui.alert('请填写详细地址');
+            $("#receive_address").focus();
+            return false;
+        }
+        var postData = {
+            head_type:tead_type,
+            head_ticket:$("#head").val(),
+            tax_number:$("#tax_number").val(),
+            ticket_type:content,
+            money:money,
+            receive_person:$("#receive_person").val(),
+            receive_phone:$("#receive_phone").val(),
+            receive_address:$("#receive_address").val(),
+            city_id:$('#city').val(),
+            tax_ticket_type:tax_ticket_type,
+            account_number:$('#account_number').val(),
+            open_bank:$('#open_bank').val(),
+            ticket_phone:$('#ticket_phone').val(),
+            ticket_address:$('#ticket_address').val(),
+            province_id:$('#province').val(),
+            order_id:order_id
+        };
+
+        if(doubleClick){
+            return;
+        }else{
+            doubleClick = true;
+        }
+
+        var loading = weui.loading('正在提交发票申请', {
+            className: 'createInvoice'
+        });
+        $.post("{:U('Wechat/index/createInvoice')}",postData,function(res){
+            loading.hide();
+            if(res.status == 1){
+                weui.toast("提交成功", function() {
+                    window.location.href="{:U('Wechat/index/applyInvoiceSuccess')}";
+                });
+            }else{
+                weui.alert('提交失败，请刷新再试！');
+            }
+        },'json');
+    }
+    function showOthers(){
+        var tax_ticket_type = $('input[name="tax_ticket_type"]:checked').val();
+        if(tax_ticket_type == 1){
+            $(".showOthers").hide();
+        }else{
+            $(".showOthers").show();
+        }
+    }
+</script>
+</body>
+</html>

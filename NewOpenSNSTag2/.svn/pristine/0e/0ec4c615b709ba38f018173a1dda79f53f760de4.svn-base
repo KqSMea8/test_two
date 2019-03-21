@@ -1,0 +1,4 @@
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteRule apple-app-site-association.json [L]
+</IfModule>

@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <title>用户类别选择</title>
+    <link href="/Public/wechat/c/canxun.css?111" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css?222" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+    <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<body style="background:#ffe500;">
+<div class="qiyeTop"></div>
+<div class="qiyeConWarp">
+    <php>if($door_type == 1){</php>
+        <a class="qiyeBtn" href="{:U('Wechat/index/selectEqipmentType')}">
+    <php>}elseif($door_type == 2){</php>
+        <a class="qiyeBtn" href="{:U('Wechat/index/appointmentCleanKill')}">
+    <php>}else{</php>
+        <a class="qiyeBtn" href="{:U('Wechat/index/appointmentCleaning')}">
+    <php>}</php>
+        <h3>立即下单</h3>
+        <!--<p>(平台合作连锁餐厅)</p>-->
+    </a>
+    <a class="qiyeBtn" href="{:U('Wechat/index/inputCompanyStoreCode',array('door_type'=>$door_type))}">
+        <h3>企业版登录</h3>
+        <p>(已申请企业账号)</p>
+    </a>
+
+</div>
+<div style="text-align:center;padding-top:1.4rem;"><a class="qiyeTypeDesc" href="{:U('Wechat/index/userClassDescription')}">下单说明»</a></div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+    <if condition="($type eq 1) ">
+        <title>门店维修</title>
+    <elseif condition="$type eq 2"/>
+        <title>门店消杀</title>
+    <else />
+        <title>烟道清洗</title>
+    </if>
+    <link href="/Public/wechat/c/canxun.css" rel="stylesheet" type="text/css">
+    <link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+    <script src="/Public/wechat/j/jquery.js"></script>
+    <script src="/Public/wechat/j/weui.min.js"></script>
+	  <script>
+        (function(){
+            var html = document.documentElement;
+            var hWidth = html.getBoundingClientRect().width;
+            html.style.fontSize=hWidth/15 + 'px';
+        })()
+    </script>
+</head>
+<style>
+    /*.questionCon .p .img{*/
+        /*width: 100%;*/
+        /*height: 100%;*/
+    /*}*/
+    img{
+        width: 100%;
+        height: 100%;
+    }
+</style>
+<body>
+
+<div class="receiptInfoWarp">
+    <h3 style="text-align: center" class="title">服务须知</h3>
+</div>
+<!--我的积分-积分规则-->
+<div class="questionWarp">
+    <div class="questionWarpCon">
+        <div class="questionOne">
+            <div class="questionCon">{$guide.content}</div>
+        </div>
+    </div>
+</div>
+<div style="height:3.16rem;"></div>
+<div class="centerBtnWarp">
+    <a class="centerBtn" onclick="loadLastPage()">关闭</a></div>
+</div>
+<!--<php>if($type == 1){</php>-->
+<!--<div style="height:5.66rem;padding-top:0.64rem;"></div>-->
+    <!--<div class="centerBtnWarp" style="height:5.66rem;">-->
+        <!--<a href="{:U($url)}" class="centerBtn">预约上门</a>-->
+        <!--<a style="margin-top:0.6rem;background:#494172;color:#ffffff;" href="javascript:;" onclick="connectServer()" class="centerBtn">在线排查</a>-->
+    <!--</div>-->
+<!--<php>}else{</php>-->
+    <!--<div style="height:3.16rem;"></div>-->
+    <!--<div class="centerBtnWarp">-->
+        <!--<a href="{:U($url)}" class="centerBtn">立即预约</a></div>-->
+    <!--</div>-->
+<!--<php>}</php>-->
+</body>
+</html>
+<script>
+    function hideTheDialog(){
+        $("#server").hide()
+    }
+    function connectServer(){
+        $("#server").show()
+    }
+
+    //跳转到上一页
+    function loadLastPage(){
+        history.go(-1);
+    }
+</script>

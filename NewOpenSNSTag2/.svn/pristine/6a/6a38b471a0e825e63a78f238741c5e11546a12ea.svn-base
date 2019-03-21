@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title></title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<!--<link href="https://weui.io/weui.css" rel="stylesheet" type="text/css">-->
+	<link href="/Public/wechat/c/storeBinding.css?123" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+</head>
+<body class="concernsBodyImg">
+<div id="server">
+	<div class="concernsPage">
+		<div style="top: 35%;height: 13rem;" class="concernsWarp">
+			<p class="title">长按识别二维码 进行公众号绑定</p>
+			<p class="tip" style="height: 11rem;">
+				<img style="width: 100%;" src="/Public/images/GZHCS.jpg" />
+			</p>
+		</div>
+	</div>
+	<div class="concernsPageBottom">
+		<p>您好,绑定门店前,需先关注【餐讯网】公众号,各项门店服务才能正常使用,请知悉。</p>
+	</div>
+</div>
+</body>
+</html>

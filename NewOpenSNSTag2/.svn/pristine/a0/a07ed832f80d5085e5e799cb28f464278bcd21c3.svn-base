@@ -1,0 +1,430 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+	<title>信息完善</title>
+	<link href="/Public/wechat/c/weui.min.css" rel="stylesheet" type="text/css">
+	<link href="/Public/wechatInspection/c/polling.css" rel="stylesheet" type="text/css">
+	<script src="/Public/wechat/j/jquery.js"></script>
+	<script src="/Public/wechat/j/jquery.session.js"></script>
+	<script src="/Public/wechat/j/weui.min.js"></script>
+	<script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&key=4D2BZ-MZM3J-JACFM-KU7RM-JHHET-5GFDC"></script>
+	<script>
+		(function(){
+			var html = document.documentElement;
+			var hWidth = html.getBoundingClientRect().width;
+			html.style.fontSize=hWidth/15 + 'px';
+		})()
+	</script>
+	<style>
+		.weui-cells{font-size:16px;}
+		.weui-label{color:#666;}
+		.weui-label {
+			color: unset;
+		}
+		.receiptInfoWarp {
+			margin-bottom: 3.16rem;
+		}
+	</style>
+</head>
+<body>
+<div class="receiptInfoWarp">
+	<php>if($inspection_id){</php>
+		<div class="weui-cells weui-cells_form">
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">预约企业：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="text" id="kacompanyname" value="{$inspectionData.name}" readonly="readonly"/>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">&#12288;联系人：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" value="{$inspectionData.link_person}" type="text" id="linkperson"/>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">联系电话：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" value="{$inspectionData.link_phone}" type="number" id="linkphone" placeholder="座机或手机号"/>
+				</div>
+			</div>
+
+			<div class="appointment-polling-index-color">
+				<div class="polling-list">
+					<div class="weui-cell weui-cell_access" href="javascript:;">
+						<div class="weui-cell__bd">
+							<p>巡检门店：</p>
+						</div>
+						<div class="weui-cell__ft" style="font-size: 0.6rem;color: unset;">已选择1个门店</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">巡检类型：<label style="color: #ff3333">*</label></label></div>
+						<div class="weui-cells_checkbox" style="width: 4rem;">
+							<label class="weui-cell weui-check__label" style="height:26px;">
+								<div class="weui-cell__hd">
+									<input type="radio" class="weui-check" name="urgent_level" value="3" id="s11" checked="checked">
+									<i class="weui-icon-checked"></i>
+								</div>
+								<div class="weui-cell__bd">
+									<p style="font-size: 0.1rem;">单次巡检</p>
+								</div>
+							</label>
+						</div>
+						<div class="weui-cells_checkbox" style="width: 4rem;">
+							<label class="weui-cell weui-check__label" style="height:26px;">
+								<div class="weui-cell__hd">
+									<input type="radio" class="weui-check" name="urgent_level" value="2" id="s12">
+									<i class="weui-icon-checked"></i>
+								</div>
+								<div class="weui-cell__bd">
+									<p style="font-size: 0.1rem;">周期巡检</p>
+								</div>
+							</label>
+						</div>
+					</div>
+					<div class="weui-cell weui-cell_select weui-cell_select-after">
+						<div class="weui-cell__hd">
+							<label for="" class="weui-label">服务次数：</label>
+						</div>
+						<div class="weui-cell__bd">
+							<select class="weui-select" name="select2">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+							</select>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">巡检周期（天）：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value=""/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">服务费用：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value=""/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<a href="javascript:;" class="weui-btn weui-btn_mini weui-btn_primary addButton" onclick="addDiv()">新增</a>
+			<a href="javascript:;" class="weui-btn weui-btn_mini weui-btn_warn delButton hide" id="delId" onclick="delDiv()">删除</a>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">服务起始时间：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="date" value="">
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">服务终止时间：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="date" value="">
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">费用（总价）：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="text" value=""/>
+				</div>
+			</div>
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">付费方式：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" name="select2">
+						<option value="1">年付</option>
+						<option value="2">半年付</option>
+						<option value="3">季付</option>
+					</select>
+				</div>
+			</div>
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">服务商：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" name="select2">
+						<option value="1">服务商1</option>
+						<option value="2">服务商2</option>
+						<option value="3">服务商3</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	<php>}else{</php>
+		<div class="weui-cells weui-cells_form">
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">预约企业：</label></div>
+				<div class="weui-cell__bd">
+					<input type="hidden" id="kacompanyid" value="{$companyData.id}" />
+					<input class="weui-input" type="text" id="kacompanyname" value="{$companyData.name}" readonly="readonly"/>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">&#12288;联系人：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" value="{$companyData.link_person}" type="text" id="linkperson"/>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">联系电话：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" value="{$companyData.link_phone}" type="number" id="linkphone" placeholder="座机或手机号"/>
+				</div>
+			</div>
+
+			<div class="appointment-polling-index-color">
+				<div class="polling-list">
+					<div class="weui-cell weui-cell_access" href="javascript:;">
+						<div class="weui-cell__bd">
+							<p>巡检门店：</p>
+						</div>
+						<div class="weui-cell__ft" style="font-size: 0.6rem;color: unset;">已选择1个门店</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">巡检类型：<label style="color: #ff3333">*</label></label></div>
+						<div class="weui-cells_checkbox" style="width: 4rem;">
+							<label class="weui-cell weui-check__label" style="height:26px;">
+								<div class="weui-cell__hd">
+									<input type="radio" class="weui-check" name="urgent_level" value="3" id="s11" checked="checked">
+									<i class="weui-icon-checked"></i>
+								</div>
+								<div class="weui-cell__bd">
+									<p style="font-size: 0.1rem;">单次巡检</p>
+								</div>
+							</label>
+						</div>
+						<div class="weui-cells_checkbox" style="width: 4rem;">
+							<label class="weui-cell weui-check__label" style="height:26px;">
+								<div class="weui-cell__hd">
+									<input type="radio" class="weui-check" name="urgent_level" value="2" id="s12">
+									<i class="weui-icon-checked"></i>
+								</div>
+								<div class="weui-cell__bd">
+									<p style="font-size: 0.1rem;">周期巡检</p>
+								</div>
+							</label>
+						</div>
+					</div>
+					<div class="weui-cell weui-cell_select weui-cell_select-after">
+						<div class="weui-cell__hd">
+							<label for="" class="weui-label">服务次数：</label>
+						</div>
+						<div class="weui-cell__bd">
+							<select class="weui-select" name="select2">
+								<option value="1">1</option>
+								<option value="2">2</option>
+								<option value="3">3</option>
+							</select>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">巡检周期（天）：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value=""/>
+						</div>
+					</div>
+					<div class="weui-cell">
+						<div class="weui-cell__hd"><label class="weui-label">服务费用：</label></div>
+						<div class="weui-cell__bd">
+							<input class="weui-input" type="text" value=""/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<a href="javascript:;" class="weui-btn weui-btn_mini weui-btn_primary addButton" onclick="addDiv()">新增</a>
+			<a href="javascript:;" class="weui-btn weui-btn_mini weui-btn_warn delButton hide" id="delId" onclick="delDiv()">删除</a>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">服务起始时间：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="date" value="">
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">服务终止时间：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="date" value="">
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd"><label class="weui-label">费用（总价）：</label></div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" type="text" value=""/>
+				</div>
+			</div>
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">付费方式：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" name="select2">
+						<option value="1">年付</option>
+						<option value="2">半年付</option>
+						<option value="3">季付</option>
+					</select>
+				</div>
+			</div>
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">服务商：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select class="weui-select" name="select2">
+						<volist id="falor" name="failcatorData">
+
+							<option value="{$falor.id}">$falor.name</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+		</div>
+	<php>}</php>
+</div>
+<div class="centerBtnWarp twoBtn">
+	<a href="javascript:;" onclick="closeWindow()" class="centerBtn fl">取 消</a>
+	<a href="javascript:;" onclick="createOrder()" class="centerBtn fr">预 约</a>
+</div>
+</body>
+</html>
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<script type="text/javascript">
+
+	//新增操作
+	function addDiv(){
+
+		var pollingLevel = $(".appointment-polling-index-color .polling-list").length;
+
+		var problem="<div class=\"polling-list\">"+
+				"<div class=\"weui-cell weui-cell_access\" href=\"javascript:;\">"+
+				"<div class=\"weui-cell__bd\">"+
+				"<p>巡检门店：</p>"+
+				"</div>"+
+				"<div class=\"weui-cell__ft\">说明文字</div>"+
+				"</div>"+
+				"<div class=\"weui-cell\">"+
+				"<div class=\"weui-cell__hd\"><label class=\"weui-label\">巡检类型：<label style=\"color: #ff3333\">*</label></label></div>"+
+				"<div class=\"weui-cells_checkbox\" style=\"width: 4rem;\">"+
+				"<label class=\"weui-cell weui-check__label\" style=\"height:26px;\">"+
+				"<div class=\"weui-cell__hd\">"+
+				"<input type=\"radio\" class=\"weui-check\" name=\"urgent_level"+pollingLevel+"\" value=\"3\" id=\"s11\" checked=\"checked\">"+
+				"<i class=\"weui-icon-checked\"></i>"+
+				"</div>"+
+				"<div class=\"weui-cell__bd\">"+
+				"<p style=\"font-size: 0.1rem;\">单次巡检</p>"+
+				"</div>"+
+				"</label>"+
+				"</div>"+
+				"<div class=\"weui-cells_checkbox\" style=\"width: 4rem;\">"+
+				"<label class=\"weui-cell weui-check__label\" style=\"height:26px;\">"+
+				"<div class=\"weui-cell__hd\">"+
+				"<input type=\"radio\" class=\"weui-check\" name=\"urgent_level"+pollingLevel+"\" value=\"2\" id=\"s12\">"+
+				"<i class=\"weui-icon-checked\"></i>"+
+				"</div>"+
+				"<div class=\"weui-cell__bd\">"+
+				"<p style=\"font-size: 0.1rem;\">周期巡检</p>"+
+				"</div>"+
+				"</label>"+
+				"</div>"+
+				"</div>"+
+				"<div class=\"weui-cell weui-cell_select weui-cell_select-after\">"+
+				"<div class=\"weui-cell__hd\">"+
+				"<label for=\"\" class=\"weui-label\">服务次数：</label>"+
+				"</div>"+
+				"<div class=\"weui-cell__bd\">"+
+				"<select class=\"weui-select\" name=\"select2\">"+
+				"<option value=\"1\">1</option>"+
+				"<option value=\"2\">2</option>"+
+				"<option value=\"3\">3</option>"+
+				"</select>"+
+				"</div>"+
+				"</div>"+
+				"<div class=\"weui-cell\">"+
+				"<div class=\"weui-cell__hd\"><label class=\"weui-label\">巡检周期（天）：</label></div>"+
+				"<div class=\"weui-cell__bd\">"+
+				"<input class=\"weui-input\" type=\"text\" value=\"\"/>"+
+				"</div>"+
+				"</div>"+
+				"<div class=\"weui-cell\">"+
+				"<div class=\"weui-cell__hd\"><label class=\"weui-label\">服务费用：</label></div>"+
+				"<div class=\"weui-cell__bd\">"+
+				"<input class=\"weui-input\" type=\"text\" value=\"\"/>"+
+				"</div>"+
+				"</div>"+
+				"</div>";
+
+		$(".appointment-polling-index-color").append(problem);
+		$(".appointment-polling-index-color .polling-list").each(function(){
+			var num=$(this).index();
+//            $(this).find(".title em").html(num+1);
+		});
+		if($(".appointment-polling-index-color .polling-list").length>1){
+//            $(".delButton").show();
+			$("#delId").removeClass('hide');
+		}
+	}
+
+	//删除操作
+	function delDiv(){
+		var len=$(".appointment-polling-index-color .polling-list").length;
+		if(len==2){
+			$("#delId").addClass('hide');
+		}
+		$(".appointment-polling-index-color .polling-list:eq("+(len-1)+")").remove();
+	}
+
+
+	/**
+	 * 提交巡检信息
+	 */
+	function createOrder(){
+		//设备必选
+		if(doubleClick){
+			return;
+		}else{
+			doubleClick = true;
+		}
+
+		var loading = weui.loading('正在提交维修订单', {
+			className: 'createOrder'
+		});
+		$.post("{:U('Wechat/index/customerOrderAgain')}",postData,function(res){
+			loading.hide();
+			if(res.status == 1){
+				weui.toast("提交成功", function() {
+					var id = res.data.id;
+					window.location.href="{:U('Wechat/index/showstorerepaireorder/orderId/"+id+"')}";
+				});
+			}else{
+				doubleClick = false;
+				if(res.msg){
+					weui.alert(res.msg);
+				}
+				weui.alert('提交失败，请刷新再试！');
+			}
+		},'json');
+	}
+
+	function closeWindow(){
+		if (window.history && window.history.pushState) {
+			$(window).on('popstate', function () {
+				window.history.pushState('forward', null, '#');
+				window.history.forward(1);
+
+				// 关闭微信浏览器
+				WeixinJSBridge.call('closeWindow');
+			});
+		}
+
+		//在IE中必须得有这两行
+		window.history.pushState('forward', null, '#');
+		window.history.forward(1);
+	}
+</script>
